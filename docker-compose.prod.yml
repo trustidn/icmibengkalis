@@ -1,0 +1,109 @@
+services:
+  # Menyalin aset build (public/build) dari image ke volume bersama, lalu keluar.
+  # Berjalan ulang tiap `up`/`deploy` sehingga volume selalu sinkron dengan image aktif.
+  assets-init:
+    image: ${APP_IMAGE:-icmibengkalis-portal:latest}
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: prod
+    command: sh -c "cp -r /var/www/html/public/build/. /shared/"
+    volumes:
+      - public-build:/shared
+    restart: "no"
+
+  app:
+    image: ${APP_IMAGE:-icmibengkalis-portal:latest}
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: prod
+    restart: unless-stopped
+    env_file: .env.production
+    volumes:
+      - storage-data:/var/www/html/storage/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports: ["80:80"]
+    volumes:
+      - ./docker/nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - public-build:/var/www/html/public/build:ro
+      - storage-data:/var/www/html/storage/app:ro
+    depends_on:
+      app:
+        condition: service_started
+      assets-init:
+        condition: service_completed_successfully
+
+  db:
+    image: mariadb:11
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      MARIADB_DATABASE: ${DB_DATABASE}
+      MARIADB_USER: ${DB_USERNAME}
+      MARIADB_PASSWORD: ${DB_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    # tidak mem-publish port keluar host
+    volumes: [dbdata:/var/lib/mysql]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes: [redisdata:/data]
+
+  # Sengaja HANYA bind ke 127.0.0.1 host — tidak terjangkau dari internet.
+  # Akses dari laptop via SSH tunnel: ssh -L 8080:127.0.0.1:8080 user@server
+  # lalu buka http://localhost:8080 dan login dengan kredensial DB produksi.
+  phpmyadmin:
+    image: phpmyadmin:5
+    restart: unless-stopped
+    ports: ["127.0.0.1:8080:80"]
+    environment:
+      PMA_HOST: db
+      UPLOAD_LIMIT: 64M
+    depends_on:
+      db:
+        condition: service_healthy
+
+  queue:
+    image: ${APP_IMAGE:-icmibengkalis-portal:latest}
+    command: php artisan queue:work --tries=3 --timeout=120 --sleep=1
+    restart: unless-stopped
+    env_file: .env.production
+    volumes:
+      - storage-data:/var/www/html/storage/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+
+  scheduler:
+    image: ${APP_IMAGE:-icmibengkalis-portal:latest}
+    command: sh -c "while true; do php artisan schedule:run --no-interaction; sleep 60; done"
+    restart: unless-stopped
+    env_file: .env.production
+    volumes:
+      - storage-data:/var/www/html/storage/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  dbdata:
+  redisdata:
+  storage-data:
+  public-build:

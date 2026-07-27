@@ -1,0 +1,90 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Livewire\Admin\Organization\AssignmentForm;
+use App\Livewire\Admin\Organization\Periods;
+use App\Livewire\Admin\Organization\UnitTree;
+use App\Models\Member;
+use App\Models\OrgPeriod;
+use App\Models\OrgUnit;
+use App\Models\User;
+use App\Services\Organization\OrgChartService;
+use Database\Seeders\RolePermissionSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+class OrganizationTest extends TestCase
+{
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(RolePermissionSeeder::class);
+    }
+
+    public function test_admin_bisa_membuat_periode_unit_dan_penugasan(): void
+    {
+        $admin = User::factory()->create();
+        $admin->givePermissionTo(['organization.view', 'organization.manage']);
+
+        Livewire::actingAs($admin)
+            ->test(Periods::class)
+            ->set('name', '2025-2030')
+            ->set('starts_at', '2025-01-01')
+            ->set('ends_at', '2030-01-01')
+            ->call('create')
+            ->assertHasNoErrors();
+
+        $period = OrgPeriod::first();
+        $this->assertNotNull($period);
+
+        Livewire::actingAs($admin)
+            ->test(UnitTree::class, ['period' => $period])
+            ->set('name', 'Bidang Ekonomi')
+            ->call('addUnit')
+            ->assertHasNoErrors();
+
+        $unit = OrgUnit::first();
+        $member = Member::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(AssignmentForm::class, ['unit' => $unit])
+            ->set('member_id', $member->id)
+            ->set('position_title', 'Ketua Bidang')
+            ->call('addAssignment')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('org_assignments', [
+            'org_unit_id' => $unit->id,
+            'member_id' => $member->id,
+            'position_title' => 'Ketua Bidang',
+        ]);
+    }
+
+    public function test_salin_struktur_ke_periode_baru(): void
+    {
+        $from = OrgPeriod::factory()->create();
+        $to = OrgPeriod::factory()->create();
+        $parent = OrgUnit::factory()->create(['org_period_id' => $from->id, 'name' => 'Induk']);
+        OrgUnit::factory()->create(['org_period_id' => $from->id, 'parent_id' => $parent->id, 'name' => 'Anak']);
+
+        app(OrgChartService::class)->copyStructureToNewPeriod($from, $to);
+
+        $this->assertDatabaseHas('org_units', ['org_period_id' => $to->id, 'name' => 'Induk']);
+        $this->assertDatabaseHas('org_units', ['org_period_id' => $to->id, 'name' => 'Anak']);
+        $this->assertSame(2, OrgUnit::where('org_period_id', $to->id)->count());
+    }
+
+    public function test_user_tanpa_permission_ditolak_akses_organisasi(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)
+            ->get(route('admin.organization.periods'))
+            ->assertForbidden();
+    }
+}

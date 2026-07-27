@@ -1,0 +1,286 @@
+@import 'tailwindcss';
+@import '../../vendor/livewire/flux/dist/flux.css';
+@import 'quill/dist/quill.snow.css';
+
+@source "../views";
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
+@source '../../vendor/livewire/flux/stubs/**/*.blade.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Hanken Grotesk', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-zinc-50: #fafafa;
+    --color-zinc-100: #f5f5f5;
+    --color-zinc-200: #e5e5e5;
+    --color-zinc-300: #d4d4d4;
+    --color-zinc-400: #a3a3a3;
+    --color-zinc-500: #737373;
+    --color-zinc-600: #525252;
+    --color-zinc-700: #404040;
+    --color-zinc-800: #262626;
+    --color-zinc-900: #171717;
+    --color-zinc-950: #0a0a0a;
+
+    --color-accent: var(--color-neutral-800);
+    --color-accent-content: var(--color-neutral-800);
+    --color-accent-foreground: var(--color-white);
+
+    /* Design system portal publik — palet "ICMI" (lihat docs/11 untuk sumber mockup) */
+    --color-tertiary-fixed-dim: #bbc6e2;
+    --color-primary-fixed-dim: #aad45d;
+    --color-background: #f8f9fa;
+    --color-surface-variant: #e1e3e4;
+    --color-surface-container-highest: #e1e3e4;
+    --color-surface: #f8f9fa;
+    --color-on-surface-variant: #444939;
+    --color-inverse-primary: #aad45d;
+    --color-on-secondary-fixed-variant: #574500;
+    --color-outline: #747967;
+    --color-on-secondary: #ffffff;
+    --color-primary: #486800;
+    --color-inverse-on-surface: #f0f1f2;
+    --color-on-primary-fixed-variant: #364e00;
+    --color-inverse-surface: #2e3132;
+    --color-surface-tint: #486800;
+    --color-on-primary: #ffffff;
+    --color-tertiary-container: #aab5d0;
+    --color-outline-variant: #c4c9b4;
+    --color-on-primary-fixed: #131f00;
+    --color-on-tertiary: #ffffff;
+    --color-on-tertiary-fixed-variant: #3c475d;
+    --color-on-error: #ffffff;
+    --color-tertiary: #545e76;
+    --color-secondary-fixed: #ffe088;
+    --color-secondary: #735c00;
+    --color-surface-dim: #d9dadb;
+    --color-surface-container-high: #e7e8e9;
+    --color-error-container: #ffdad6;
+    --color-on-tertiary-fixed: #101b30;
+    --color-on-surface: #191c1d;
+    --color-tertiary-fixed: #d7e2ff;
+    --color-on-background: #191c1d;
+    --color-on-error-container: #93000a;
+    --color-on-secondary-container: #745c00;
+    --color-error: #ba1a1a;
+    --color-primary-container: #99c24d;
+    --color-surface-container-lowest: #ffffff;
+    --color-surface-container-low: #f3f4f5;
+    --color-surface-bright: #f8f9fa;
+    --color-secondary-fixed-dim: #e9c349;
+    --color-primary-fixed: #c6f176;
+    --color-on-secondary-fixed: #241a00;
+    --color-surface-container: #edeeef;
+    --color-secondary-container: #fed65b;
+    --color-on-tertiary-container: #3c475d;
+    --color-on-primary-container: #354e00;
+
+    --radius: 0.125rem;
+    --radius-lg: 0.25rem;
+    --radius-xl: 0.5rem;
+    --radius-full: 0.75rem;
+
+    --spacing-margin-mobile: 16px;
+    --spacing-container-max: 1200px;
+    --spacing-gutter: 24px;
+    --spacing-unit: 8px;
+    --spacing-margin-desktop: 48px;
+
+    --font-display-lg-mobile: 'Source Serif 4', serif;
+    --font-label-lg: 'Hanken Grotesk', sans-serif;
+    --font-headline-md: 'Source Serif 4', serif;
+    --font-display-lg: 'Source Serif 4', serif;
+    --font-body-lg: 'Hanken Grotesk', sans-serif;
+    --font-body-md: 'Hanken Grotesk', sans-serif;
+    --font-headline-lg: 'Source Serif 4', serif;
+
+    --text-display-lg-mobile: 36px;
+    --text-display-lg-mobile--line-height: 44px;
+    --text-display-lg-mobile--font-weight: 700;
+
+    --text-label-lg: 14px;
+    --text-label-lg--line-height: 20px;
+    --text-label-lg--letter-spacing: 0.05em;
+    --text-label-lg--font-weight: 600;
+
+    --text-headline-md: 24px;
+    --text-headline-md--line-height: 32px;
+    --text-headline-md--font-weight: 600;
+
+    --text-display-lg: 48px;
+    --text-display-lg--line-height: 56px;
+    --text-display-lg--letter-spacing: -0.02em;
+    --text-display-lg--font-weight: 700;
+
+    --text-body-lg: 18px;
+    --text-body-lg--line-height: 28px;
+    --text-body-lg--font-weight: 400;
+
+    --text-body-md: 16px;
+    --text-body-md--line-height: 24px;
+    --text-body-md--font-weight: 400;
+
+    --text-headline-lg: 32px;
+    --text-headline-lg--line-height: 40px;
+    --text-headline-lg--font-weight: 600;
+}
+
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+.hero-pattern {
+    background-color: var(--color-background);
+    background-image: radial-gradient(rgba(153, 194, 77, 0.1) 1px, transparent 1px);
+    background-size: 32px 32px;
+}
+
+/* Bagan struktur organisasi: kotak per unit + garis penghubung antar level.
+   Pola CSS-tree klasik — tiap <li> menggambar rel horizontal (separuh kiri via ::before,
+   separuh kanan via ::after) plus garis vertikal turun ke kotaknya (border-left ::after);
+   <ul> anak menggambar garis vertikal turun dari kotak induknya (::before). */
+.org-tree,
+.org-tree ul {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+}
+
+.org-tree ul {
+    padding-top: 1.5rem;
+}
+
+.org-tree ul::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 1.5rem;
+    border-left: 1.5px solid var(--color-outline-variant);
+}
+
+.org-tree li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 0.75rem 0;
+}
+
+.org-tree li::before,
+.org-tree li::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 1.5rem;
+    width: 50%;
+}
+
+.org-tree li::before {
+    right: 50%;
+    border-top: 1.5px solid var(--color-outline-variant);
+}
+
+.org-tree li::after {
+    left: 50%;
+    border-top: 1.5px solid var(--color-outline-variant);
+    border-left: 1.5px solid var(--color-outline-variant);
+}
+
+.org-tree li:first-child::before {
+    border-top: none;
+}
+
+.org-tree li:last-child::after {
+    border-top: none;
+}
+
+/* Unit akar: tanpa konektor ke atas. */
+.org-tree > li {
+    padding-top: 0;
+}
+
+.org-tree > li::before,
+.org-tree > li::after {
+    display: none;
+}
+
+.text-glow {
+    text-shadow: 0 4px 12px rgba(153, 194, 77, 0.1);
+}
+
+.section-padding {
+    padding-top: 120px;
+    padding-bottom: 120px;
+}
+
+@media (max-width: 768px) {
+    .section-padding {
+        padding-top: 80px;
+        padding-bottom: 80px;
+    }
+}
+
+.card-shadow {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+}
+
+.card-shadow-hover:hover {
+    box-shadow: 0 20px 40px -4px rgba(0, 0, 0, 0.08), 0 8px 16px -2px rgba(0, 0, 0, 0.04);
+}
+
+.glass-nav {
+    background: rgba(255, 255, 255, 0.7);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    backdrop-filter: blur(20px) saturate(180%);
+}
+
+@layer theme {
+    .dark {
+        --color-accent: var(--color-white);
+        --color-accent-content: var(--color-white);
+        --color-accent-foreground: var(--color-neutral-800);
+    }
+}
+
+@layer base {
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentColor);
+    }
+}
+
+[data-flux-field] {
+    @apply grid gap-2;
+}
+
+[data-flux-label] {
+    @apply  !mb-0 !leading-tight;
+}
+
+input:focus[data-flux-control],
+textarea:focus[data-flux-control],
+select:focus[data-flux-control] {
+    @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+}
+
+/* \[:where(&)\]:size-4 {
+    @apply size-4;
+} */
