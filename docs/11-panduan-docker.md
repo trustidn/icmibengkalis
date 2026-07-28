@@ -97,7 +97,7 @@ make prod-install
 
 **Kredensial Flux Pro**: `livewire/flux-pro` butuh login `composer.fluxui.dev`. Saat pertama kali `make prod-install`/`prod-build`/`prod-deploy` atau `./deploy.sh` dijalankan, bila `auth.json` belum ada Anda akan **ditanya interaktif** (email akun Flux + license key, input key tersembunyi) — file `auth.json` dibuat otomatis (chmod 600, di-gitignore). Kredensial disuplai ke build image sebagai **BuildKit secret** (`build.secrets` di compose), TIDAK tersimpan di layer image. Alternatif tanpa prompt: salin dari mesin lain (`scp auth.json user@server:/path/repo/`) atau `composer config --auth http-basic.composer.fluxui.dev <email> <license-key>`. Sesi non-interaktif (CI) tanpa `auth.json` gagal dengan pesan jelas.
 
-`make prod-install` melakukan semuanya: isi `APP_KEY` otomatis bila masih kosong (via `make prod-key`, memakai container `php:8.3-cli` — tanpa perlu PHP di host), menolak jalan bila `DB_PASSWORD` masih nilai contoh, lalu build image → up → `migrate --force` → cache config/route/view/event → seeder RBAC.
+`make prod-install` melakukan semuanya: isi `APP_KEY` otomatis bila masih kosong (via `make prod-key`, memakai container `php:8.3-cli` — tanpa perlu PHP di host), menolak jalan bila `DB_PASSWORD` masih nilai contoh, lalu build image → up → `migrate --force` → cache config/route/view/event → `db:seed --force` (data fondasi: RBAC, kecamatan, halaman statis, bidang keahlian, pengaturan situs — konten demo otomatis DILEWATI karena `APP_ENV=production`).
 
 Setelah selesai, buat akun Super Admin pertama (lihat [docs/10-panduan-teknis.md](10-panduan-teknis.md) untuk cara membuat user + assign role), aktifkan 2FA.
 

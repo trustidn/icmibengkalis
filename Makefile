@@ -130,7 +130,7 @@ prod-install: guard-prod-env ensure-auth-json prod-key ## Instalasi awal produks
 	$(PROD) up -d
 	$(PROD) exec app php artisan migrate --force
 	$(PROD) exec app sh -c "php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan event:cache"
-	$(PROD) exec app php artisan db:seed --class=RolePermissionSeeder --force
+	$(PROD) exec app php artisan db:seed --force
 	@echo "Instalasi produksi selesai. Langkah berikutnya: buat akun Super Admin (lihat docs/10-panduan-teknis.md) dan aktifkan 2FA."
 
 prod-seed-rbac: ## Jalankan RolePermissionSeeder produksi (idempoten; ulangi setelah menambah permission)
