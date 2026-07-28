@@ -139,6 +139,8 @@ ssh -L 8080:127.0.0.1:8080 user@server-produksi
 make prod-cache            # bangun ulang cache config/route/view/event
 make prod-cache-clear      # optimize:clear (hapus semua cache)
 make prod-seed-rbac        # ulangi seeder RBAC setelah menambah permission
+make prod-seed-demo        # isi data demo lengkap (set DEMO_SEED=true, rebuild, seed) —
+                           # akun demo superadmin@demo.test/password, WAJIB dibereskan saat go-live
 make prod-restart
 make prod-down          # matikan seluruh stack produksi
 ```
