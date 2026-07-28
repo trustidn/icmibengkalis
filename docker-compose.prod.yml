@@ -8,6 +8,10 @@ services:
       dockerfile: docker/php/Dockerfile
       target: prod
       secrets: [composer_auth]
+    # Image berjalan sebagai www-data, tapi volume public-build yang baru dibuat
+    # di-mount root-owned (mount point /shared tidak ada di image, tak ada copy-up)
+    # -> cp Permission denied. Salin sebagai root; nginx membaca volume ini read-only.
+    user: root
     command: sh -c "cp -r /var/www/html/public/build/. /shared/"
     volumes:
       - public-build:/shared
