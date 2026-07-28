@@ -23,6 +23,10 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->appendToGroup('web', EnsureUserIsActive::class);
+
+        // Di produksi app berada di belakang proxy/CDN yang menangani TLS —
+        // percayai header X-Forwarded-* agar Laravel tahu request aslinya HTTPS.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
