@@ -12,7 +12,10 @@ services:
     # di-mount root-owned (mount point /shared tidak ada di image, tak ada copy-up)
     # -> cp Permission denied. Salin sebagai root; nginx membaca volume ini read-only.
     user: root
-    command: sh -c "cp -r /var/www/html/public/build/. /shared/"
+    # Salin SELURUH public/ (bukan hanya build/): nginx tidak berbagi kode dengan app,
+    # sehingga butuh index.php (agar try_files/index bekerja — tanpa ini root URL 403),
+    # favicon.ico, dan robots.txt di filesystem-nya sendiri.
+    command: sh -c "cp -r /var/www/html/public/. /shared/"
     volumes:
       - public-build:/shared
     restart: "no"
@@ -40,7 +43,7 @@ services:
     ports: ["80:80"]
     volumes:
       - ./docker/nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
-      - public-build:/var/www/html/public/build:ro
+      - public-build:/var/www/html/public:ro
       - storage-data:/var/www/html/storage/app:ro
     depends_on:
       app:
