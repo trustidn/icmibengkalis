@@ -60,6 +60,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+      # Inisialisasi pertama MariaDB (buat datadir + user) di server lambat bisa >60 dtk;
+      # probe gagal selama start_period tidak dihitung agar `up` tidak menyerah duluan.
+      start_period: 120s
 
   redis:
     image: redis:7-alpine
