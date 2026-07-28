@@ -89,15 +89,13 @@ Dijalankan langsung di VPS lewat `docker compose`, tanpa registry eksternal (ima
 ```bash
 git clone <url-repo> icmibengkalis
 cd icmibengkalis
-# auth.json (kredensial Flux Pro) di-gitignore — salin manual dari mesin dev, sekali saja:
-#   (dari mesin dev)  scp auth.json user@server:/path/ke/icmibengkalis/
 make prod-env          # salin .env.production dari template (tidak menimpa yang sudah ada)
 nano .env.production   # WAJIB isi: DB_PASSWORD, DB_ROOT_PASSWORD, APP_URL, MAIL_*,
                         # dan nilai lain sesuai domain produksi (APP_KEY BOLEH dibiarkan kosong)
 make prod-install
 ```
 
-`auth.json` disuplai ke build image sebagai **BuildKit secret** (`build.secrets` di compose) — dipakai `composer install` untuk mengunduh `livewire/flux-pro`, dan TIDAK tersimpan di layer image. `make prod-install`/`prod-build`/`prod-deploy` dan `deploy.sh` menolak jalan dengan pesan jelas bila `auth.json` belum ada.
+**Kredensial Flux Pro**: `livewire/flux-pro` butuh login `composer.fluxui.dev`. Saat pertama kali `make prod-install`/`prod-build`/`prod-deploy` atau `./deploy.sh` dijalankan, bila `auth.json` belum ada Anda akan **ditanya interaktif** (email akun Flux + license key, input key tersembunyi) — file `auth.json` dibuat otomatis (chmod 600, di-gitignore). Kredensial disuplai ke build image sebagai **BuildKit secret** (`build.secrets` di compose), TIDAK tersimpan di layer image. Alternatif tanpa prompt: salin dari mesin lain (`scp auth.json user@server:/path/repo/`) atau `composer config --auth http-basic.composer.fluxui.dev <email> <license-key>`. Sesi non-interaktif (CI) tanpa `auth.json` gagal dengan pesan jelas.
 
 `make prod-install` melakukan semuanya: isi `APP_KEY` otomatis bila masih kosong (via `make prod-key`, memakai container `php:8.3-cli` — tanpa perlu PHP di host), menolak jalan bila `DB_PASSWORD` masih nilai contoh, lalu build image → up → `migrate --force` → cache config/route/view/event → seeder RBAC.
 
@@ -160,7 +158,7 @@ Lihat [docs/09 §9.7](09-deployment-docker.md#97-checklist-go-live) — checklis
 
 ### 11.3.6 Troubleshooting produksi
 
-- **Build gagal `composer install` HTTP 401 di `flux-pro`** (`The 'https://composer.fluxui.dev/...' URL required authentication`): `auth.json` belum ada di root repo server (file ini di-gitignore, harus disalin manual dari mesin dev — lihat §11.3.1). Pastikan juga Docker versi modern (BuildKit aktif) karena kredensial disuplai via `build.secrets`.
+- **Build gagal `composer install` HTTP 401 di `flux-pro`** (`The 'https://composer.fluxui.dev/...' URL required authentication`): `auth.json` belum ada / kredensialnya salah. Jalankan ulang lewat `make prod-install`/`prod-build`/`prod-deploy` atau `./deploy.sh` dari terminal interaktif — Anda akan diminta email + license key Flux dan `auth.json` dibuat otomatis (lihat §11.3.1). Bila kredensial salah ketik, hapus `auth.json` lalu jalankan ulang agar ditanya lagi. Pastikan juga Docker versi modern (BuildKit aktif) karena kredensial disuplai via `build.secrets`.
 - **`nginx` gagal start / 502**: cek `make prod-logs s=app` — servis `assets-init` harus selesai (`service_completed_successfully`) sebelum nginx boleh start; cek `docker compose -f docker-compose.prod.yml ps assets-init`.
 - **Variabel `${DB_DATABASE}` dsb. kosong saat `docker compose config`**: gunakan flag `--env-file .env.production` (sudah otomatis lewat `make prod-*`/`deploy.sh` — jangan panggil `docker compose -f docker-compose.prod.yml ...` manual tanpa flag ini).
 - **Upload/dokumen hilang setelah redeploy**: pastikan tidak menjalankan `docker compose down -v` di produksi — flag `-v` menghapus volume `storage-data`/`dbdata` (data permanen). Cukup `make prod-down` (tanpa `-v`) untuk mematikan tanpa menghapus data.

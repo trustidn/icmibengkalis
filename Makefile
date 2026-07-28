@@ -8,7 +8,7 @@ PROD := docker compose --env-file .env.production -f docker-compose.prod.yml
 .PHONY: help \
 	env up down restart build ps logs shell db-shell redis-cli \
 	install key fresh migrate seed test pint npm artisan composer \
-	guard-prod-env prod-env prod-key prod-install prod-seed-rbac \
+	guard-prod-env ensure-auth-json prod-env prod-key prod-install prod-seed-rbac \
 	prod-build prod-up prod-down prod-restart prod-logs prod-ps prod-shell \
 	prod-migrate prod-artisan prod-cache prod-cache-clear \
 	prod-db-shell prod-db-backup prod-deploy prod-release-check
@@ -47,7 +47,7 @@ db-shell: ## Masuk MySQL client di container db (dev)
 redis-cli: ## Buka redis-cli (dev)
 	$(DEV) exec redis redis-cli
 
-install: env up ## Instalasi awal dev: .env, up, dependency, key, migrate+seed
+install: env ensure-auth-json up ## Instalasi awal dev: .env, up, dependency, key, migrate+seed
 	$(DEV) exec app composer install
 	$(DEV) exec app php artisan key:generate
 	$(DEV) exec app php artisan migrate --seed
@@ -86,10 +86,22 @@ composer: ## make composer cmd="require pkg/name" (dev)
 guard-prod-env:
 	@test -f .env.production || { echo "Error: .env.production belum ada. Jalankan: make prod-env"; exit 1; }
 
-# Guard internal: build image produksi butuh kredensial Flux Pro (auth.json, di-gitignore).
-guard-auth-json:
-	@test -f auth.json || { echo "Error: auth.json (kredensial Flux Pro) tidak ditemukan — composer install akan gagal 401."; \
-		echo "Salin dari mesin dev: scp auth.json user@server:$$(pwd)/"; exit 1; }
+# Guard internal: pastikan kredensial Flux Pro (auth.json, di-gitignore) ada.
+# Bila belum ada dan terminal interaktif, tanya email + license key lalu buat otomatis.
+ensure-auth-json:
+	@if [ -f auth.json ]; then :; \
+	elif [ -t 0 ]; then \
+		echo "Kredensial Flux Pro dibutuhkan untuk mengunduh livewire/flux-pro (composer.fluxui.dev)."; \
+		printf "Email akun Flux: "; read email; \
+		printf "License key (input tersembunyi): "; stty -echo; read key; stty echo; echo; \
+		printf '{\n    "http-basic": {\n        "composer.fluxui.dev": {\n            "username": "%s",\n            "password": "%s"\n        }\n    }\n}\n' "$$email" "$$key" > auth.json; \
+		chmod 600 auth.json; \
+		echo "auth.json dibuat (di-gitignore, tidak akan ter-commit)."; \
+	else \
+		echo "Error: auth.json (kredensial Flux Pro) tidak ditemukan dan sesi non-interaktif."; \
+		echo "Buat manual: composer config --auth http-basic.composer.fluxui.dev <email> <license-key>"; \
+		echo "atau salin dari mesin lain: scp auth.json user@server:$$(pwd)/"; exit 1; \
+	fi
 
 prod-env: ## Salin .env.production.example -> .env.production (bila belum ada)
 	@if [ -f .env.production ]; then \
@@ -110,7 +122,7 @@ prod-key: guard-prod-env ## Generate & isi APP_KEY di .env.production (hanya bil
 		echo "APP_KEY dibuat & disimpan di .env.production."; \
 	fi
 
-prod-install: guard-prod-env guard-auth-json prod-key ## Instalasi awal produksi: build, up, migrate, cache, seed RBAC
+prod-install: guard-prod-env ensure-auth-json prod-key ## Instalasi awal produksi: build, up, migrate, cache, seed RBAC
 	@if grep -qE '^DB_PASSWORD=change-me$$' .env.production; then \
 		echo "Error: DB_PASSWORD masih nilai contoh ('change-me') — edit .env.production dulu."; exit 1; \
 	fi
@@ -124,7 +136,7 @@ prod-install: guard-prod-env guard-auth-json prod-key ## Instalasi awal produksi
 prod-seed-rbac: ## Jalankan RolePermissionSeeder produksi (idempoten; ulangi setelah menambah permission)
 	$(PROD) exec app php artisan db:seed --class=RolePermissionSeeder --force
 
-prod-build: guard-auth-json ## Build image produksi (target prod)
+prod-build: ensure-auth-json ## Build image produksi (target prod)
 	$(PROD) build
 
 prod-up: ## Nyalakan stack produksi
@@ -166,7 +178,7 @@ prod-db-backup: guard-prod-env ## Dump database produksi -> backups/icmi-<timest
 	$(PROD) exec -T db sh -c 'mariadb-dump -u root -p"$$MARIADB_ROOT_PASSWORD" --single-transaction "$$MARIADB_DATABASE"' | gzip > "$$FILE" && \
 	echo "Backup tersimpan: $$FILE"
 
-prod-deploy: guard-auth-json ## Build, up, migrate, cache config (rilis penuh)
+prod-deploy: ensure-auth-json ## Build, up, migrate, cache config (rilis penuh)
 	$(PROD) pull --ignore-pull-failures || true
 	$(PROD) build
 	$(PROD) up -d
