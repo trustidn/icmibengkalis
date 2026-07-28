@@ -8,7 +8,7 @@ PROD := docker compose --env-file .env.production -f docker-compose.prod.yml
 .PHONY: help \
 	env up down restart build ps logs shell db-shell redis-cli \
 	install key fresh migrate seed test pint npm artisan composer \
-	guard-prod-env ensure-auth-json prod-env prod-key prod-install prod-seed-rbac \
+	guard-prod-env ensure-auth-json prod-env prod-key prod-install prod-seed-rbac prod-seed-demo \
 	prod-build prod-up prod-down prod-restart prod-logs prod-ps prod-shell \
 	prod-migrate prod-artisan prod-cache prod-cache-clear \
 	prod-db-shell prod-db-backup prod-deploy prod-release-check
@@ -135,6 +135,20 @@ prod-install: guard-prod-env ensure-auth-json prod-key ## Instalasi awal produks
 
 prod-seed-rbac: ## Jalankan RolePermissionSeeder produksi (idempoten; ulangi setelah menambah permission)
 	$(PROD) exec app php artisan db:seed --class=RolePermissionSeeder --force
+
+prod-seed-demo: guard-prod-env ## Isi data demo di produksi (set DEMO_SEED=true, up ulang, seed penuh)
+	@grep -qE '^DEMO_SEED=true$$' .env.production || { \
+		if grep -qE '^DEMO_SEED=' .env.production; then \
+			sed -i.bak 's/^DEMO_SEED=.*/DEMO_SEED=true/' .env.production && rm -f .env.production.bak; \
+		else \
+			printf '\nDEMO_SEED=true\n' >> .env.production; \
+		fi; \
+		echo "DEMO_SEED=true diset di .env.production"; }
+	$(PROD) build
+	$(PROD) up -d
+	$(PROD) exec app php artisan config:cache
+	$(PROD) exec app php artisan db:seed --force
+	@echo "Data demo terisi. Akun demo: superadmin@demo.test / password — GANTI/HAPUS sebelum go-live sungguhan."
 
 prod-build: ensure-auth-json ## Build image produksi (target prod)
 	$(PROD) build

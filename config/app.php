@@ -30,6 +30,20 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Demo Seed
+    |--------------------------------------------------------------------------
+    |
+    | Bila true, DatabaseSeeder ikut mengisi data demo (akun superadmin demo,
+    | anggota, artikel, galeri) di environment APAPUN — dipakai untuk deploy
+    | demo/staging. WAJIB false saat go-live sungguhan. Dibaca via config()
+    | (bukan env()) agar tetap bekerja saat config sudah di-cache.
+    |
+    */
+
+    'demo_seed' => (bool) env('DEMO_SEED', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Debug Mode
     |--------------------------------------------------------------------------
     |

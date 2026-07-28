@@ -17,7 +17,9 @@ class DatabaseSeeder extends Seeder
             SiteSettingSeeder::class,
         ]);
 
-        if (app()->environment('local')) {
+        // Data demo: selalu di local; di environment lain hanya bila DEMO_SEED=true
+        // (config('app.demo_seed') — via config, bukan env(), agar aman saat config:cache).
+        if (app()->environment('local') || config('app.demo_seed')) {
             User::firstOrCreate(
                 ['email' => 'superadmin@demo.test'],
                 ['name' => 'Super Admin', 'password' => 'password', 'email_verified_at' => now()],
