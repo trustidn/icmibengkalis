@@ -29,7 +29,10 @@ CMD ["php-fpm"]
 # ---------- vendor ----------
 FROM base AS vendor
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --no-scripts --no-autoloader --no-interaction --prefer-dist
+# Kredensial Flux Pro (auth.json) di-mount sebagai BuildKit secret — tersedia hanya
+# selama RUN ini, TIDAK tersimpan di layer image. Suplai via build.secrets di compose.
+RUN --mount=type=secret,id=composer_auth,target=/var/www/html/auth.json \
+    composer install --no-dev --no-scripts --no-autoloader --no-interaction --prefer-dist
 
 # ---------- assets ----------
 # Butuh vendor/ karena resources/css/app.css meng-import vendor/livewire/flux/dist/flux.css

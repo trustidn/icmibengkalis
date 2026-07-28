@@ -86,6 +86,11 @@ composer: ## make composer cmd="require pkg/name" (dev)
 guard-prod-env:
 	@test -f .env.production || { echo "Error: .env.production belum ada. Jalankan: make prod-env"; exit 1; }
 
+# Guard internal: build image produksi butuh kredensial Flux Pro (auth.json, di-gitignore).
+guard-auth-json:
+	@test -f auth.json || { echo "Error: auth.json (kredensial Flux Pro) tidak ditemukan — composer install akan gagal 401."; \
+		echo "Salin dari mesin dev: scp auth.json user@server:$$(pwd)/"; exit 1; }
+
 prod-env: ## Salin .env.production.example -> .env.production (bila belum ada)
 	@if [ -f .env.production ]; then \
 		echo ".env.production sudah ada — tidak ditimpa."; \
@@ -105,7 +110,7 @@ prod-key: guard-prod-env ## Generate & isi APP_KEY di .env.production (hanya bil
 		echo "APP_KEY dibuat & disimpan di .env.production."; \
 	fi
 
-prod-install: guard-prod-env prod-key ## Instalasi awal produksi: build, up, migrate, cache, seed RBAC
+prod-install: guard-prod-env guard-auth-json prod-key ## Instalasi awal produksi: build, up, migrate, cache, seed RBAC
 	@if grep -qE '^DB_PASSWORD=change-me$$' .env.production; then \
 		echo "Error: DB_PASSWORD masih nilai contoh ('change-me') — edit .env.production dulu."; exit 1; \
 	fi
@@ -119,7 +124,7 @@ prod-install: guard-prod-env prod-key ## Instalasi awal produksi: build, up, mig
 prod-seed-rbac: ## Jalankan RolePermissionSeeder produksi (idempoten; ulangi setelah menambah permission)
 	$(PROD) exec app php artisan db:seed --class=RolePermissionSeeder --force
 
-prod-build: ## Build image produksi (target prod)
+prod-build: guard-auth-json ## Build image produksi (target prod)
 	$(PROD) build
 
 prod-up: ## Nyalakan stack produksi
@@ -161,7 +166,7 @@ prod-db-backup: guard-prod-env ## Dump database produksi -> backups/icmi-<timest
 	$(PROD) exec -T db sh -c 'mariadb-dump -u root -p"$$MARIADB_ROOT_PASSWORD" --single-transaction "$$MARIADB_DATABASE"' | gzip > "$$FILE" && \
 	echo "Backup tersimpan: $$FILE"
 
-prod-deploy: ## Build, up, migrate, cache config (rilis penuh)
+prod-deploy: guard-auth-json ## Build, up, migrate, cache config (rilis penuh)
 	$(PROD) pull --ignore-pull-failures || true
 	$(PROD) build
 	$(PROD) up -d

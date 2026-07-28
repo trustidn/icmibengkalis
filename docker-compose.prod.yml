@@ -7,6 +7,7 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
       target: prod
+      secrets: [composer_auth]
     command: sh -c "cp -r /var/www/html/public/build/. /shared/"
     volumes:
       - public-build:/shared
@@ -18,6 +19,7 @@ services:
       context: .
       dockerfile: docker/php/Dockerfile
       target: prod
+      secrets: [composer_auth]
     restart: unless-stopped
     env_file: .env.production
     volumes:
@@ -107,3 +109,9 @@ volumes:
   redisdata:
   storage-data:
   public-build:
+
+# auth.json (gitignore) berisi kredensial Flux Pro — salin manual ke server sekali:
+#   scp auth.json user@server:/path/repo/
+secrets:
+  composer_auth:
+    file: ./auth.json
