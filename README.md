@@ -17,6 +17,7 @@ Portal resmi Ikatan Cendekiawan Muslim se-Indonesia (ICMI) Organisasi Daerah Kab
 | 9 | [Deployment Docker Compose](docs/09-deployment-docker.md) | Strategi & topologi deployment dev & produksi |
 | 10 | [Panduan Teknis Pengembang](docs/10-panduan-teknis.md) | Konvensi kode, cara menambah modul, testing |
 | 11 | [Panduan Menjalankan Docker](docs/11-panduan-docker.md) | Langkah praktis dari nol: setup, perintah harian, troubleshooting |
+| 12 | [Naskah Presentasi Portal](docs/12-naskah-presentasi.md) | Naskah demo fitur lengkap untuk pengurus/anggota/tamu + contekan tanya-jawab |
 
 ## Ringkasan Teknologi
 
