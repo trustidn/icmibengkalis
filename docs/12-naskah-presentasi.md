@@ -128,6 +128,7 @@ Wassalamu'alaikum warahmatullahi wabarakatuh.
 
 | Pertanyaan yang mungkin muncul | Jawaban singkat |
 |---|---|
+| Sudah ada media sosial, kenapa masih perlu website? | Sosmed itu menumpang (algoritma & akun dikuasai platform), website itu rumah milik sendiri — data anggota berdaulat. Website = alamat resmi yang tak bisa dipalsukan akun tandingan, perpustakaan yang tak menenggelamkan konten (arsip, struktur per periode), ruang gagasan panjang dengan proses editorial, sekaligus SISTEM organisasi (NIA, direktori kepakaran, arsip berlapis akses) — hal yang mustahil dilakukan sosmed. Keduanya pasangan: sosmed corongnya, portal rumahnya — ibarat pengajian boleh di lapangan, tapi masjid tetap harus berdiri. |
 | Siapa yang mengelola konten? | Pengurus sesuai perannya — tanpa perlu keahlian teknis. |
 | Bagaimana anggota baru terdaftar? | Pendaftaran akun otomatis tercatat sebagai anggota dengan NIA; dapat dinonaktifkan bila keanggotaan sedang ditutup. |
 | Apakah opini anggota langsung tayang? | Tidak — melalui review editor terlebih dahulu (kecuali berita/artikel yang memang diizinkan terbit langsung). |
