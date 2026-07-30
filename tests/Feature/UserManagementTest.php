@@ -45,14 +45,27 @@ class UserManagementTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_admin_web_tidak_bisa_akses_manajemen_user(): void
+    public function test_admin_web_bisa_akses_semua_area_admin(): void
     {
         $adminWeb = User::factory()->create();
         $adminWeb->assignRole('admin-web');
 
-        $this->actingAs($adminWeb)
-            ->get(route('admin.users.index'))
+        foreach (['admin.users.index', 'admin.organization.periods', 'admin.settings.site', 'admin.publishing.index', 'admin.members.index', 'admin.archive.index'] as $route) {
+            $this->actingAs($adminWeb)->get(route($route))->assertOk();
+        }
+    }
+
+    public function test_admin_web_tetap_tidak_bisa_mengubah_akun_super_admin(): void
+    {
+        $adminWeb = User::factory()->create();
+        $adminWeb->assignRole('admin-web');
+
+        Livewire::actingAs($adminWeb)
+            ->test(Index::class)
+            ->call('deleteUser', $this->superAdmin->id)
             ->assertForbidden();
+
+        $this->assertNotNull(User::find($this->superAdmin->id));
     }
 
     public function test_super_admin_bisa_membuat_user_dengan_peran(): void

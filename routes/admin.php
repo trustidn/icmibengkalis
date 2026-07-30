@@ -89,7 +89,7 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->name('admin.')->group(
         ->middleware('can:settings.manage')
         ->name('settings.site');
 
-    // Manajemen user — permission users.manage hanya dimiliki super-admin.
+    // Manajemen user — permission users.manage dimiliki super-admin & admin-web.
     Route::get('pengguna', UsersIndex::class)
         ->middleware('can:users.manage')
         ->name('users.index');

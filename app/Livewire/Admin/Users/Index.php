@@ -10,7 +10,7 @@ use Livewire\WithPagination;
 use Spatie\Permission\Models\Role;
 
 /**
- * Manajemen user untuk admin sistem (permission users.manage — hanya super-admin).
+ * Manajemen user untuk admin sistem (permission users.manage — super-admin & admin-web).
  *
  * Aturan perlindungan (ditegakkan server-side di setiap aksi):
  * - User ber-role super-admin TIDAK bisa diubah role-nya, dinonaktifkan, atau dihapus
