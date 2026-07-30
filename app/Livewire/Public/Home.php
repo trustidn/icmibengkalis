@@ -5,6 +5,7 @@ namespace App\Livewire\Public;
 use App\Services\Agenda\AgendaService;
 use App\Services\Content\AnnouncementService;
 use App\Services\Content\PageService;
+use App\Services\Content\PosterService;
 use App\Services\Gallery\GalleryService;
 use App\Services\Membership\MemberService;
 use App\Services\Organization\OrgChartService;
@@ -22,6 +23,7 @@ class Home extends Component
         PageService $pages,
         MemberService $members,
         OrgChartService $orgChart,
+        PosterService $posters,
     ) {
         $greetingPage = $pages->findBySlug('sambutan-ketua');
 
@@ -31,6 +33,7 @@ class Home extends Component
             'chairman' => $orgChart->chairman(),
             'latestPosts' => collect($publishing->paginatePublished(perPage: 4)->items()),
             'pinnedAnnouncements' => $announcements->active()->where('is_pinned', true)->take(3),
+            'posters' => $posters->active(),
             'upcomingEvents' => $agenda->upcoming(perPage: 3)->items(),
             'latestGalleryItems' => $gallery->latestItems(6),
             'featuredMembers' => $members->randomFeatured(5),

@@ -21,6 +21,7 @@ use App\Livewire\Admin\Professions\Index as ProfessionsIndex;
 use App\Livewire\Admin\Publishing\Form as PublishingForm;
 use App\Livewire\Admin\Publishing\Index as PublishingIndex;
 use App\Livewire\Admin\Publishing\ReviewQueue;
+use App\Livewire\Admin\Posters\Index as PostersIndex;
 use App\Livewire\Admin\Settings\SiteConfig;
 use App\Livewire\Admin\Users\Index as UsersIndex;
 use Illuminate\Support\Facades\Route;
@@ -83,6 +84,11 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->name('admin.')->group(
         Route::get('/kategori', ArchiveCategories::class)->middleware('can:archive.view')->name('categories');
         Route::get('/{document}/kelola', ArchiveForm::class)->middleware('can:archive.update')->name('edit');
     });
+
+    // Poster ucapan beranda — pengelola konten situs.
+    Route::get('poster', PostersIndex::class)
+        ->middleware('can:pages.manage')
+        ->name('posters.index');
 
     // Konfigurasi web — permission settings.manage dimiliki super-admin & admin-web.
     Route::get('konfigurasi', SiteConfig::class)

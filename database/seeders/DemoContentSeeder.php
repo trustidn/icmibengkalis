@@ -13,6 +13,7 @@ use App\Models\Member;
 use App\Models\OrgPeriod;
 use App\Models\OrgUnit;
 use App\Models\Post;
+use App\Models\Poster;
 use App\Models\Profession;
 use App\Models\User;
 use Illuminate\Database\Seeder;
@@ -44,6 +45,21 @@ class DemoContentSeeder extends Seeder
 
         if (Event::count() === 0) {
             Event::factory()->count(2)->create();
+        }
+
+        if (Poster::count() === 0) {
+            $poster = Poster::create([
+                'title' => 'Selamat Hari Jadi Kabupaten Bengkalis',
+                'is_active' => true,
+            ]);
+
+            try {
+                $poster->addMediaFromUrl('https://picsum.photos/seed/icmi-poster-demo/1600/500')
+                    ->usingFileName('poster-demo.jpg')
+                    ->toMediaCollection('image');
+            } catch (\Throwable $e) {
+                // Tanpa internet: poster tanpa gambar tidak dirender di beranda — aman.
+            }
         }
 
         if (Member::count() === 0) {

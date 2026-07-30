@@ -72,6 +72,43 @@
         </div>
     @endif
 
+    {{-- Poster ucapan (hari jadi, hari kemerdekaan, dll.) — dikelola dari admin.
+         Section disembunyikan sepenuhnya bila tidak ada poster yang sedang tayang. --}}
+    @if ($posters->isNotEmpty())
+        <section class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop pt-10 pb-4">
+            @if ($posters->count() === 1)
+                @php $poster = $posters->first(); @endphp
+                @if ($poster->imageUrl())
+                    <div class="rounded-xl overflow-hidden card-shadow border border-outline-variant/20">
+                        @if ($poster->link_url)
+                            <a href="{{ $poster->link_url }}" target="_blank" rel="noopener">
+                                <img src="{{ $poster->imageUrl() }}" alt="{{ $poster->title }}" class="w-full h-auto" />
+                            </a>
+                        @else
+                            <img src="{{ $poster->imageUrl() }}" alt="{{ $poster->title }}" class="w-full h-auto" />
+                        @endif
+                    </div>
+                @endif
+            @else
+                <div class="flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                    @foreach ($posters as $poster)
+                        @if ($poster->imageUrl())
+                            <div wire:key="poster-{{ $poster->id }}" class="snap-center shrink-0 w-[92%] md:w-[85%] rounded-xl overflow-hidden card-shadow border border-outline-variant/20">
+                                @if ($poster->link_url)
+                                    <a href="{{ $poster->link_url }}" target="_blank" rel="noopener">
+                                        <img src="{{ $poster->imageUrl() }}" alt="{{ $poster->title }}" class="w-full h-auto" />
+                                    </a>
+                                @else
+                                    <img src="{{ $poster->imageUrl() }}" alt="{{ $poster->title }}" class="w-full h-auto" />
+                                @endif
+                            </div>
+                        @endif
+                    @endforeach
+                </div>
+            @endif
+        </section>
+    @endif
+
     {{-- Pilar --}}
     <section class="section-padding bg-surface overflow-hidden relative border-y border-outline-variant/20">
         <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop relative z-10">
