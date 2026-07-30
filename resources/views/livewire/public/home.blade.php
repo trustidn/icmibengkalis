@@ -79,7 +79,8 @@
             @if ($posters->count() === 1)
                 @php $poster = $posters->first(); @endphp
                 @if ($poster->imageUrl())
-                    <div class="rounded-xl overflow-hidden card-shadow border border-outline-variant/20">
+                    {{-- Desktop: lebar banner dibatasi maks. 40% lebar layar agar tidak mendominasi --}}
+                    <div class="rounded-xl overflow-hidden card-shadow border border-outline-variant/20 mx-auto lg:max-w-[40vw]">
                         @if ($poster->link_url)
                             <a href="{{ $poster->link_url }}" target="_blank" rel="noopener">
                                 <img src="{{ $poster->imageUrl() }}" alt="{{ $poster->title }}" class="w-full h-auto" />
@@ -90,10 +91,10 @@
                     </div>
                 @endif
             @else
-                <div class="flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <div class="flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [justify-content:safe_center]">
                     @foreach ($posters as $poster)
                         @if ($poster->imageUrl())
-                            <div wire:key="poster-{{ $poster->id }}" class="snap-center shrink-0 w-[92%] md:w-[85%] rounded-xl overflow-hidden card-shadow border border-outline-variant/20">
+                            <div wire:key="poster-{{ $poster->id }}" class="snap-center shrink-0 w-[92%] md:w-[85%] lg:w-[40vw] rounded-xl overflow-hidden card-shadow border border-outline-variant/20">
                                 @if ($poster->link_url)
                                     <a href="{{ $poster->link_url }}" target="_blank" rel="noopener">
                                         <img src="{{ $poster->imageUrl() }}" alt="{{ $poster->title }}" class="w-full h-auto" />
