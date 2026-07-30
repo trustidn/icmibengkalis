@@ -81,6 +81,13 @@ class RolePermissionSeeder extends Seeder
             'announcements.view', 'announcements.manage', 'agenda.view', 'agenda.manage',
         ));
 
+        // Admin pengelola situs web: user yang ditunjuk mengatur halaman statis
+        // dan konfigurasi web (identitas, logo, hero, favicon). TANPA users.manage —
+        // manajemen user tetap eksklusif super-admin.
+        Role::findOrCreate('admin-web')->syncPermissions($find(
+            'pages.manage', 'settings.manage',
+        ));
+
         // Anggota: tanpa permission admin — akses area /akun lewat auth + policy.
         Role::findOrCreate('anggota');
     }

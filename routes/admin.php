@@ -84,7 +84,7 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->name('admin.')->group(
         Route::get('/{document}/kelola', ArchiveForm::class)->middleware('can:archive.update')->name('edit');
     });
 
-    // Konfigurasi web — permission settings.manage hanya dimiliki super-admin.
+    // Konfigurasi web — permission settings.manage dimiliki super-admin & admin-web.
     Route::get('konfigurasi', SiteConfig::class)
         ->middleware('can:settings.manage')
         ->name('settings.site');

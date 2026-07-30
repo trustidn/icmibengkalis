@@ -45,6 +45,16 @@ class UserManagementTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_admin_web_tidak_bisa_akses_manajemen_user(): void
+    {
+        $adminWeb = User::factory()->create();
+        $adminWeb->assignRole('admin-web');
+
+        $this->actingAs($adminWeb)
+            ->get(route('admin.users.index'))
+            ->assertForbidden();
+    }
+
     public function test_super_admin_bisa_membuat_user_dengan_peran(): void
     {
         Livewire::actingAs($this->superAdmin)

@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6 p-6">
     <div>
         <flux:heading size="xl">Konfigurasi Web</flux:heading>
-        <flux:text class="mt-1">Identitas situs, kontak, logo, gambar hero, dan favicon. Hanya dapat diakses Super Admin.</flux:text>
+        <flux:text class="mt-1">Identitas situs, kontak, logo, gambar hero, dan favicon. Dapat diakses Super Admin dan Admin Web.</flux:text>
     </div>
 
     <form wire:submit="save" class="flex flex-col gap-6 lg:flex-row lg:items-start">

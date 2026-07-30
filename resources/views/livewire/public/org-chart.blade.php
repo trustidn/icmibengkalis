@@ -41,7 +41,7 @@
             <h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Daftar Anggota</h2>
             <p class="font-body-md text-on-surface-variant mb-8">Seluruh anggota ICMI Kabupaten Bengkalis, diurutkan berdasarkan jabatan lalu tanggal bergabung.</p>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+            <div class="grid grid-cols-3 gap-4 md:gap-6">
                 @forelse ($members as $member)
                     <x-public.member-link :member="$member" class="block bg-white rounded-xl border border-outline-variant/30 overflow-hidden card-shadow-hover transition-all duration-300">
                         <x-public.member-photo :member="$member" class="aspect-[3/4] w-full" />

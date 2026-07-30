@@ -29,7 +29,7 @@ class OrgChart extends Component
         return view('livewire.public.org-chart', [
             'periods' => OrgPeriod::orderByDesc('starts_at')->get(),
             'units' => $this->periodId ? $orgChart->tree($this->periodId) : collect(),
-            'members' => $members->paginateOrderedByPositionThenJoined($this->getPage()),
+            'members' => $members->paginateOrderedByPositionThenJoined($this->getPage(), perPage: 10),
         ])->layout('components.layouts.public', [
             'metaTitle' => 'Struktur Organisasi — '.config('app.name'),
         ]);

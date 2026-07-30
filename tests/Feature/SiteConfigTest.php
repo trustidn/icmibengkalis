@@ -45,6 +45,20 @@ class SiteConfigTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_admin_web_bisa_membuka_konfigurasi_dan_halaman_statis(): void
+    {
+        $adminWeb = User::factory()->create();
+        $adminWeb->assignRole('admin-web');
+
+        $this->actingAs($adminWeb)
+            ->get('/admin/konfigurasi')
+            ->assertOk();
+
+        $this->actingAs($adminWeb)
+            ->get(route('admin.pages.index'))
+            ->assertOk();
+    }
+
     public function test_guest_dialihkan_ke_login(): void
     {
         $this->get('/admin/konfigurasi')->assertRedirect('/login');
