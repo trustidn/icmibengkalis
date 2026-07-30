@@ -88,6 +88,47 @@ class OrganizationTest extends TestCase
             ->assertForbidden();
     }
 
+    public function test_admin_bisa_mengubah_nama_dan_tahun_periode(): void
+    {
+        $admin = User::factory()->create();
+        $admin->givePermissionTo(['organization.view', 'organization.manage']);
+        $period = OrgPeriod::factory()->create([
+            'name' => '2025-2030',
+            'starts_at' => '2025-01-01',
+            'ends_at' => '2030-01-01',
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(Periods::class)
+            ->call('startEdit', $period->id)
+            ->assertSet('editingName', '2025-2030')
+            ->set('editingName', '2026-2031')
+            ->set('editingStartsAt', '2026-01-01')
+            ->set('editingEndsAt', '2031-01-01')
+            ->call('saveEdit')
+            ->assertHasNoErrors();
+
+        $period->refresh();
+        $this->assertSame('2026-2031', $period->name);
+        $this->assertSame('2026-01-01', $period->starts_at->format('Y-m-d'));
+        $this->assertSame('2031-01-01', $period->ends_at->format('Y-m-d'));
+    }
+
+    public function test_ubah_periode_menolak_tanggal_berakhir_sebelum_mulai(): void
+    {
+        $admin = User::factory()->create();
+        $admin->givePermissionTo(['organization.view', 'organization.manage']);
+        $period = OrgPeriod::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(Periods::class)
+            ->call('startEdit', $period->id)
+            ->set('editingStartsAt', '2030-01-01')
+            ->set('editingEndsAt', '2025-01-01')
+            ->call('saveEdit')
+            ->assertHasErrors('editingEndsAt');
+    }
+
     public function test_admin_bisa_mengganti_nama_unit(): void
     {
         $admin = User::factory()->create();

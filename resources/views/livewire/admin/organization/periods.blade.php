@@ -35,20 +35,37 @@
 
     <div class="mt-6 flex flex-col gap-3">
         @foreach ($periods as $period)
-            <div wire:key="period-{{ $period->id }}" class="flex items-center justify-between rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
-                <div>
-                    <flux:text class="font-semibold">{{ $period->name }}</flux:text>
-                    <flux:text size="sm" class="text-zinc-500">{{ $period->starts_at->format('d/m/Y') }} — {{ $period->ends_at->format('d/m/Y') }}</flux:text>
-                    @if ($period->is_active)
-                        <flux:badge size="sm" class="ml-2">Aktif</flux:badge>
-                    @endif
-                </div>
-                <div class="flex gap-2">
-                    <flux:button :href="route('admin.organization.units', $period)" size="sm" wire:navigate>Kelola Struktur</flux:button>
-                    @unless ($period->is_active)
-                        <flux:button wire:click="activate({{ $period->id }})" size="sm" variant="primary">Jadikan Aktif</flux:button>
-                    @endunless
-                </div>
+            <div wire:key="period-{{ $period->id }}" class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-700">
+                @if ($editingId === $period->id)
+                    <form wire:submit="saveEdit" class="flex flex-col gap-3">
+                        <flux:input label="Nama Periode" wire:model="editingName" />
+                        <div class="grid grid-cols-2 gap-3">
+                            <flux:input type="date" label="Mulai" wire:model="editingStartsAt" />
+                            <flux:input type="date" label="Berakhir" wire:model="editingEndsAt" />
+                        </div>
+                        <div class="flex gap-2">
+                            <flux:button type="submit" variant="primary" size="sm">Simpan</flux:button>
+                            <flux:button type="button" size="sm" wire:click="cancelEdit">Batal</flux:button>
+                        </div>
+                    </form>
+                @else
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <flux:text class="font-semibold">{{ $period->name }}</flux:text>
+                            <flux:text size="sm" class="text-zinc-500">{{ $period->starts_at->format('d/m/Y') }} — {{ $period->ends_at->format('d/m/Y') }}</flux:text>
+                            @if ($period->is_active)
+                                <flux:badge size="sm" class="ml-2">Aktif</flux:badge>
+                            @endif
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <flux:button wire:click="startEdit({{ $period->id }})" size="sm">Ubah Periode</flux:button>
+                            <flux:button :href="route('admin.organization.units', $period)" size="sm" wire:navigate>Kelola Struktur</flux:button>
+                            @unless ($period->is_active)
+                                <flux:button wire:click="activate({{ $period->id }})" size="sm" variant="primary">Jadikan Aktif</flux:button>
+                            @endunless
+                        </div>
+                    </div>
+                @endif
             </div>
         @endforeach
     </div>

@@ -43,6 +43,50 @@ class Periods extends Component
         $orgChart->activate(OrgPeriod::findOrFail($periodId));
     }
 
+    // Ubah nama/tahun periode kepengurusan (inline)
+    public ?int $editingId = null;
+
+    public string $editingName = '';
+
+    public string $editingStartsAt = '';
+
+    public string $editingEndsAt = '';
+
+    public function startEdit(int $periodId): void
+    {
+        $this->authorize('update', OrgPeriod::class);
+
+        $period = OrgPeriod::findOrFail($periodId);
+        $this->editingId = $period->id;
+        $this->editingName = $period->name;
+        $this->editingStartsAt = $period->starts_at->format('Y-m-d');
+        $this->editingEndsAt = $period->ends_at->format('Y-m-d');
+    }
+
+    public function saveEdit(): void
+    {
+        $this->authorize('update', OrgPeriod::class);
+
+        $validated = $this->validate([
+            'editingName' => ['required', 'string', 'max:255'],
+            'editingStartsAt' => ['required', 'date'],
+            'editingEndsAt' => ['required', 'date', 'after:editingStartsAt'],
+        ]);
+
+        OrgPeriod::findOrFail($this->editingId)->update([
+            'name' => $validated['editingName'],
+            'starts_at' => $validated['editingStartsAt'],
+            'ends_at' => $validated['editingEndsAt'],
+        ]);
+
+        $this->reset(['editingId', 'editingName', 'editingStartsAt', 'editingEndsAt']);
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->reset(['editingId', 'editingName', 'editingStartsAt', 'editingEndsAt']);
+    }
+
     public function copyStructure(int $fromId, int $toId, OrgChartService $orgChart): void
     {
         $this->authorize('update', OrgPeriod::class);
