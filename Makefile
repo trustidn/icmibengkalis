@@ -193,7 +193,9 @@ prod-db-backup: guard-prod-env ## Dump database produksi -> backups/icmi-<timest
 	echo "Backup tersimpan: $$FILE"
 
 prod-deploy: ensure-auth-json ## Build, up, migrate, cache config (rilis penuh)
-	$(PROD) pull --ignore-pull-failures || true
+	# Pull hanya image pihak ketiga — image app (icmibengkalis-portal) dibangun lokal,
+	# tidak ada di registry; mem-pull-nya selalu error "repository does not exist".
+	$(PROD) pull db redis nginx phpmyadmin || true
 	$(PROD) build
 	$(PROD) up -d
 	$(PROD) exec app php artisan migrate --force
