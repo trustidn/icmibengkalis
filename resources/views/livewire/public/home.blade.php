@@ -127,7 +127,7 @@
                     @if ($chairman)
                         <div class="absolute inset-x-0 bottom-0 px-6 pb-24 space-y-1">
                             <p class="text-primary-container font-bold tracking-[0.2em] text-label-lg uppercase">{{ $chairman->position_title }} ICMI</p>
-                            <p class="text-white font-headline-md text-[20px] font-bold">{{ $chairman->member->full_name }}</p>
+                            <p class="text-white font-headline-md text-[20px] font-bold">{{ $chairman->displayName() }}</p>
                         </div>
                     @endif
                 </div>
@@ -180,7 +180,7 @@
 
                     @if ($chairman)
                         <div class="border-l-4 border-primary-container pl-5 space-y-1">
-                            <p class="text-white font-headline-md text-[17px] font-bold">{{ $chairman->member->full_name }}</p>
+                            <p class="text-white font-headline-md text-[17px] font-bold">{{ $chairman->displayName() }}</p>
                             <p class="text-white/60 font-label-lg text-label-lg uppercase tracking-widest">
                                 {{ $chairman->position_title }} ICMI Bengkalis {{ $chairman->unit->period->name }}
                             </p>

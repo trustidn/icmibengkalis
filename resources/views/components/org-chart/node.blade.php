@@ -9,7 +9,7 @@
         $needle = mb_strtolower($search);
 
         foreach ($unit->assignments as $assignment) {
-            if (str_contains(mb_strtolower($assignment->member->full_name), $needle)) {
+            if (str_contains(mb_strtolower($assignment->displayName()), $needle)) {
                 return true;
             }
         }
@@ -38,35 +38,39 @@
             @forelse ($unit->assignments as $assignment)
                 <flux:modal.trigger name="assignment-{{ $assignment->id }}">
                     <button type="button" class="group flex flex-col items-center gap-1.5 w-full">
-                        @if ($assignment->member->photoUrl())
-                            <img src="{{ $assignment->member->photoUrl() }}" alt="{{ $assignment->member->full_name }}"
+                        @if ($assignment->member?->photoUrl())
+                            <img src="{{ $assignment->member->photoUrl() }}" alt="{{ $assignment->displayName() }}"
                                  class="w-14 h-14 rounded-full object-cover ring-2 ring-outline-variant/30 group-hover:ring-primary transition-all" />
                         @else
                             <span class="w-14 h-14 rounded-full bg-surface-container-low ring-2 ring-outline-variant/30 group-hover:ring-primary flex items-center justify-center transition-all">
                                 <span class="material-symbols-outlined text-outline text-[26px]">person</span>
                             </span>
                         @endif
-                        <span class="font-headline-md text-[14px] font-bold text-on-surface leading-tight group-hover:text-primary transition-colors">{{ $assignment->member->full_name }}</span>
+                        <span class="font-headline-md text-[14px] font-bold text-on-surface leading-tight group-hover:text-primary transition-colors">{{ $assignment->displayName() }}</span>
                         <span class="font-body-md text-xs text-on-surface-variant leading-tight">{{ $assignment->position_title }}</span>
                     </button>
                 </flux:modal.trigger>
 
                 <flux:modal name="assignment-{{ $assignment->id }}" class="max-w-md">
                     <div class="flex flex-col items-start gap-2">
-                        @if ($assignment->member->photoUrl())
-                            <img src="{{ $assignment->member->photoUrl() }}" alt="{{ $assignment->member->full_name }}" class="w-16 h-16 rounded-full object-cover mb-1" />
+                        @if ($assignment->member?->photoUrl())
+                            <img src="{{ $assignment->member->photoUrl() }}" alt="{{ $assignment->displayName() }}" class="w-16 h-16 rounded-full object-cover mb-1" />
                         @else
                             <x-public.image-placeholder icon="person" class="w-16 h-16 rounded-full mb-1" />
                         @endif
-                        <x-public.member-link :member="$assignment->member" class="hover:text-primary transition-colors w-fit">
-                            <flux:heading size="lg">{{ $assignment->member->full_name }}</flux:heading>
-                        </x-public.member-link>
+                        @if ($assignment->member)
+                            <x-public.member-link :member="$assignment->member" class="hover:text-primary transition-colors w-fit">
+                                <flux:heading size="lg">{{ $assignment->member->full_name }}</flux:heading>
+                            </x-public.member-link>
+                        @else
+                            <flux:heading size="lg">{{ $assignment->displayName() }}</flux:heading>
+                        @endif
                         <flux:text size="sm" class="text-zinc-500">Masa Jabatan {{ $unit->period->name }}</flux:text>
                         <flux:text class="font-medium">{{ $assignment->position_title }} · {{ $unit->name }}</flux:text>
                         @if ($assignment->short_bio)
                             <flux:text class="mt-2">{{ $assignment->short_bio }}</flux:text>
                         @endif
-                        @if ($assignment->member->status === \App\Enums\MemberStatus::Aktif)
+                        @if ($assignment->member?->status === \App\Enums\MemberStatus::Aktif)
                             <flux:button :href="route('profiles.show', $assignment->member->slug ?? $assignment->member->id)" wire:navigate variant="primary" size="sm" class="mt-2 w-fit">
                                 Lihat Profil Lengkap
                             </flux:button>

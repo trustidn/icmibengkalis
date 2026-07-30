@@ -22,6 +22,7 @@ use App\Livewire\Admin\Publishing\Form as PublishingForm;
 use App\Livewire\Admin\Publishing\Index as PublishingIndex;
 use App\Livewire\Admin\Publishing\ReviewQueue;
 use App\Livewire\Admin\Settings\SiteConfig;
+use App\Livewire\Admin\Users\Index as UsersIndex;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->middleware(['auth', 'verified'])->name('admin.')->group(function () {
@@ -87,4 +88,9 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->name('admin.')->group(
     Route::get('konfigurasi', SiteConfig::class)
         ->middleware('can:settings.manage')
         ->name('settings.site');
+
+    // Manajemen user — permission users.manage hanya dimiliki super-admin.
+    Route::get('pengguna', UsersIndex::class)
+        ->middleware('can:users.manage')
+        ->name('users.index');
 });

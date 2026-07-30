@@ -15,6 +15,8 @@ class AssignmentForm extends Component
 
     public ?int $member_id = null;
 
+    public string $external_name = '';
+
     public string $position_title = '';
 
     public string $short_bio = '';
@@ -31,16 +33,27 @@ class AssignmentForm extends Component
     {
         $this->authorize('update', OrgUnit::class);
 
+        // Tepat satu identitas: anggota terdaftar ATAU nama tokoh eksternal
+        // (mis. dewan penasehat dari luar organisasi). Bila anggota dipilih,
+        // nama eksternal diabaikan.
         $validated = $this->validate([
-            'member_id' => ['required', 'exists:members,id'],
+            'member_id' => ['nullable', 'required_without:external_name', 'exists:members,id'],
+            'external_name' => ['nullable', 'required_without:member_id', 'string', 'max:255'],
             'position_title' => ['required', 'string', 'max:255'],
             'short_bio' => ['nullable', 'string'],
             'show_contact' => ['boolean'],
+        ], [
+            'member_id.required_without' => 'Pilih anggota, atau isi nama tokoh eksternal.',
+            'external_name.required_without' => 'Pilih anggota, atau isi nama tokoh eksternal.',
         ]);
+
+        if ($validated['member_id']) {
+            $validated['external_name'] = null;
+        }
 
         $this->unit->assignments()->create($validated);
 
-        $this->reset(['member_id', 'position_title', 'short_bio', 'show_contact']);
+        $this->reset(['member_id', 'external_name', 'position_title', 'short_bio', 'show_contact']);
     }
 
     public function deleteAssignment(int $assignmentId): void

@@ -46,6 +46,37 @@ class UnitTree extends Component
         OrgUnit::where('org_period_id', $this->period->id)->findOrFail($unitId)->delete();
     }
 
+    public ?int $renamingId = null;
+
+    public string $renamingName = '';
+
+    public function startRename(int $unitId): void
+    {
+        $this->authorize('update', OrgUnit::class);
+
+        $unit = OrgUnit::where('org_period_id', $this->period->id)->findOrFail($unitId);
+        $this->renamingId = $unit->id;
+        $this->renamingName = $unit->name;
+    }
+
+    public function saveRename(): void
+    {
+        $this->authorize('update', OrgUnit::class);
+
+        $validated = $this->validate(['renamingName' => ['required', 'string', 'max:255']]);
+
+        OrgUnit::where('org_period_id', $this->period->id)
+            ->findOrFail($this->renamingId)
+            ->update(['name' => $validated['renamingName']]);
+
+        $this->reset(['renamingId', 'renamingName']);
+    }
+
+    public function cancelRename(): void
+    {
+        $this->reset(['renamingId', 'renamingName']);
+    }
+
     public function render()
     {
         return view('livewire.admin.organization.unit-tree', [

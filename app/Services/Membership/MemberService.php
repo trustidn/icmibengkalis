@@ -134,7 +134,10 @@ class MemberService
     {
         foreach ($units as $unit) {
             foreach ($unit->assignments as $assignment) {
-                $rank[$assignment->member_id] ??= count($rank);
+                // Penugasan eksternal (tanpa member) tidak ikut peringkat daftar anggota.
+                if ($assignment->member_id !== null) {
+                    $rank[$assignment->member_id] ??= count($rank);
+                }
             }
 
             $this->walkUnitsForRanking($unit->children, $rank);

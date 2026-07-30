@@ -87,4 +87,73 @@ class OrganizationTest extends TestCase
             ->get(route('admin.organization.periods'))
             ->assertForbidden();
     }
+
+    public function test_admin_bisa_mengganti_nama_unit(): void
+    {
+        $admin = User::factory()->create();
+        $admin->givePermissionTo(['organization.view', 'organization.manage']);
+        $period = OrgPeriod::factory()->create();
+        $unit = OrgUnit::factory()->create(['org_period_id' => $period->id, 'name' => 'Bidang Lama']);
+
+        Livewire::actingAs($admin)
+            ->test(UnitTree::class, ['period' => $period])
+            ->call('startRename', $unit->id)
+            ->assertSet('renamingName', 'Bidang Lama')
+            ->set('renamingName', 'Bidang Ekonomi Syariah')
+            ->call('saveRename')
+            ->assertHasNoErrors();
+
+        $this->assertSame('Bidang Ekonomi Syariah', $unit->fresh()->name);
+    }
+
+    public function test_penugasan_tokoh_eksternal_tanpa_member(): void
+    {
+        $admin = User::factory()->create();
+        $admin->givePermissionTo(['organization.view', 'organization.manage']);
+        $period = OrgPeriod::factory()->create();
+        $unit = OrgUnit::factory()->create(['org_period_id' => $period->id, 'name' => 'Dewan Penasehat']);
+
+        Livewire::actingAs($admin)
+            ->test(AssignmentForm::class, ['unit' => $unit])
+            ->set('external_name', 'Prof. Dr. H. Fulan bin Fulan')
+            ->set('position_title', 'Ketua Dewan Penasehat')
+            ->call('addAssignment')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('org_assignments', [
+            'org_unit_id' => $unit->id,
+            'member_id' => null,
+            'external_name' => 'Prof. Dr. H. Fulan bin Fulan',
+            'position_title' => 'Ketua Dewan Penasehat',
+        ]);
+    }
+
+    public function test_penugasan_tanpa_member_dan_tanpa_nama_eksternal_ditolak(): void
+    {
+        $admin = User::factory()->create();
+        $admin->givePermissionTo(['organization.view', 'organization.manage']);
+        $period = OrgPeriod::factory()->create();
+        $unit = OrgUnit::factory()->create(['org_period_id' => $period->id]);
+
+        Livewire::actingAs($admin)
+            ->test(AssignmentForm::class, ['unit' => $unit])
+            ->set('position_title', 'Penasehat')
+            ->call('addAssignment')
+            ->assertHasErrors(['member_id', 'external_name']);
+    }
+
+    public function test_bagan_publik_menampilkan_tokoh_eksternal(): void
+    {
+        $period = OrgPeriod::factory()->create(['is_active' => true]);
+        $unit = OrgUnit::factory()->create(['org_period_id' => $period->id, 'name' => 'Dewan Penasehat']);
+        $unit->assignments()->create([
+            'external_name' => 'Prof. Dr. H. Fulan bin Fulan',
+            'position_title' => 'Ketua Dewan Penasehat',
+        ]);
+
+        $this->get(route('org-chart.show'))
+            ->assertOk()
+            ->assertSee('Prof. Dr. H. Fulan bin Fulan')
+            ->assertSee('Ketua Dewan Penasehat');
+    }
 }
