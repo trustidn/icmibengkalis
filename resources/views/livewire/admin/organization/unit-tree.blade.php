@@ -15,47 +15,8 @@
     </flux:card>
 
     <div class="mt-6 flex flex-col gap-2">
-        @foreach ($units as $unit)
-            <div wire:key="unit-{{ $unit->id }}">
-                <div class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
-                    @if ($renamingId === $unit->id)
-                        <form wire:submit="saveRename" class="flex flex-1 items-center gap-2">
-                            <flux:input wire:model="renamingName" class="flex-1" autofocus />
-                            <flux:button type="submit" variant="primary" size="sm">Simpan</flux:button>
-                            <flux:button type="button" size="sm" wire:click="cancelRename">Batal</flux:button>
-                        </form>
-                    @else
-                        <flux:text class="font-semibold">{{ $unit->name }}</flux:text>
-                        <div class="flex gap-2">
-                            <flux:button size="sm" wire:click="startRename({{ $unit->id }})">Ganti Nama</flux:button>
-                            <flux:button :href="route('admin.organization.assignments', $unit)" size="sm" wire:navigate>Kelola Penugasan</flux:button>
-                            <x-confirm-delete-button name="confirm-delete-unit-{{ $unit->id }}" wire-click="deleteUnit({{ $unit->id }})" message="Hapus unit ini beserta sub-unit?" />
-                        </div>
-                    @endif
-                </div>
-                @if ($unit->children->isNotEmpty())
-                    <div class="ml-6 mt-2 flex flex-col gap-2">
-                        @foreach ($unit->children as $child)
-                            <div wire:key="unit-{{ $child->id }}" class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
-                                @if ($renamingId === $child->id)
-                                    <form wire:submit="saveRename" class="flex flex-1 items-center gap-2">
-                                        <flux:input wire:model="renamingName" class="flex-1" autofocus />
-                                        <flux:button type="submit" variant="primary" size="sm">Simpan</flux:button>
-                                        <flux:button type="button" size="sm" wire:click="cancelRename">Batal</flux:button>
-                                    </form>
-                                @else
-                                    <flux:text>{{ $child->name }}</flux:text>
-                                    <div class="flex gap-2">
-                                        <flux:button size="sm" wire:click="startRename({{ $child->id }})">Ganti Nama</flux:button>
-                                        <flux:button :href="route('admin.organization.assignments', $child)" size="sm" wire:navigate>Kelola Penugasan</flux:button>
-                                        <x-confirm-delete-button name="confirm-delete-unit-{{ $child->id }}" wire-click="deleteUnit({{ $child->id }})" message="Hapus unit ini?" />
-                                    </div>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
+        @foreach ($unitsByParent->get(0, collect()) as $unit)
+            @include('livewire.admin.organization._unit-row', ['unit' => $unit, 'depth' => 0])
         @endforeach
     </div>
 </div>

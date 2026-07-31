@@ -129,6 +129,38 @@ class OrganizationTest extends TestCase
             ->assertHasErrors('editingEndsAt');
     }
 
+    public function test_halaman_kelola_unit_menampilkan_sub_unit_semua_level(): void
+    {
+        $admin = User::factory()->create();
+        $admin->givePermissionTo(['organization.view', 'organization.manage']);
+        $period = OrgPeriod::factory()->create();
+
+        $level1 = OrgUnit::factory()->create(['org_period_id' => $period->id, 'name' => 'Bidang Ekonomi']);
+        $level2 = OrgUnit::factory()->create(['org_period_id' => $period->id, 'parent_id' => $level1->id, 'name' => 'Sub Bidang UMKM']);
+        $level3 = OrgUnit::factory()->create(['org_period_id' => $period->id, 'parent_id' => $level2->id, 'name' => 'Seksi Pelatihan UMKM']);
+        $level4 = OrgUnit::factory()->create(['org_period_id' => $period->id, 'parent_id' => $level3->id, 'name' => 'Tim Kurikulum Pelatihan']);
+
+        $this->actingAs($admin)
+            ->get(route('admin.organization.units', $period))
+            ->assertOk()
+            ->assertSee('Bidang Ekonomi')
+            ->assertSee('Sub Bidang UMKM')
+            ->assertSee('Seksi Pelatihan UMKM')
+            ->assertSee('Tim Kurikulum Pelatihan');
+    }
+
+    public function test_bagan_publik_menampilkan_sub_unit_level_dalam(): void
+    {
+        $period = OrgPeriod::factory()->create(['is_active' => true]);
+        $level1 = OrgUnit::factory()->create(['org_period_id' => $period->id, 'name' => 'Bidang Ekonomi']);
+        $level2 = OrgUnit::factory()->create(['org_period_id' => $period->id, 'parent_id' => $level1->id, 'name' => 'Sub Bidang UMKM']);
+        $level3 = OrgUnit::factory()->create(['org_period_id' => $period->id, 'parent_id' => $level2->id, 'name' => 'Seksi Pelatihan UMKM']);
+
+        $this->get(route('org-chart.show'))
+            ->assertOk()
+            ->assertSee('Seksi Pelatihan UMKM');
+    }
+
     public function test_admin_bisa_mengganti_nama_unit(): void
     {
         $admin = User::factory()->create();

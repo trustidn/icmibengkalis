@@ -34,9 +34,11 @@ class OrgChartService
 
     public function tree(int $periodId): Collection
     {
+        // Eager load 4 level; level lebih dalam tetap dirender komponen rekursif
+        // via lazy-load (jarang terjadi, hanya sedikit query tambahan).
         return OrgUnit::where('org_period_id', $periodId)
             ->whereNull('parent_id')
-            ->with(['children.children.assignments.member.media', 'assignments.member.media'])
+            ->with(['children.children.children.assignments.member.media', 'assignments.member.media'])
             ->orderBy('sort_order')
             ->get();
     }

@@ -79,9 +79,13 @@ class UnitTree extends Component
 
     public function render()
     {
+        // Seluruh unit dimuat sekali lalu dikelompokkan per induk — view merender
+        // pohon secara REKURSIF (kedalaman bebas), bukan hanya 2 level.
+        $all = $this->period->units()->orderBy('sort_order')->orderBy('id')->get();
+
         return view('livewire.admin.organization.unit-tree', [
-            'units' => $this->period->units()->with('children')->whereNull('parent_id')->orderBy('sort_order')->get(),
-            'allUnits' => $this->period->units()->orderBy('name')->get(),
+            'unitsByParent' => $all->groupBy(fn ($unit) => $unit->parent_id ?? 0),
+            'allUnits' => $all->sortBy('name')->values(),
         ]);
     }
 }
