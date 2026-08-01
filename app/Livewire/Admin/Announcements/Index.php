@@ -60,6 +60,10 @@ class Index extends Component
             'is_pinned' => ['boolean'],
         ]);
 
+        // Tanggal kosong wajib null — MariaDB strict menolak '' untuk kolom DATE/DATETIME.
+        $validated['starts_at'] = $validated['starts_at'] ?: null;
+        $validated['ends_at'] = $validated['ends_at'] ?: null;
+
         if ($this->editingId) {
             $announcement = Announcement::findOrFail($this->editingId);
             $this->authorize('update', $announcement);

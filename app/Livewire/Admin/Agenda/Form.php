@@ -51,6 +51,9 @@ class Form extends Component
             'is_published' => ['boolean'],
         ]);
 
+        // Tanggal kosong wajib null — MariaDB strict menolak '' untuk kolom DATETIME.
+        $validated['ends_at'] = $validated['ends_at'] ?: null;
+
         if ($this->event) {
             $this->authorize('update', $this->event);
             $agenda->update($this->event, $validated);

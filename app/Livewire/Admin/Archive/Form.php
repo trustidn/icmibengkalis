@@ -72,6 +72,9 @@ class Form extends Component
             'document_date' => ['nullable', 'date'],
         ]);
 
+        // Tanggal kosong wajib null — MariaDB strict menolak '' untuk kolom DATE.
+        $validated['document_date'] = $validated['document_date'] ?: null;
+
         if ($this->document) {
             $archive->update($this->document, $validated);
             $this->redirectRoute('admin.archive.index', navigate: true);

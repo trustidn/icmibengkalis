@@ -51,6 +51,26 @@ class MemberProfileTest extends TestCase
         ]);
     }
 
+    public function test_simpan_profil_dengan_field_opsional_kosong_menulis_null_bukan_string_kosong(): void
+    {
+        // Regresi produksi: MariaDB strict menolak '' untuk kolom DATE (birth_date)
+        // sehingga simpan profil (termasuk saat hanya ganti foto) error 500.
+        $user = User::factory()->create();
+        $member = Member::factory()->create(['user_id' => $user->id, 'birth_date' => null, 'gender' => null, 'bio' => null]);
+
+        Livewire::actingAs($user)
+            ->test(ProfileEdit::class)
+            ->set('full_name', 'Profil Minim')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $member->refresh();
+        $this->assertNull($member->birth_date);
+        $this->assertNull($member->getRawOriginal('birth_date'));
+        $this->assertNull($member->getRawOriginal('gender'));
+        $this->assertNull($member->getRawOriginal('bio'));
+    }
+
     public function test_anggota_bisa_mengunggah_foto_profil(): void
     {
         Storage::fake('public');

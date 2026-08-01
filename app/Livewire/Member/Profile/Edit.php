@@ -103,19 +103,21 @@ class Edit extends Component
             'photo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
         ]);
 
+        // Field opsional kosong WAJIB null, bukan string kosong — MariaDB strict mode
+        // menolak '' untuk kolom DATE (birth_date) sehingga simpan profil error 500.
         $members->update($this->member, [
             'full_name' => $validated['full_name'],
-            'title_prefix' => $validated['title_prefix'],
-            'title_suffix' => $validated['title_suffix'],
-            'gender' => $validated['gender'],
-            'birth_place' => $validated['birth_place'],
-            'birth_date' => $validated['birth_date'],
-            'address' => $validated['address'],
+            'title_prefix' => $validated['title_prefix'] ?: null,
+            'title_suffix' => $validated['title_suffix'] ?: null,
+            'gender' => $validated['gender'] ?: null,
+            'birth_place' => $validated['birth_place'] ?: null,
+            'birth_date' => $validated['birth_date'] ?: null,
+            'address' => $validated['address'] ?: null,
             'district_id' => $validated['district_id'],
-            'institution' => $validated['institution'],
-            'profession' => $validated['profession'],
-            'expertise' => $validated['expertise'],
-            'bio' => $validated['bio'],
+            'institution' => $validated['institution'] ?: null,
+            'profession' => $validated['profession'] ?: null,
+            'expertise' => $validated['expertise'] ?: null,
+            'bio' => $validated['bio'] ?: null,
             'social_links' => array_filter([
                 'website' => $validated['website'] ?: null,
                 'whatsapp' => $validated['whatsapp'] ?: null,

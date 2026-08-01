@@ -96,6 +96,12 @@ class Form extends Component
             'show_contact_public' => ['boolean'],
         ]);
 
+        // Field opsional kosong WAJIB null, bukan string kosong — MariaDB strict mode
+        // menolak '' untuk kolom DATE (birth_date/joined_at) -> error 500 saat simpan.
+        foreach (['title_prefix', 'title_suffix', 'gender', 'birth_place', 'birth_date', 'address', 'institution', 'profession', 'expertise', 'joined_at'] as $field) {
+            $validated[$field] = $validated[$field] ?: null;
+        }
+
         if ($this->member) {
             $members->update($this->member, $validated);
         } else {
