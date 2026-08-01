@@ -460,4 +460,36 @@
             </div>
         </div>
     </section>
+
+    {{-- Mitra & Kolaborasi: strip logo partner sebelum footer — dikelola dari admin.
+         Kartu berukuran seragam; tanpa logo tampil monogram + nama agar tetap konsisten.
+         Section disembunyikan sepenuhnya bila tidak ada partner aktif. --}}
+    @if ($partners->isNotEmpty())
+        <section class="px-margin-mobile md:px-margin-desktop pb-20 pt-4">
+            <div class="max-w-container-max mx-auto">
+                <div class="text-center mb-10">
+                    <span class="text-primary font-bold tracking-[0.2em] text-label-lg uppercase mb-3 block">Kolaborasi</span>
+                    <h2 class="font-headline-lg text-headline-lg text-on-surface">Mitra Kami</h2>
+                </div>
+
+                <div class="flex flex-wrap justify-center gap-4 md:gap-5">
+                    @foreach ($partners as $partner)
+                        <a wire:key="partner-{{ $partner->id }}" href="{{ $partner->url }}" target="_blank" rel="noopener"
+                           title="{{ $partner->name }}"
+                           class="group flex h-24 w-40 md:h-28 md:w-48 items-center justify-center rounded-xl bg-white border border-outline-variant/30 card-shadow-hover transition-all duration-300 p-4">
+                            @if ($partner->logoUrl())
+                                <img src="{{ $partner->logoUrl() }}" alt="{{ $partner->name }}"
+                                     class="max-h-full max-w-full object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" />
+                            @else
+                                <span class="flex flex-col items-center gap-1.5 text-center">
+                                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container/20 text-primary font-headline-md font-bold text-[15px] group-hover:bg-primary group-hover:text-white transition-colors duration-300">{{ $partner->monogram() }}</span>
+                                    <span class="font-label-lg text-[12px] font-bold text-on-surface-variant leading-tight line-clamp-2 group-hover:text-primary transition-colors">{{ $partner->name }}</span>
+                                </span>
+                            @endif
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
 </div>

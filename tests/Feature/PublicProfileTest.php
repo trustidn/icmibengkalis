@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\MemberStatus;
 use App\Models\Member;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -27,6 +28,31 @@ class PublicProfileTest extends TestCase
         $this->get("/profil/{$member->id}")
             ->assertOk()
             ->assertSee('Budi Santoso');
+    }
+
+    public function test_tombol_edit_profil_tampil_hanya_untuk_pemilik_profil(): void
+    {
+        $owner = User::factory()->create();
+        $member = Member::factory()->create(['user_id' => $owner->id, 'status' => MemberStatus::Aktif]);
+        $orangLain = User::factory()->create();
+
+        // Pemilik profil melihat tombol Edit Profil
+        $this->actingAs($owner)
+            ->get("/profil/{$member->slug}")
+            ->assertOk()
+            ->assertSee('Edit Profil');
+
+        // User lain tidak
+        $this->actingAs($orangLain)
+            ->get("/profil/{$member->slug}")
+            ->assertOk()
+            ->assertDontSee('Edit Profil');
+
+        // Guest tidak
+        $this->post('/logout');
+        $this->get("/profil/{$member->slug}")
+            ->assertOk()
+            ->assertDontSee('Edit Profil');
     }
 
     public function test_profil_anggota_tidak_aktif_404(): void

@@ -11,7 +11,7 @@ PROD := docker compose --env-file .env.production -f docker-compose.prod.yml
 	guard-prod-env ensure-auth-json prod-env prod-key prod-install prod-seed-rbac prod-seed-demo \
 	prod-build prod-up prod-down prod-restart prod-logs prod-ps prod-shell \
 	prod-migrate prod-artisan prod-cache prod-cache-clear \
-	prod-db-shell prod-db-backup prod-deploy prod-release-check
+	prod-db-shell prod-db-backup prod-backup prod-restore prod-deploy prod-release-check
 
 ## ---- Development -----------------------------------------------------
 
@@ -191,6 +191,30 @@ prod-db-backup: guard-prod-env ## Dump database produksi -> backups/icmi-<timest
 	@FILE="backups/icmi-$$(date +%Y%m%d-%H%M%S).sql.gz" && \
 	$(PROD) exec -T db sh -c 'mariadb-dump -u root -p"$$MARIADB_ROOT_PASSWORD" --single-transaction "$$MARIADB_DATABASE"' | gzip > "$$FILE" && \
 	echo "Backup tersimpan: $$FILE"
+
+prod-backup: guard-prod-env ## Backup penuh (database + file upload) -> backups/icmi-full-<timestamp>/
+	@DIR="backups/icmi-full-$$(date +%Y%m%d-%H%M%S)" && mkdir -p "$$DIR" && \
+	echo "[1/2] Dump database..." && \
+	$(PROD) exec -T db sh -c 'mariadb-dump -u root -p"$$MARIADB_ROOT_PASSWORD" --single-transaction "$$MARIADB_DATABASE"' | gzip > "$$DIR/db.sql.gz" && \
+	echo "[2/2] Arsipkan file upload (storage/app)..." && \
+	$(PROD) exec -T app tar czf - -C storage/app . > "$$DIR/storage.tar.gz" && \
+	cp .env.production "$$DIR/env.production.copy" && \
+	echo "Backup penuh tersimpan di: $$DIR" && \
+	echo "Pindahkan folder itu ke server baru (scp -r), lalu di sana: make prod-restore dir=$$DIR"
+
+prod-restore: guard-prod-env ## PULIHKAN backup penuh: make prod-restore dir=backups/icmi-full-<ts> (MENIMPA data!)
+	@test -n "$(dir)" || { echo "Error: sebutkan folder backup — make prod-restore dir=backups/icmi-full-<timestamp>"; exit 1; }
+	@test -f "$(dir)/db.sql.gz" -a -f "$(dir)/storage.tar.gz" || { echo "Error: $(dir) tidak berisi db.sql.gz + storage.tar.gz"; exit 1; }
+	@printf "PERINGATAN: seluruh database & file upload saat ini akan DITIMPA isi backup.\nKetik 'restore' untuk melanjutkan: "; read jawab; \
+	test "$$jawab" = "restore" || { echo "Dibatalkan."; exit 1; }
+	@echo "[1/3] Pulihkan database..." && \
+	gunzip -c "$(dir)/db.sql.gz" | $(PROD) exec -T db sh -c 'mariadb -u root -p"$$MARIADB_ROOT_PASSWORD" "$$MARIADB_DATABASE"'
+	@echo "[2/3] Pulihkan file upload..." && \
+	$(PROD) exec -T -u root app sh -c 'rm -rf storage/app/* && tar xzf - -C storage/app && chown -R www-data:www-data storage/app' < "$(dir)/storage.tar.gz"
+	@echo "[3/3] Bersihkan cache aplikasi..." && \
+	$(PROD) exec app php artisan optimize:clear >/dev/null && \
+	$(PROD) exec app sh -c "php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan event:cache" >/dev/null && \
+	echo "Restore selesai. Uji situs di browser."
 
 prod-deploy: ensure-auth-json ## Build, up, migrate, cache config (rilis penuh)
 	# Pull hanya image pihak ketiga — image app (icmibengkalis-portal) dibangun lokal,

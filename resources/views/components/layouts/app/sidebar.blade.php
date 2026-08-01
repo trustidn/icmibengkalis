@@ -26,6 +26,7 @@
                     @can('pages.manage')
                         <flux:navlist.item icon="document-text" :href="route('admin.pages.index')" :current="request()->routeIs('admin.pages.index')" wire:navigate>Halaman Statis</flux:navlist.item>
                         <flux:navlist.item icon="sparkles" :href="route('admin.posters.index')" :current="request()->routeIs('admin.posters.index')" wire:navigate>Poster Ucapan</flux:navlist.item>
+                        <flux:navlist.item icon="link" :href="route('admin.partners.index')" :current="request()->routeIs('admin.partners.index')" wire:navigate>Link Partner</flux:navlist.item>
                     @endcan
 
                     @can('publishing.view')

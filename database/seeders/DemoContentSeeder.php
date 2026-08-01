@@ -12,6 +12,7 @@ use App\Models\ExpertiseField;
 use App\Models\Member;
 use App\Models\OrgPeriod;
 use App\Models\OrgUnit;
+use App\Models\Partner;
 use App\Models\Post;
 use App\Models\Poster;
 use App\Models\Profession;
@@ -45,6 +46,19 @@ class DemoContentSeeder extends Seeder
 
         if (Event::count() === 0) {
             Event::factory()->count(2)->create();
+        }
+
+        if (Partner::count() === 0) {
+            $partners = [
+                ['name' => 'ICMI Pusat', 'url' => 'https://icmi.or.id', 'sort_order' => 1],
+                ['name' => 'Pemerintah Kabupaten Bengkalis', 'url' => 'https://bengkaliskab.go.id', 'sort_order' => 2],
+                ['name' => 'ICMI Orwil Riau', 'url' => 'https://icmi.or.id', 'sort_order' => 3],
+                ['name' => 'Baznas Bengkalis', 'url' => 'https://baznas.go.id', 'sort_order' => 4],
+            ];
+
+            foreach ($partners as $partner) {
+                Partner::create([...$partner, 'is_active' => true]);
+            }
         }
 
         if (Poster::count() === 0) {

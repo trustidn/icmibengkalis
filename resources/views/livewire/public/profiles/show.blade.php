@@ -28,13 +28,21 @@
                     Anggota ICMI — {{ $member->nia }}
                 </span>
 
-                <div class="mt-5">
+                <div class="mt-5 flex items-center justify-center gap-6">
                     <flux:modal.trigger name="share-profile">
                         <button type="button" class="inline-flex items-center gap-2 text-primary font-bold text-sm hover:gap-3 transition-all">
                             <span class="material-symbols-outlined text-[18px]">share</span>
                             Bagikan Profil
                         </button>
                     </flux:modal.trigger>
+
+                    @if (auth()->user()?->member?->id === $member->id)
+                        <a href="{{ route('member.profile.edit') }}" wire:navigate
+                           class="inline-flex items-center gap-2 text-primary font-bold text-sm hover:gap-3 transition-all">
+                            <span class="material-symbols-outlined text-[18px]">edit</span>
+                            Edit Profil
+                        </a>
+                    @endif
                 </div>
             </div>
 

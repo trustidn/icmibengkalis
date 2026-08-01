@@ -21,6 +21,7 @@ use App\Livewire\Admin\Professions\Index as ProfessionsIndex;
 use App\Livewire\Admin\Publishing\Form as PublishingForm;
 use App\Livewire\Admin\Publishing\Index as PublishingIndex;
 use App\Livewire\Admin\Publishing\ReviewQueue;
+use App\Livewire\Admin\Partners\Index as PartnersIndex;
 use App\Livewire\Admin\Posters\Index as PostersIndex;
 use App\Livewire\Admin\Settings\SiteConfig;
 use App\Livewire\Admin\Users\Index as UsersIndex;
@@ -89,6 +90,11 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->name('admin.')->group(
     Route::get('poster', PostersIndex::class)
         ->middleware('can:pages.manage')
         ->name('posters.index');
+
+    // Link partner/mitra beranda — pengelola konten situs.
+    Route::get('partner', PartnersIndex::class)
+        ->middleware('can:pages.manage')
+        ->name('partners.index');
 
     // Konfigurasi web — permission settings.manage dimiliki super-admin & admin-web.
     Route::get('konfigurasi', SiteConfig::class)

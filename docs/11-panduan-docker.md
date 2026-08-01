@@ -154,11 +154,32 @@ git pull
 
 `deploy.sh` idempotent — aman dijalankan berulang. Rollback = `git checkout <commit-sebelumnya> && ./deploy.sh` (pastikan migration backward-compatible, lihat [docs/09 §9.5](09-deployment-docker.md#95-alur-rilis-cicd)).
 
-### 11.3.5 Checklist sebelum go-live
+### 11.3.5 Backup penuh & pindah server
+
+```bash
+make prod-backup    # dump DB + arsip file upload + salinan .env.production
+                    # -> backups/icmi-full-<timestamp>/
+```
+
+Pindah server: salin folder backup + repo ke server baru, lalu:
+
+```bash
+# di server baru, setelah `make prod-install` selesai:
+scp -r backups/icmi-full-<ts> user@server-baru:/var/www/icmibengkalis/backups/
+make prod-restore dir=backups/icmi-full-<ts>   # minta konfirmasi ketik 'restore'
+```
+
+`prod-restore` MENIMPA seluruh database dan file upload dengan isi backup, lalu
+membangun ulang cache aplikasi. `env.production.copy` di dalam folder backup berisi
+konfigurasi lama (termasuk `APP_KEY` — penting: tanpa APP_KEY yang sama, data
+terenkripsi lama tidak terbaca) — salin nilainya ke `.env.production` server baru
+sebelum restore.
+
+### 11.3.6 Checklist sebelum go-live
 
 Lihat [docs/09 §9.7](09-deployment-docker.md#97-checklist-go-live) — checklist lengkap (HTTPS, firewall port DB/Redis, backup, dsb).
 
-### 11.3.6 Troubleshooting produksi
+### 11.3.7 Troubleshooting produksi
 
 - **Build gagal `composer install` HTTP 401 di `flux-pro`** (`The 'https://composer.fluxui.dev/...' URL required authentication`): `auth.json` belum ada / kredensialnya salah. Jalankan ulang lewat `make prod-install`/`prod-build`/`prod-deploy` atau `./deploy.sh` dari terminal interaktif — Anda akan diminta email + license key Flux dan `auth.json` dibuat otomatis (lihat §11.3.1). Bila kredensial salah ketik, hapus `auth.json` lalu jalankan ulang agar ditanya lagi. Pastikan juga Docker versi modern (BuildKit aktif) karena kredensial disuplai via `build.secrets`.
 - **`dependency failed to start: container ...-db-1 is unhealthy` saat install pertama**: inisialisasi perdana MariaDB (membuat datadir + user) di server lambat bisa lebih lama dari jendela healthcheck. Healthcheck db kini punya `start_period: 120s` sehingga seharusnya tidak terjadi lagi; bila masih muncul, cek `docker ps` — kalau db sudah `(healthy)`, cukup jalankan ulang `make prod-install` (aman & idempoten).
