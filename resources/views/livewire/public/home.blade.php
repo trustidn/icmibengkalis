@@ -478,8 +478,10 @@
                            title="{{ $partner->name }}"
                            class="group flex h-24 w-40 md:h-28 md:w-48 items-center justify-center rounded-xl bg-white border border-outline-variant/30 card-shadow-hover transition-all duration-300 p-4">
                             @if ($partner->logoUrl())
+                                {{-- Grayscale hanya untuk perangkat ber-hover (desktop); di layar sentuh
+                                     logo selalu tampil berwarna penuh karena tidak ada konsep hover. --}}
                                 <img src="{{ $partner->logoUrl() }}" alt="{{ $partner->name }}"
-                                     class="max-h-full max-w-full object-contain grayscale opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" />
+                                     class="max-h-full max-w-full object-contain [@media(hover:hover)]:grayscale [@media(hover:hover)]:opacity-70 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-300" />
                             @else
                                 <span class="flex flex-col items-center gap-1.5 text-center">
                                     <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary-container/20 text-primary font-headline-md font-bold text-[15px] group-hover:bg-primary group-hover:text-white transition-colors duration-300">{{ $partner->monogram() }}</span>
