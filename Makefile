@@ -11,7 +11,7 @@ PROD := docker compose --env-file .env.production -f docker-compose.prod.yml
 	guard-prod-env ensure-auth-json prod-env prod-key prod-install prod-seed-rbac prod-seed-demo prod-admin \
 	prod-build prod-up prod-down prod-restart prod-logs prod-ps prod-shell \
 	prod-migrate prod-artisan prod-cache prod-cache-clear \
-	prod-db-shell prod-db-backup prod-backup prod-restore prod-deploy prod-release-check
+	prod-db-shell prod-db-backup prod-backup prod-restore prod-deploy prod-release-check prod-fix-storage
 
 ## ---- Development -----------------------------------------------------
 
@@ -138,6 +138,14 @@ prod-seed-rbac: ## Jalankan RolePermissionSeeder produksi (idempoten; ulangi set
 
 prod-admin: ## Buat akun admin produksi (interaktif; tambah peran bila email sudah ada)
 	$(PROD) exec app php artisan icmi:admin
+
+prod-fix-storage: guard-prod-env ## Perbaiki kepemilikan/izin folder storage produksi (unggahan 404)
+	$(PROD) exec -u root app sh -c "\
+		mkdir -p storage/app/public storage/app/private storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache && \
+		chown -R www-data:www-data storage bootstrap/cache && \
+		chmod -R u+rwX,g+rwX,o+rX storage bootstrap/cache && \
+		echo 'Izin storage diperbaiki.'"
+	@echo "Berkas yang terlanjur gagal tersimpan perlu diunggah ulang (record-nya ada, file-nya tidak pernah tertulis)."
 
 admin: ## Buat akun admin dev (interaktif)
 	$(DEV) exec app php artisan icmi:admin

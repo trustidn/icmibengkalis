@@ -44,7 +44,10 @@ return [
             // artisan serve dengan port acak, maupun produksi di balik proxy).
             'url' => '/storage',
             'visibility' => 'public',
-            'throw' => false,
+            // throw=true: kegagalan menulis (mis. izin folder storage salah di server)
+            // WAJIB terlihat. Dengan false, unggahan gagal senyap — record media tetap
+            // dibuat tetapi berkasnya tidak pernah ada, lalu tampil 404 di publik.
+            'throw' => true,
         ],
 
         's3' => [

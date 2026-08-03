@@ -197,6 +197,12 @@ Lihat [docs/09 §9.7](09-deployment-docker.md#97-checklist-go-live) — checklis
 
 - **Build gagal `composer install` HTTP 401 di `flux-pro`** (`The 'https://composer.fluxui.dev/...' URL required authentication`): `auth.json` belum ada / kredensialnya salah. Jalankan ulang lewat `make prod-install`/`prod-build`/`prod-deploy` atau `./deploy.sh` dari terminal interaktif — Anda akan diminta email + license key Flux dan `auth.json` dibuat otomatis (lihat §11.3.1). Bila kredensial salah ketik, hapus `auth.json` lalu jalankan ulang agar ditanya lagi. Pastikan juga Docker versi modern (BuildKit aktif) karena kredensial disuplai via `build.secrets`.
 - **`dependency failed to start: container ...-db-1 is unhealthy` saat install pertama**: inisialisasi perdana MariaDB (membuat datadir + user) di server lambat bisa lebih lama dari jendela healthcheck. Healthcheck db kini punya `start_period: 120s` sehingga seharusnya tidak terjadi lagi; bila masih muncul, cek `docker ps` — kalau db sudah `(healthy)`, cukup jalankan ulang `make prod-install` (aman & idempoten).
+- **Unggahan berhasil tapi gambar/berkas 404 di `/storage/...`**: folder `storage` di dalam volume produksi tidak bisa ditulis `www-data` (biasanya sisa instalasi awal yang root-owned). Berkas gagal ditulis sementara record media tetap dibuat. Perbaiki lalu unggah ulang berkas yang bermasalah:
+
+  ```bash
+  make prod-fix-storage
+  ```
+
 - **502 Bad Gateway sesudah deploy** (nginx hidup, `docker ps` menunjukkan container `app` jauh lebih muda dari `nginx`): nginx mengunci IP container `app` yang lama. Sejak konfigurasi nginx memakai `resolver 127.0.0.11` + upstream variabel, ini semestinya tidak terjadi lagi (dan `prod-deploy` juga me-restart nginx di akhir). Bila tetap muncul: `docker compose --env-file .env.production -f docker-compose.prod.yml restart nginx`.
 - **`service "assets-init" didn't complete successfully: exit 1`**: cek lognya — `docker logs icmibengkalis-assets-init-1`. Bila `cp: ... Permission denied`, itu bug ownership volume yang sudah diperbaiki (servis kini `user: root`) — `git pull` lalu jalankan ulang. Penyebab lain akan terlihat jelas di log yang sama.
 - **`nginx` gagal start / 502**: cek `make prod-logs s=app` — servis `assets-init` harus selesai (`service_completed_successfully`) sebelum nginx boleh start; cek `docker compose -f docker-compose.prod.yml ps assets-init`.
