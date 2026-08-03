@@ -40,9 +40,9 @@ class SitemapController extends Controller
                 Post::where('status', PostStatus::Published)
                     ->where('published_at', '<=', now())
                     ->get()->map(fn (Post $post) => [
-                    'loc' => route('posts.show', $post->slug),
-                    'lastmod' => $post->updated_at,
-                ])
+                        'loc' => route('posts.show', $post->slug),
+                        'lastmod' => $post->updated_at,
+                    ])
             );
 
             $urls = $urls->merge(
