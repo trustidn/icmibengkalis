@@ -56,10 +56,33 @@ class GalleryTest extends TestCase
 
         Livewire::actingAs($admin)
             ->test(Form::class, ['album' => $album])
-            ->set('photo', UploadedFile::fake()->image('foto.jpg'))
+            ->set('photos', [UploadedFile::fake()->image('foto.jpg')])
             ->call('addPhoto');
 
         $this->assertSame(1, $album->items()->count());
+    }
+
+    public function test_admin_bisa_upload_beberapa_foto_sekaligus(): void
+    {
+        Storage::fake('public');
+
+        $admin = User::factory()->create();
+        $admin->givePermissionTo('gallery.manage');
+        $album = Album::factory()->create(['type' => 'foto', 'created_by' => $admin->id]);
+
+        Livewire::actingAs($admin)
+            ->test(Form::class, ['album' => $album])
+            ->set('photos', [
+                UploadedFile::fake()->image('foto-1.jpg'),
+                UploadedFile::fake()->image('foto-2.jpg'),
+                UploadedFile::fake()->image('foto-3.jpg'),
+            ])
+            ->set('photoCaption', 'Dokumentasi Kegiatan')
+            ->call('addPhoto')
+            ->assertHasNoErrors();
+
+        $this->assertSame(3, $album->items()->count());
+        $this->assertSame(3, $album->items()->where('caption', 'Dokumentasi Kegiatan')->count());
     }
 
     public function test_user_tanpa_permission_ditolak_akses_admin_gallery(): void

@@ -7,6 +7,7 @@ use App\Models\AlbumItem;
 use App\Services\Gallery\GalleryService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.app')]
@@ -19,7 +20,8 @@ class Form extends Component
     /** Mode input foto: 'upload' (berkas) atau 'url' (tautan eksternal). */
     public string $photoMode = 'upload';
 
-    public $photo = null;
+    /** @var array<TemporaryUploadedFile> */
+    public array $photos = [];
 
     public string $photoUrl = '';
 
@@ -55,11 +57,16 @@ class Form extends Component
             return;
         }
 
-        $this->validate(['photo' => ['required', 'image', 'max:5120']]);
+        $this->validate([
+            'photos' => ['required', 'array', 'min:1'],
+            'photos.*' => ['image', 'max:5120'],
+        ]);
 
-        $gallery->addPhoto($this->album, $this->photo, $this->photoCaption ?: null);
+        foreach ($this->photos as $photo) {
+            $gallery->addPhoto($this->album, $photo, $this->photoCaption ?: null);
+        }
 
-        $this->reset(['photo', 'photoCaption']);
+        $this->reset(['photos', 'photoCaption']);
     }
 
     public function addVideo(GalleryService $gallery): void

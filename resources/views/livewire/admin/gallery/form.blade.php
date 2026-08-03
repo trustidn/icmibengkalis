@@ -17,14 +17,21 @@
                     <flux:input label="URL Gambar" wire:model="photoUrl" placeholder="https://drive.google.com/file/d/.../view"
                                 description="Google Drive, Dropbox, Flickr, atau tautan gambar langsung (mis. disalin dari Instagram/Facebook). Gambar akan diunduh dan disimpan di server." />
                 @else
-                    <flux:input type="file" label="Foto" wire:model="photo" accept="image/png,image/jpeg,image/webp" />
+                    <flux:input type="file" label="Foto" wire:model="photos" multiple accept="image/png,image/jpeg,image/webp"
+                                description="Bisa pilih beberapa foto sekaligus. PNG/JPG/WebP, maks. 5 MB per foto." />
+                    @error('photos.*') <flux:text class="text-red-600 dark:text-red-400 text-sm">{{ $message }}</flux:text> @enderror
+                    @if (count($photos) > 0)
+                        <flux:text class="text-sm text-zinc-500">{{ count($photos) }} foto siap diunggah.</flux:text>
+                    @endif
                 @endif
 
-                <flux:input label="Keterangan" wire:model="photoCaption" />
+                <flux:input label="Keterangan" wire:model="photoCaption"
+                            description="{{ $photoMode === 'upload' ? 'Opsional — berlaku untuk semua foto yang dipilih.' : '' }}" />
 
                 <div class="flex items-center gap-3">
-                    <flux:button type="submit" variant="primary">Tambah Foto</flux:button>
-                    <span wire:loading wire:target="addPhoto,photo" class="text-sm text-zinc-500">Memproses…</span>
+                    <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="photos">Tambah Foto</flux:button>
+                    <span wire:loading wire:target="photos" class="text-sm font-medium text-amber-600 dark:text-amber-400">Mengunggah berkas… tunggu sampai selesai.</span>
+                    <span wire:loading wire:target="addPhoto" class="text-sm text-zinc-500">Memproses…</span>
                 </div>
             </form>
         </flux:card>
