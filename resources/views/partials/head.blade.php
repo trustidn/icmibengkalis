@@ -8,17 +8,20 @@
     $siteName = $siteSetting->site_name;
     $metaTitle = $metaTitle ?? $siteName;
     $metaDescription = $metaDescription ?? 'Portal Digital Ikatan Cendekiawan Muslim Indonesia (ICMI) Kabupaten Bengkalis.';
+    // Canonical WAJIB dari APP_URL, bukan host request — domain asing yang
+    // menunjuk ke server ini tidak boleh mengaku sebagai versi resmi halaman.
+    $canonicalUrl = rtrim(config('app.url'), '/').(request()->path() === '/' ? '' : '/'.request()->path());
 @endphp
 
 <title>{{ $metaTitle }}</title>
 <link rel="icon" href="{{ $siteSetting->faviconUrl() ?? '/favicon.ico' }}" />
 <meta name="description" content="{{ $metaDescription }}" />
-<link rel="canonical" href="{{ url()->current() }}" />
+<link rel="canonical" href="{{ $canonicalUrl }}" />
 
 <meta property="og:type" content="website" />
 <meta property="og:title" content="{{ $metaTitle }}" />
 <meta property="og:description" content="{{ $metaDescription }}" />
-<meta property="og:url" content="{{ url()->current() }}" />
+<meta property="og:url" content="{{ $canonicalUrl }}" />
 <meta property="og:site_name" content="{{ $siteName }}" />
 <meta name="twitter:card" content="summary" />
 

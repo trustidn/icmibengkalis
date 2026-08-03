@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\ForceHttpsScheme;
+use App\Http\Middleware\RedirectToCanonicalHost;
 use App\Http\Middleware\TrackPageView;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -34,6 +35,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // berjalan SESUDAH TrustProxies, kalau tidak setelannya ditimpa kembali dan
         // URL bertanda tangan (unggahan Livewire) gagal validasi -> HTTP 401.
         $middleware->append(ForceHttpsScheme::class);
+
+        // Tolak domain asing yang menunjuk ke IP server ini: redirect 301 ke APP_URL.
+        $middleware->append(RedirectToCanonicalHost::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
