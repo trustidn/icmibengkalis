@@ -1,11 +1,11 @@
 <div class="mx-auto max-w-2xl p-6">
     <flux:heading size="xl">{{ $post ? 'Ubah Tulisan' : 'Tulis Berita/Artikel/Opini' }}</flux:heading>
     <flux:text class="mt-1 text-zinc-500">
-        Opini akan masuk antrean review pengurus sebelum tayang. Berita &amp; Artikel langsung tayang begitu dikirim.
+        Tulisan Anda langsung tayang begitu dikirim. Pengurus berhak menyunting atau menghapus tulisan yang tidak sesuai aturan.
     </flux:text>
 
     @if ($submitted)
-        <flux:callout class="mt-6" variant="success">Tulisan Anda telah dikirim.</flux:callout>
+        <flux:callout class="mt-6" variant="success">Tulisan Anda telah tayang.</flux:callout>
     @endif
 
     @if ($post && $post->status->value === 'rejected' && $post->review_note)

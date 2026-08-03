@@ -79,11 +79,10 @@ class Create extends Component
         }
 
         if ($post->status === PostStatus::Draft) {
-            if ($post->type === PostType::Opini) {
-                $publishing->submitForReview($post);
-            } else {
-                $publishing->publishImmediately($post);
-            }
+            // Kebijakan: seluruh tulisan anggota (termasuk Opini) langsung tayang
+            // tanpa antrean review — pengurus tetap dapat menyunting/menghapus
+            // tulisan yang melanggar aturan lewat permission publishing.update/delete.
+            $publishing->publishImmediately($post);
         }
 
         if ($this->post) {

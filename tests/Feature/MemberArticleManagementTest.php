@@ -70,7 +70,8 @@ class MemberArticleManagementTest extends TestCase
 
         $post->refresh();
         $this->assertSame('Opini Sudah Diperbaiki', $post->title);
-        $this->assertSame(PostStatus::InReview, $post->status);
+        // Kebijakan baru: revisi opini yang ditolak langsung tayang tanpa antre review lagi.
+        $this->assertSame(PostStatus::Published, $post->status);
     }
 
     public function test_anggota_tidak_bisa_ubah_artikel_orang_lain(): void

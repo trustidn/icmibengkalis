@@ -102,7 +102,7 @@ class PublishingReviewTest extends TestCase
         $this->assertTrue($author->can('update', $post));
     }
 
-    public function test_anggota_submit_opini_langsung_in_review(): void
+    public function test_anggota_submit_opini_langsung_terbit(): void
     {
         $user = User::factory()->create();
         Member::factory()->create(['user_id' => $user->id]);
@@ -116,7 +116,8 @@ class PublishingReviewTest extends TestCase
 
         $post = Post::where('title', 'Opini Saya')->first();
         $this->assertNotNull($post);
-        $this->assertSame(PostStatus::InReview, $post->status);
+        // Kebijakan baru: tulisan anggota (termasuk opini) langsung tayang tanpa review.
+        $this->assertSame(PostStatus::Published, $post->status);
         $this->assertSame(PostType::Opini, $post->type);
         $this->assertSame($user->id, $post->author_id);
     }
