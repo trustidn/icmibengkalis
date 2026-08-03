@@ -160,7 +160,7 @@
                         @foreach ($writings as $post)
                             <a href="{{ route('posts.show', $post->slug) }}" wire:navigate
                                class="block pb-4 border-b border-outline-variant/20 last:border-0 last:pb-0 group">
-                                <p class="font-bold text-on-surface group-hover:text-primary transition-colors">{{ $post->title }}</p>
+                                <p class="capitalize font-bold text-on-surface group-hover:text-primary transition-colors">{{ $post->title }}</p>
                                 <p class="text-on-surface-variant text-sm mt-1">{{ $post->published_at?->translatedFormat('d F Y') }}</p>
                             </a>
                         @endforeach

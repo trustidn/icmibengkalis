@@ -324,7 +324,7 @@
                             <span class="inline-block bg-primary-container text-on-primary-container px-3 py-1 rounded text-label-md font-bold">
                                 {{ $latestPosts[0]->category?->name ?? $latestPosts[0]->type->label() }}
                             </span>
-                            <h3 class="text-on-surface font-headline-md text-[18px] md:text-[22px] leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-300">
+                            <h3 class="capitalize text-on-surface font-headline-md text-[18px] md:text-[22px] leading-snug line-clamp-2 group-hover:text-primary transition-colors duration-300">
                                 {{ $latestPosts[0]->title }}
                             </h3>
                             <div class="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 border-t border-outline-variant/40">
@@ -337,14 +337,14 @@
                     @foreach ($latestPosts->slice(1, 3) as $post)
                         <article wire:key="post-{{ $post->id }}" class="md:col-span-2 bg-white rounded-xl border border-outline-variant/30 group card-shadow-hover transition-all duration-300 flex gap-6 p-6 relative">
                             <a href="{{ route('posts.show', $post->slug) }}" wire:navigate class="absolute inset-0" aria-label="{{ $post->title }}"></a>
-                            @if ($post->featuredImageUrl())
-                                <img src="{{ $post->featuredImageUrl() }}" alt="{{ $post->title }}" class="w-28 h-28 shrink-0 rounded-lg object-cover" />
+                            @if ($post->featuredThumbUrl())
+                                <img src="{{ $post->featuredThumbUrl() }}" alt="{{ $post->title }}" loading="lazy" class="w-28 h-28 shrink-0 rounded-lg object-cover" />
                             @else
                                 <x-public.image-placeholder icon="article" class="w-28 h-28 shrink-0 aspect-auto" />
                             @endif
                             <div class="flex flex-col justify-center min-w-0">
                                 <span class="text-secondary font-bold text-[12px] uppercase tracking-widest mb-2">{{ $post->category?->name ?? $post->type->label() }}</span>
-                                <h4 class="font-headline-md text-[18px] group-hover:text-primary transition-colors leading-tight mb-2">{{ $post->title }}</h4>
+                                <h4 class="capitalize font-headline-md text-[18px] group-hover:text-primary transition-colors leading-tight mb-2">{{ $post->title }}</h4>
                                 <p class="text-on-surface-variant font-body-md line-clamp-2 opacity-80 text-sm">{{ $post->excerpt }}</p>
                                 <x-public.author-chip :user="$post->author" class="relative z-10 mt-3 hover:opacity-80 transition-opacity" />
                             </div>
@@ -390,50 +390,25 @@
                         Lihat semua <span class="material-symbols-outlined text-[18px]">trending_flat</span>
                     </a>
                 </div>
+                {{-- Satu kartu per album — sampulnya item pertama; klik menuju halaman album. --}}
                 <div class="grid grid-cols-3 gap-3 sm:gap-5">
-                    @forelse ($latestGalleryItems as $item)
-                        @php $thumb = $item->thumbnailUrl(); @endphp
-                        @php $tileClasses = "group relative aspect-square rounded-xl overflow-hidden flex items-end p-3 text-center card-shadow-hover transition-all duration-300 w-full " . ($thumb ? '' : 'bg-gradient-to-br from-tertiary to-tertiary-container'); @endphp
-
-                        <div wire:key="gallery-item-{{ $item->id }}">
-                            @if ($item->isVideo())
-                                <flux:modal.trigger name="home-lightbox-{{ $item->id }}">
-                                    <button type="button" class="{{ $tileClasses }}">
-                                        @if ($thumb)
-                                            <img src="{{ $thumb }}" alt="{{ $item->caption ?: $item->album->title }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                                            <div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 to-transparent"></div>
-                                        @else
-                                            <span class="material-symbols-outlined text-white/70 text-[28px] absolute top-5 left-1/2 -translate-x-1/2">photo_library</span>
-                                        @endif
-                                        <span class="material-symbols-outlined text-white text-[32px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 drop-shadow-lg">play_circle</span>
-                                        <span class="relative z-10 text-white font-label-lg text-[13px] leading-tight w-full line-clamp-2">{{ $item->album->title }}</span>
-                                    </button>
-                                </flux:modal.trigger>
-                                <flux:modal name="home-lightbox-{{ $item->id }}" class="max-w-3xl">
-                                    <div class="aspect-video bg-black rounded-lg overflow-hidden">
-                                        @if ($item->embedUrl())
-                                            <iframe class="h-full w-full" src="{{ $item->embedUrl() }}"
-                                                    title="{{ $item->caption ?: $item->album->title }}"
-                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                                    allowfullscreen loading="lazy"></iframe>
-                                        @endif
-                                    </div>
-                                    <p class="mt-3 font-body-md text-on-surface-variant text-sm">{{ $item->caption ?: $item->album->title }}</p>
-                                </flux:modal>
+                    @forelse ($latestGalleryAlbums as $album)
+                        @php $cover = $album->items->first()?->thumbnailUrl(); @endphp
+                        <a wire:key="gallery-album-{{ $album->id }}" href="{{ route('gallery.show', $album->slug) }}" wire:navigate
+                           class="group relative aspect-square rounded-xl overflow-hidden flex items-end p-3 text-center card-shadow-hover transition-all duration-300 w-full {{ $cover ? '' : 'bg-gradient-to-br from-tertiary to-tertiary-container' }}">
+                            @if ($cover)
+                                <img src="{{ $cover }}" alt="{{ $album->title }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 to-transparent"></div>
                             @else
-                                <a href="{{ route('gallery.show', $item->album->slug) }}" wire:navigate class="{{ $tileClasses }}">
-                                    @if ($thumb)
-                                        <img src="{{ $thumb }}" alt="{{ $item->caption ?: $item->album->title }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                                        <div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 to-transparent"></div>
-                                    @else
-                                        <span class="material-symbols-outlined text-white/70 text-[28px] absolute top-5 left-1/2 -translate-x-1/2">photo_library</span>
-                                    @endif
-                                    <span class="relative z-10 text-white font-label-lg text-[13px] leading-tight w-full line-clamp-2">{{ $item->album->title }}</span>
-                                </a>
+                                <span class="material-symbols-outlined text-white/70 text-[28px] absolute top-5 left-1/2 -translate-x-1/2">photo_library</span>
                             @endif
-                        </div>
+                            @if ($album->type === 'video')
+                                <span class="material-symbols-outlined text-white text-[32px] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 drop-shadow-lg">play_circle</span>
+                            @endif
+                            <span class="relative z-10 capitalize text-white font-label-lg text-[13px] leading-tight w-full line-clamp-2">{{ $album->title }}</span>
+                        </a>
                     @empty
-                        <p class="font-body-md text-on-surface-variant col-span-3">Belum ada foto atau video galeri.</p>
+                        <p class="font-body-md text-on-surface-variant col-span-3">Belum ada album galeri.</p>
                     @endforelse
                 </div>
             </div>

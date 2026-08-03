@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesMediaConversions;
 use Database\Factories\PartnerFactory;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * Link partner/mitra (ditampilkan sebagai strip logo di beranda).
@@ -15,7 +18,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 class Partner extends Model implements HasMedia
 {
     /** @use HasFactory<PartnerFactory> */
-    use HasFactory, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, ResolvesMediaConversions;
 
     protected $fillable = ['name', 'url', 'sort_order', 'is_active'];
 
@@ -31,9 +34,18 @@ class Partner extends Model implements HasMedia
         $this->addMediaCollection('logo')->singleFile();
     }
 
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        // Logo jangan di-crop — cukup dibatasi dimensinya.
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Max, 600, 600)
+            ->format('webp')
+            ->quality(85);
+    }
+
     public function logoUrl(): ?string
     {
-        return $this->getFirstMediaUrl('logo') ?: null;
+        return $this->conversionUrl('logo', 'thumb');
     }
 
     /** Monogram fallback saat logo belum diupload — maksimal 2 huruf awal kata. */

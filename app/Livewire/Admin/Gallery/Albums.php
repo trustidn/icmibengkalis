@@ -12,6 +12,8 @@ class Albums extends Component
 {
     public bool $showForm = false;
 
+    public ?int $editingId = null;
+
     public string $title = '';
 
     public string $type = 'foto';
@@ -26,22 +28,48 @@ class Albums extends Component
     public function create(): void
     {
         $this->authorize('create', Album::class);
-        $this->reset(['title', 'type', 'description']);
+        $this->reset(['title', 'type', 'description', 'editingId']);
         $this->showForm = true;
+    }
+
+    public function edit(int $albumId): void
+    {
+        $album = Album::findOrFail($albumId);
+        $this->authorize('update', $album);
+
+        $this->editingId = $album->id;
+        $this->title = $album->title;
+        $this->type = $album->type;
+        $this->description = (string) $album->description;
+        $this->showForm = true;
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->reset(['title', 'type', 'description', 'editingId']);
+        $this->showForm = false;
     }
 
     public function save(GalleryService $gallery): void
     {
-        $this->authorize('create', Album::class);
-
         $validated = $this->validate([
             'title' => ['required', 'string', 'max:255'],
             'type' => ['required', 'in:foto,video'],
             'description' => ['nullable', 'string'],
         ]);
 
-        $gallery->create([...$validated, 'created_by' => auth()->id()]);
-        $this->showForm = false;
+        if ($this->editingId) {
+            $album = Album::findOrFail($this->editingId);
+            $this->authorize('update', $album);
+
+            // Jenis album tidak diubah saat edit — item yang sudah ada mengikuti jenis lama.
+            $gallery->update($album, ['title' => $validated['title'], 'description' => $validated['description']]);
+        } else {
+            $this->authorize('create', Album::class);
+            $gallery->create([...$validated, 'created_by' => auth()->id()]);
+        }
+
+        $this->cancelEdit();
     }
 
     public function delete(int $albumId, GalleryService $gallery): void

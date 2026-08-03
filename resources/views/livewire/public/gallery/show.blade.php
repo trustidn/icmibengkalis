@@ -1,5 +1,5 @@
 <div>
-    <x-public.page-header :title="$album->title" :subtitle="$album->description" />
+    <x-public.page-header :title="$album->title" :subtitle="$album->description" title-class="capitalize" />
 
     <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-16">
         @if ($album->items->isNotEmpty())

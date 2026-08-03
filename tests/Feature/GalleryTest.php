@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\Admin\Gallery\Albums;
 use App\Livewire\Admin\Gallery\Form;
 use App\Models\Album;
 use App\Models\AlbumItem;
@@ -213,6 +214,45 @@ class GalleryTest extends TestCase
         $this->assertTrue($videoItem->isVideo());
         $this->assertSame('https://img.youtube.com/vi/YE7VzlLtp-4/hqdefault.jpg', $videoItem->thumbnailUrl());
         $this->assertSame('https://www.youtube-nocookie.com/embed/YE7VzlLtp-4', $videoItem->embedUrl());
+    }
+
+    public function test_beranda_menampilkan_album_bukan_item(): void
+    {
+        $tayang = Album::factory()->create(['title' => 'Album Tayang Beranda', 'is_published' => true]);
+        AlbumItem::factory()->count(3)->create(['album_id' => $tayang->id]);
+        Album::factory()->create(['title' => 'Album Draf Beranda', 'is_published' => false]);
+
+        $albums = app(GalleryService::class)->latestAlbums(6);
+
+        $this->assertTrue($albums->contains('title', 'Album Tayang Beranda'));
+        $this->assertFalse($albums->contains('title', 'Album Draf Beranda'));
+
+        // Satu album = satu kartu di beranda, meski punya banyak item.
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSeeInOrder(['Galeri Terbaru', 'Album Tayang Beranda'])
+            ->assertDontSee('Album Draf Beranda');
+    }
+
+    public function test_admin_bisa_mengubah_judul_album(): void
+    {
+        $admin = User::factory()->create();
+        $admin->givePermissionTo('gallery.manage');
+        $album = Album::factory()->create(['title' => 'Judul Lama', 'type' => 'foto', 'created_by' => $admin->id]);
+
+        Livewire::actingAs($admin)
+            ->test(Albums::class)
+            ->call('edit', $album->id)
+            ->assertSet('title', 'Judul Lama')
+            ->set('title', 'Judul Baru Album')
+            ->set('description', 'Deskripsi diperbarui.')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $album->refresh();
+        $this->assertSame('Judul Baru Album', $album->title);
+        $this->assertSame('Deskripsi diperbarui.', $album->description);
+        $this->assertSame('foto', $album->type);
     }
 
     public function test_foto_galeri_menghasilkan_konversi_thumb_dan_large(): void

@@ -6,17 +6,23 @@
 
     @if ($showForm)
         <flux:card class="mt-6">
-            <form wire:submit="save" class="flex flex-col gap-4">
+            <flux:heading size="lg">{{ $editingId ? 'Ubah Album' : 'Album Baru' }}</flux:heading>
+            <form wire:submit="save" class="mt-4 flex flex-col gap-4">
                 <flux:input label="Judul Album" wire:model="title" />
-                <flux:select label="Jenis" wire:model="type">
-                    <option value="foto">Foto</option>
-                    <option value="video">Video</option>
-                </flux:select>
+                @if ($editingId)
+                    <flux:input label="Jenis" value="{{ ucfirst($type) }}" disabled
+                                description="Jenis album tidak dapat diubah karena item yang sudah ada mengikuti jenis ini." />
+                @else
+                    <flux:select label="Jenis" wire:model="type">
+                        <option value="foto">Foto</option>
+                        <option value="video">Video</option>
+                    </flux:select>
+                @endif
                 <flux:textarea label="Deskripsi" wire:model="description" rows="3" />
 
                 <div class="flex gap-3">
-                    <flux:button type="submit" variant="primary">Simpan</flux:button>
-                    <flux:button type="button" wire:click="$set('showForm', false)">Batal</flux:button>
+                    <flux:button type="submit" variant="primary">{{ $editingId ? 'Simpan Perubahan' : 'Simpan' }}</flux:button>
+                    <flux:button type="button" wire:click="cancelEdit">Batal</flux:button>
                 </div>
             </form>
         </flux:card>
@@ -40,6 +46,7 @@
                         <div class="flex gap-2">
                             @can('update', $album)
                                 <flux:button :href="route('admin.gallery.edit', $album)" size="sm" wire:navigate>Kelola Item</flux:button>
+                                <flux:button wire:click="edit({{ $album->id }})" size="sm">Ubah</flux:button>
                                 <flux:button wire:click="togglePublish({{ $album->id }})" size="sm">{{ $album->is_published ? 'Sembunyikan' : 'Tayangkan' }}</flux:button>
                             @endcan
                             @can('delete', $album)
@@ -64,6 +71,7 @@
                 <div class="mt-3 flex flex-wrap gap-2">
                     @can('update', $album)
                         <flux:button :href="route('admin.gallery.edit', $album)" size="sm" wire:navigate>Kelola Item</flux:button>
+                        <flux:button wire:click="edit({{ $album->id }})" size="sm">Ubah</flux:button>
                         <flux:button wire:click="togglePublish({{ $album->id }})" size="sm">{{ $album->is_published ? 'Sembunyikan' : 'Tayangkan' }}</flux:button>
                     @endcan
                     @can('delete', $album)

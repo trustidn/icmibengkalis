@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PostStatus;
 use App\Enums\PostType;
 use App\Models\Concerns\HasSlug;
+use App\Models\Concerns\ResolvesMediaConversions;
 use Database\Factories\PostFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,13 +14,15 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Scout\Searchable;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Post extends Model implements HasMedia
 {
     /** @use HasFactory<PostFactory> */
-    use HasFactory, HasSlug, InteractsWithMedia, Searchable, SoftDeletes;
+    use HasFactory, HasSlug, InteractsWithMedia, ResolvesMediaConversions, Searchable, SoftDeletes;
 
     protected $fillable = [
         'type',
@@ -97,8 +100,28 @@ class Post extends Model implements HasMedia
         $this->addMediaCollection('featured')->singleFile();
     }
 
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Crop, 600, 600)
+            ->format('webp')
+            ->quality(80);
+
+        $this->addMediaConversion('large')
+            ->fit(Fit::Max, 1600, 1600)
+            ->format('webp')
+            ->quality(82);
+    }
+
+    /** Sampul artikel (detail & kartu besar) — konversi 'large'. */
     public function featuredImageUrl(): ?string
     {
-        return $this->getFirstMediaUrl('featured') ?: null;
+        return $this->conversionUrl('featured', 'large');
+    }
+
+    /** Thumbnail kartu kecil/daftar — konversi 'thumb'. */
+    public function featuredThumbUrl(): ?string
+    {
+        return $this->conversionUrl('featured', 'thumb');
     }
 }

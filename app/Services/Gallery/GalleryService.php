@@ -45,6 +45,19 @@ class GalleryService
         });
     }
 
+    /** Album terbaru yang tayang — untuk section galeri di beranda (satu kartu per album). */
+    public function latestAlbums(int $limit = 6): Collection
+    {
+        return Cache::remember("public.gallery.latest_albums.{$limit}", now()->addMinutes(5), function () use ($limit) {
+            return Album::query()
+                ->where('is_published', true)
+                ->with('items.media')
+                ->latest()
+                ->limit($limit)
+                ->get();
+        });
+    }
+
     public function create(array $data): Album
     {
         return Album::create($data);
@@ -165,5 +178,6 @@ class GalleryService
     {
         Cache::forget("public.album.{$slug}");
         Cache::forget('public.gallery.latest_items.6');
+        Cache::forget('public.gallery.latest_albums.6');
     }
 }

@@ -2,17 +2,20 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesMediaConversions;
 use Database\Factories\PageFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class Page extends Model implements HasMedia
 {
     /** @use HasFactory<PageFactory> */
-    use HasFactory, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, ResolvesMediaConversions;
 
     protected $fillable = [
         'slug',
@@ -39,8 +42,16 @@ class Page extends Model implements HasMedia
         $this->addMediaCollection('featured')->singleFile();
     }
 
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('large')
+            ->fit(Fit::Max, 1600, 1600)
+            ->format('webp')
+            ->quality(82);
+    }
+
     public function featuredImageUrl(): ?string
     {
-        return $this->getFirstMediaUrl('featured') ?: null;
+        return $this->conversionUrl('featured', 'large');
     }
 }

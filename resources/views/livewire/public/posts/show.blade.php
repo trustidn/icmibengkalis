@@ -3,7 +3,7 @@
         <div class="absolute inset-0 hero-pattern -z-10"></div>
         <div class="max-w-3xl mx-auto">
             <span class="text-secondary font-bold text-[12px] uppercase tracking-widest">{{ $post->category?->name ?? $post->type->label() }}</span>
-            <h1 class="mt-3 font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface leading-tight">{{ $post->title }}</h1>
+            <h1 class="capitalize mt-3 font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface leading-tight">{{ $post->title }}</h1>
             <div class="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
                 <x-public.author-chip :user="$post->author" class="hover:opacity-80 transition-opacity" />
                 <span class="flex items-center gap-2 font-label-lg text-label-lg text-on-surface-variant"><span class="material-symbols-outlined text-[18px]">calendar_today</span> {{ $post->published_at?->translatedFormat('d F Y') }}</span>

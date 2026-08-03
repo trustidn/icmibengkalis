@@ -122,7 +122,7 @@ class PartnerTest extends TestCase
 
         $partner->refresh();
         $this->assertSame('Mitra Diperbarui', $partner->name);
-        $this->assertStringContainsString('logo-lama.png', (string) $partner->logoUrl());
+        $this->assertStringContainsString('logo-lama', (string) $partner->logoUrl());
     }
 
     public function test_user_tanpa_permission_ditolak(): void

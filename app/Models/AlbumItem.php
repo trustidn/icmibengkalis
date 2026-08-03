@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\ResolvesMediaConversions;
 use App\Support\VideoUrl;
 use Database\Factories\AlbumItemFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,7 +16,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 class AlbumItem extends Model implements HasMedia
 {
     /** @use HasFactory<AlbumItemFactory> */
-    use HasFactory, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, ResolvesMediaConversions;
 
     protected $fillable = [
         'album_id',
@@ -63,7 +64,7 @@ class AlbumItem extends Model implements HasMedia
             return $this->thumbnail_url;
         }
 
-        return $this->photoConversionUrl('thumb');
+        return $this->conversionUrl('photo', 'thumb');
     }
 
     /** Versi besar untuk lightbox — konversi 'large' foto. */
@@ -73,19 +74,7 @@ class AlbumItem extends Model implements HasMedia
             return null;
         }
 
-        return $this->photoConversionUrl('large');
-    }
-
-    /** URL konversi foto; jatuh ke file asli selama konversi belum/tidak tersedia. */
-    private function photoConversionUrl(string $conversion): ?string
-    {
-        $media = $this->getFirstMedia('photo');
-
-        if (! $media) {
-            return null;
-        }
-
-        return $media->hasGeneratedConversion($conversion) ? $media->getUrl($conversion) : $media->getUrl();
+        return $this->conversionUrl('photo', 'large');
     }
 
     public function embedUrl(): ?string

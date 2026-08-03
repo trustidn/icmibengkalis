@@ -28,7 +28,7 @@
                         </div>
                         <div class="p-6 flex flex-col flex-1">
                             <span class="text-secondary font-bold text-[12px] uppercase tracking-widest mb-3">{{ ucfirst($album->type) }}</span>
-                            <h3 class="font-headline-md text-[20px] leading-tight text-on-surface group-hover:text-primary transition-colors mb-3">{{ $album->title }}</h3>
+                            <h3 class="capitalize font-headline-md text-[20px] leading-tight text-on-surface group-hover:text-primary transition-colors mb-3">{{ $album->title }}</h3>
                             <p class="font-body-md text-on-surface-variant line-clamp-2 opacity-80 flex-1">{{ $album->description }}</p>
                         </div>
                     </a>

@@ -68,7 +68,7 @@ class PosterTest extends TestCase
         $poster->refresh();
         $this->assertSame('Judul Baru', $poster->title);
         $this->assertSame('2026-12-31', $poster->ends_at->format('Y-m-d'));
-        $this->assertStringContainsString('poster-lama.jpg', (string) $poster->imageUrl(), 'Gambar lama harus dipertahankan.');
+        $this->assertStringContainsString('poster-lama', (string) $poster->imageUrl(), 'Gambar lama harus dipertahankan.');
         $this->assertSame(1, Poster::count());
     }
 

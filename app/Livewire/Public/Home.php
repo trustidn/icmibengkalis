@@ -38,7 +38,7 @@ class Home extends Component
             'posters' => $posters->active(),
             'partners' => $partners->active(),
             'upcomingEvents' => $agenda->upcoming(perPage: 3)->items(),
-            'latestGalleryItems' => $gallery->latestItems(6),
+            'latestGalleryAlbums' => $gallery->latestAlbums(6),
             'featuredMembers' => $members->randomFeatured(5),
         ])->layout('components.layouts.public', [
             'metaTitle' => config('app.name').' — Portal Digital ICMI Kabupaten Bengkalis',
