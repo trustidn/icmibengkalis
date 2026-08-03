@@ -36,9 +36,10 @@ class DocumentPolicy
         };
     }
 
+    /** Semua user login boleh mengunggah dokumen ke arsip. */
     public function create(User $user): bool
     {
-        return $user->can('archive.create');
+        return true;
     }
 
     public function update(User $user): bool
@@ -46,9 +47,10 @@ class DocumentPolicy
         return $user->can('archive.update');
     }
 
-    public function delete(User $user): bool
+    /** Pengelola arsip boleh menghapus apa pun; user biasa hanya unggahannya sendiri. */
+    public function delete(User $user, Document $document): bool
     {
-        return $user->can('archive.delete');
+        return $user->can('archive.delete') || $document->uploaded_by === $user->id;
     }
 
     public function manageAccess(User $user): bool

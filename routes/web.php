@@ -8,6 +8,7 @@ use App\Livewire\Public\Agenda\Show as PublicAgendaShow;
 use App\Livewire\Public\Announcements\Index as PublicAnnouncementsIndex;
 use App\Livewire\Public\Archive\Index as PublicArchiveIndex;
 use App\Livewire\Public\Archive\Show as PublicArchiveShow;
+use App\Livewire\Public\Archive\Upload as PublicArchiveUpload;
 use App\Livewire\Public\Contact\Form as PublicContactForm;
 use App\Livewire\Public\Gallery\Index as PublicGalleryIndex;
 use App\Livewire\Public\Gallery\Show as PublicGalleryShow;
@@ -55,6 +56,8 @@ Route::middleware('track.view')->group(function () {
     Route::get('/kontak', PublicContactForm::class)->name('contact.show');
     Route::get('/organisasi/struktur', OrgChart::class)->name('org-chart.show');
     Route::get('/arsip', PublicArchiveIndex::class)->name('archive.index');
+    // WAJIB terdaftar SEBELUM /arsip/{slug} agar tidak tertelan catch-all slug.
+    Route::get('/arsip/unggah', PublicArchiveUpload::class)->middleware('auth')->name('archive.upload');
     Route::get('/arsip/{slug}', PublicArchiveShow::class)->name('archive.show');
     Route::get('/profil/{identifier}', PublicProfileShow::class)->name('profiles.show');
 

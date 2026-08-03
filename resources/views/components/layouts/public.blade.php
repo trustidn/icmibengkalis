@@ -67,6 +67,12 @@
                        class="font-label-lg text-label-lg transition-all duration-300 {{ request()->is('galeri*') ? 'text-primary font-bold relative after:absolute after:bottom-[-22px] after:left-0 after:w-full after:h-[3px] after:bg-primary' : 'text-on-surface-variant font-medium hover:text-primary' }}">
                         {{ __('nav.gallery') }}
                     </a>
+                    @auth
+                        <a href="{{ route('archive.index') }}" wire:navigate
+                           class="font-label-lg text-label-lg transition-all duration-300 {{ request()->is('arsip*') ? 'text-primary font-bold relative after:absolute after:bottom-[-22px] after:left-0 after:w-full after:h-[3px] after:bg-primary' : 'text-on-surface-variant font-medium hover:text-primary' }}">
+                            {{ __('nav.archive') }}
+                        </a>
+                    @endauth
                     <a href="{{ route('contact.show') }}" wire:navigate
                        class="font-label-lg text-label-lg transition-all duration-300 {{ request()->is('kontak') ? 'text-primary font-bold relative after:absolute after:bottom-[-22px] after:left-0 after:w-full after:h-[3px] after:bg-primary' : 'text-on-surface-variant font-medium hover:text-primary' }}">
                         {{ __('nav.contact') }}
@@ -120,6 +126,7 @@
                                         @endif
                                         <flux:menu.item href="{{ route('member.posts.index') }}" icon="document-duplicate" wire:navigate>Artikel Saya</flux:menu.item>
                                     @endif
+                                    <flux:menu.item href="{{ route('archive.index') }}" icon="archive-box" wire:navigate>Arsip Digital</flux:menu.item>
                                 </flux:menu.radio.group>
 
                                 <flux:menu.separator />
@@ -157,6 +164,9 @@
                 <a href="{{ route('posts.index') }}" wire:navigate class="block py-2 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">{{ __('nav.news') }}</a>
                 <a href="{{ route('agenda.index') }}" wire:navigate class="block py-2 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">{{ __('nav.agenda') }}</a>
                 <a href="{{ route('gallery.index') }}" wire:navigate class="block py-2 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">{{ __('nav.gallery') }}</a>
+                @auth
+                    <a href="{{ route('archive.index') }}" wire:navigate class="block py-2 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">{{ __('nav.archive') }}</a>
+                @endauth
                 <a href="{{ route('contact.show') }}" wire:navigate class="block py-2 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">{{ __('nav.contact') }}</a>
 
                 @guest

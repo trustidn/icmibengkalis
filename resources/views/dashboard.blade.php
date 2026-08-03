@@ -101,6 +101,9 @@
                         Kelola Artikel
                     </flux:button>
                 @endif
+                <flux:button :href="route('archive.index')" variant="outline" icon="archive-box" wire:navigate class="w-full justify-center">
+                    Arsip Digital
+                </flux:button>
             </flux:card>
         </div>
     </div>

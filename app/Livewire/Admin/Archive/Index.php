@@ -32,9 +32,10 @@ class Index extends Component
 
     public function delete(int $documentId, ArchiveService $archive): void
     {
-        $this->authorize('delete', Document::class);
+        $document = Document::findOrFail($documentId);
+        $this->authorize('delete', $document);
 
-        $archive->delete(Document::findOrFail($documentId));
+        $archive->delete($document);
     }
 
     public function render(ArchiveService $archive)

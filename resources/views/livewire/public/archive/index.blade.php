@@ -2,6 +2,15 @@
     <x-public.page-header eyebrow="Pengetahuan" title="Arsip Digital" subtitle="Dokumen, surat keputusan, dan publikasi resmi ICMI Kabupaten Bengkalis." />
 
     <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-16">
+        @auth
+            <div class="mb-8 flex justify-end">
+                <a href="{{ route('archive.upload') }}" wire:navigate
+                   class="inline-flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-full font-label-lg text-label-lg hover:bg-primary/90 hover:shadow-lg hover:shadow-primary/20 transition-all">
+                    <span class="material-symbols-outlined text-[20px]">upload_file</span>
+                    Unggah Dokumen
+                </a>
+            </div>
+        @endauth
         <div class="flex flex-wrap gap-3 mb-10">
             <input type="text" wire:model.live.debounce.400ms="search" placeholder="Cari judul..."
                    class="flex-1 min-w-[200px] max-w-xs bg-white border border-outline-variant/40 rounded-lg px-4 py-2.5 font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />

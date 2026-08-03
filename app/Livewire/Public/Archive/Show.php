@@ -3,6 +3,7 @@
 namespace App\Livewire\Public\Archive;
 
 use App\Models\Document;
+use App\Services\Archive\ArchiveService;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -20,6 +21,16 @@ class Show extends Component
         abort_unless(Gate::forUser(auth()->user())->allows('view', $document), Response::HTTP_FORBIDDEN);
 
         $this->document = $document;
+    }
+
+    /** Hapus dokumen — hanya pengunggahnya sendiri atau pengelola arsip (DocumentPolicy::delete). */
+    public function delete(ArchiveService $archive): void
+    {
+        $this->authorize('delete', $this->document);
+
+        $archive->delete($this->document);
+
+        $this->redirectRoute('archive.index', navigate: true);
     }
 
     public function render()
