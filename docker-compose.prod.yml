@@ -13,9 +13,11 @@ services:
     # -> cp Permission denied. Salin sebagai root; nginx membaca volume ini read-only.
     user: root
     # Salin SELURUH public/ (bukan hanya build/): nginx tidak berbagi kode dengan app,
-    # sehingga butuh index.php (agar try_files/index bekerja — tanpa ini root URL 403),
-    # favicon.ico, dan robots.txt di filesystem-nya sendiri.
-    command: sh -c "cp -r /var/www/html/public/. /shared/"
+    # sehingga butuh index.php (agar try_files/index bekerja — tanpa ini root URL 403)
+    # dan favicon.ico di filesystem-nya sendiri. Volume dibersihkan dulu supaya file
+    # yang sudah dihapus dari repo (mis. robots.txt statis -> kini route dinamis)
+    # tidak tersisa dan menutupi route PHP-nya.
+    command: sh -c "rm -rf /shared/* && cp -r /var/www/html/public/. /shared/"
     volumes:
       - public-build:/shared
     restart: "no"
