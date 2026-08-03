@@ -29,9 +29,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // percayai header X-Forwarded-* agar Laravel tahu request aslinya HTTPS.
         $middleware->trustProxies(at: '*');
 
-        // Jaring pengaman bila proxy TIDAK mengirim X-Forwarded-Proto: tanpa ini
+        // Jaring pengaman bila proxy mengirim X-Forwarded-Proto: http (mis. Cloudflare
+        // "Flexible" / Nginx Proxy Manager tanpa TLS ke origin). WAJIB append — harus
+        // berjalan SESUDAH TrustProxies, kalau tidak setelannya ditimpa kembali dan
         // URL bertanda tangan (unggahan Livewire) gagal validasi -> HTTP 401.
-        $middleware->prepend(ForceHttpsScheme::class);
+        $middleware->append(ForceHttpsScheme::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

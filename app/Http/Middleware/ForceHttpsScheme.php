@@ -21,9 +21,16 @@ class ForceHttpsScheme
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->isSecure() && str_starts_with((string) config('app.url'), 'https://')) {
-            $request->server->set('HTTPS', 'on');
+        if (! str_starts_with((string) config('app.url'), 'https://')) {
+            return $next($request);
         }
+
+        // WAJIB menimpa header X-Forwarded-Proto, bukan cuma server var HTTPS:
+        // bila proxy tepercaya mengirim "http" (Cloudflare Flexible / NPM tanpa TLS
+        // ke origin), Symfony memprioritaskan header itu dan mengabaikan HTTPS=on.
+        // Middleware ini juga WAJIB berjalan SESUDAH TrustProxies (lihat bootstrap/app.php).
+        $request->headers->set('X-Forwarded-Proto', 'https');
+        $request->server->set('HTTPS', 'on');
 
         return $next($request);
     }
