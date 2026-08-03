@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DatabaseBackupController;
 use App\Livewire\Admin\Agenda\Form as AgendaForm;
 use App\Livewire\Admin\Agenda\Index as AgendaIndex;
 use App\Livewire\Admin\Announcements\Index as AnnouncementsIndex;
@@ -17,12 +18,13 @@ use App\Livewire\Admin\Organization\AssignmentForm;
 use App\Livewire\Admin\Organization\Periods as OrganizationPeriods;
 use App\Livewire\Admin\Organization\UnitTree;
 use App\Livewire\Admin\Pages\Editor as PagesEditor;
+use App\Livewire\Admin\Partners\Index as PartnersIndex;
+use App\Livewire\Admin\Posters\Index as PostersIndex;
 use App\Livewire\Admin\Professions\Index as ProfessionsIndex;
 use App\Livewire\Admin\Publishing\Form as PublishingForm;
 use App\Livewire\Admin\Publishing\Index as PublishingIndex;
 use App\Livewire\Admin\Publishing\ReviewQueue;
-use App\Livewire\Admin\Partners\Index as PartnersIndex;
-use App\Livewire\Admin\Posters\Index as PostersIndex;
+use App\Livewire\Admin\Settings\BackupRestore;
 use App\Livewire\Admin\Settings\SiteConfig;
 use App\Livewire\Admin\Users\Index as UsersIndex;
 use Illuminate\Support\Facades\Route;
@@ -100,6 +102,14 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->name('admin.')->group(
     Route::get('konfigurasi', SiteConfig::class)
         ->middleware('can:settings.manage')
         ->name('settings.site');
+
+    // Backup & restore database dari web — pemegang settings.manage.
+    Route::get('backup', BackupRestore::class)
+        ->middleware('can:settings.manage')
+        ->name('backup.index');
+    Route::get('backup/unduh', [DatabaseBackupController::class, 'download'])
+        ->middleware('can:settings.manage')
+        ->name('backup.download');
 
     // Manajemen user — permission users.manage dimiliki super-admin & admin-web.
     Route::get('pengguna', UsersIndex::class)

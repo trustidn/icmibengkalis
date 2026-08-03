@@ -3,7 +3,7 @@
 # ---------- base ----------
 FROM php:8.3-fpm-alpine AS base
 RUN apk add --no-cache icu-dev libzip-dev libpng-dev libjpeg-turbo-dev \
-    libwebp-dev freetype-dev oniguruma-dev git \
+    libwebp-dev freetype-dev oniguruma-dev git mariadb-client \
  && docker-php-ext-configure gd --with-jpeg --with-webp --with-freetype \
  && docker-php-ext-install pdo_mysql intl zip gd bcmath opcache pcntl exif \
  && apk add --no-cache $PHPIZE_DEPS \

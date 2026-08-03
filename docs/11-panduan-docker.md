@@ -156,6 +156,8 @@ git pull
 
 ### 11.3.5 Backup penuh & pindah server
 
+**Dari web (khusus database)**: menu admin **Backup & Restore** (`/admin/backup`, pemegang `settings.manage`) — unduh dump database ter-gzip dan pulihkan lewat unggah file (konfirmasi ketik `PULIHKAN`; MENIMPA seluruh data). File upload (foto/dokumen) TIDAK ikut — untuk pemindahan server penuh gunakan cara terminal di bawah.
+
 ```bash
 make prod-backup    # dump DB + arsip file upload + salinan .env.production
                     # -> backups/icmi-full-<timestamp>/

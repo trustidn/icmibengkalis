@@ -83,6 +83,7 @@
                     <flux:navlist.group heading="Pengaturan" class="grid">
                         @can('settings.manage')
                             <flux:navlist.item icon="cog-6-tooth" :href="route('admin.settings.site')" :current="request()->routeIs('admin.settings.site')" wire:navigate>Konfigurasi Web</flux:navlist.item>
+                        <flux:navlist.item icon="circle-stack" :href="route('admin.backup.index')" :current="request()->routeIs('admin.backup.index')" wire:navigate>Backup &amp; Restore</flux:navlist.item>
                         @endcan
                         @can('users.manage')
                             <flux:navlist.item icon="user-group" :href="route('admin.users.index')" :current="request()->routeIs('admin.users.index')" wire:navigate>Manajemen User</flux:navlist.item>
