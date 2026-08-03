@@ -79,6 +79,52 @@ class PartnerTest extends TestCase
             ->assertSeeInOrder(['Partner Pertama', 'Partner Kedua']);
     }
 
+    public function test_admin_bisa_mengubah_partner_dan_mengganti_logo(): void
+    {
+        Storage::fake('public');
+
+        $partner = Partner::factory()->create(['name' => 'Nama Lama', 'url' => 'https://lama.test', 'sort_order' => 5]);
+
+        Livewire::actingAs($this->adminWeb())
+            ->test(Index::class)
+            ->call('edit', $partner->id)
+            ->assertSet('name', 'Nama Lama')
+            ->assertSet('url', 'https://lama.test')
+            ->assertSet('sort_order', 5)
+            ->set('name', 'Nama Baru')
+            ->set('url', 'https://baru.test')
+            ->set('logo', UploadedFile::fake()->image('logo-baru.png', 200, 100))
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('editingId', null);
+
+        $partner->refresh();
+        $this->assertSame('Nama Baru', $partner->name);
+        $this->assertSame('https://baru.test', $partner->url);
+        $this->assertNotNull($partner->logoUrl(), 'Logo baru harus tersimpan.');
+        $this->assertSame(1, Partner::count(), 'Mengubah tidak boleh membuat data baru.');
+    }
+
+    public function test_mengubah_tanpa_logo_baru_mempertahankan_logo_lama(): void
+    {
+        Storage::fake('public');
+
+        $partner = Partner::factory()->create(['name' => 'Mitra']);
+        $berkas = UploadedFile::fake()->image('logo-lama.png');
+        $partner->addMedia($berkas->getRealPath())->usingFileName('logo-lama.png')->toMediaCollection('logo');
+
+        Livewire::actingAs($this->adminWeb())
+            ->test(Index::class)
+            ->call('edit', $partner->id)
+            ->set('name', 'Mitra Diperbarui')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $partner->refresh();
+        $this->assertSame('Mitra Diperbarui', $partner->name);
+        $this->assertStringContainsString('logo-lama.png', (string) $partner->logoUrl());
+    }
+
     public function test_user_tanpa_permission_ditolak(): void
     {
         $anggota = User::factory()->create();

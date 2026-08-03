@@ -29,6 +29,22 @@ class PosterService
         return $poster;
     }
 
+    /** Gambar hanya diganti bila berkas baru diunggah; bila null, gambar lama dipertahankan. */
+    public function update(Poster $poster, array $data, ?UploadedFile $image = null): Poster
+    {
+        $poster->update($data);
+
+        if ($image) {
+            $poster->addMedia($image->getRealPath())
+                ->usingFileName('poster-'.$poster->id.'.'.$image->getClientOriginalExtension())
+                ->toMediaCollection('image');
+        }
+
+        $this->flushCache();
+
+        return $poster->fresh();
+    }
+
     public function toggleActive(Poster $poster): void
     {
         $poster->update(['is_active' => ! $poster->is_active]);

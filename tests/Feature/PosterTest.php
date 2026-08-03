@@ -47,6 +47,49 @@ class PosterTest extends TestCase
         $this->assertNotNull($poster->imageUrl());
     }
 
+    public function test_admin_bisa_mengubah_poster_tanpa_wajib_ganti_gambar(): void
+    {
+        Storage::fake('public');
+
+        $poster = Poster::factory()->create(['title' => 'Judul Lama']);
+        $berkas = UploadedFile::fake()->image('poster-lama.jpg');
+        $poster->addMedia($berkas->getRealPath())->usingFileName('poster-lama.jpg')->toMediaCollection('image');
+
+        Livewire::actingAs($this->adminWeb())
+            ->test(Index::class)
+            ->call('edit', $poster->id)
+            ->assertSet('title', 'Judul Lama')
+            ->set('title', 'Judul Baru')
+            ->set('ends_at', '2026-12-31')
+            ->call('save')
+            ->assertHasNoErrors()
+            ->assertSet('editingId', null);
+
+        $poster->refresh();
+        $this->assertSame('Judul Baru', $poster->title);
+        $this->assertSame('2026-12-31', $poster->ends_at->format('Y-m-d'));
+        $this->assertStringContainsString('poster-lama.jpg', (string) $poster->imageUrl(), 'Gambar lama harus dipertahankan.');
+        $this->assertSame(1, Poster::count());
+    }
+
+    public function test_mengubah_poster_bisa_mengganti_gambar(): void
+    {
+        Storage::fake('public');
+
+        $poster = Poster::factory()->create(['title' => 'Poster']);
+        $lama = UploadedFile::fake()->image('poster-lama.jpg');
+        $poster->addMedia($lama->getRealPath())->usingFileName('poster-lama.jpg')->toMediaCollection('image');
+
+        Livewire::actingAs($this->adminWeb())
+            ->test(Index::class)
+            ->call('edit', $poster->id)
+            ->set('image', UploadedFile::fake()->image('poster-baru.jpg', 1200, 400))
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertStringNotContainsString('poster-lama.jpg', (string) $poster->fresh()->imageUrl());
+    }
+
     public function test_user_tanpa_permission_ditolak(): void
     {
         $anggota = User::factory()->create();

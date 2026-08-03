@@ -32,6 +32,22 @@ class PartnerService
         return $partner;
     }
 
+    /** Logo hanya diganti bila berkas baru diunggah; bila null, logo lama dipertahankan. */
+    public function update(Partner $partner, array $data, ?UploadedFile $logo = null): Partner
+    {
+        $partner->update($data);
+
+        if ($logo) {
+            $partner->addMedia($logo->getRealPath())
+                ->usingFileName('logo-'.$partner->id.'.'.$logo->getClientOriginalExtension())
+                ->toMediaCollection('logo');
+        }
+
+        $this->flushCache();
+
+        return $partner->fresh();
+    }
+
     public function toggleActive(Partner $partner): void
     {
         $partner->update(['is_active' => ! $partner->is_active]);

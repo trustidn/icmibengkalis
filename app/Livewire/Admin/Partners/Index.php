@@ -24,9 +24,32 @@ class Index extends Component
 
     public ?int $sort_order = null;
 
+    /** Bila terisi, form dalam mode ubah (bukan tambah). */
+    public ?int $editingId = null;
+
     public function mount(): void
     {
         abort_unless(auth()->user()->can('pages.manage'), 403);
+    }
+
+    public function edit(int $partnerId): void
+    {
+        abort_unless(auth()->user()->can('pages.manage'), 403);
+
+        $partner = Partner::findOrFail($partnerId);
+
+        $this->editingId = $partner->id;
+        $this->name = $partner->name;
+        $this->url = $partner->url;
+        $this->sort_order = $partner->sort_order;
+        $this->logo = null;
+        $this->resetValidation();
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->reset(['editingId', 'name', 'url', 'logo', 'sort_order']);
+        $this->resetValidation();
     }
 
     public function save(PartnerService $partners): void
@@ -40,16 +63,23 @@ class Index extends Component
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $partners->create([
+        $data = [
             'name' => $validated['name'],
             'url' => $validated['url'],
             'sort_order' => $validated['sort_order'] ?? 0,
-            'is_active' => true,
-        ], $this->logo);
+        ];
 
-        $this->reset(['name', 'url', 'logo', 'sort_order']);
+        if ($this->editingId) {
+            $partners->update(Partner::findOrFail($this->editingId), $data, $this->logo);
+            $pesan = 'Perubahan partner tersimpan.';
+        } else {
+            $partners->create([...$data, 'is_active' => true], $this->logo);
+            $pesan = 'Partner tersimpan.';
+        }
 
-        session()->flash('partners.saved', 'Partner tersimpan.');
+        $this->reset(['editingId', 'name', 'url', 'logo', 'sort_order']);
+
+        session()->flash('partners.saved', $pesan);
     }
 
     public function toggleActive(int $partnerId, PartnerService $partners): void

@@ -9,20 +9,23 @@
     @endif
 
     <div class="flex flex-col gap-6 lg:flex-row lg:items-start">
-        <flux:card class="w-full lg:w-1/3">
-            <flux:heading size="lg">Tambah Poster</flux:heading>
+        <flux:card @class(['w-full lg:w-1/3', 'ring-2 ring-blue-400' => $editingId])>
+            <flux:heading size="lg">{{ $editingId ? 'Ubah Poster' : 'Tambah Poster' }}</flux:heading>
             <form wire:submit="save" class="mt-4 flex flex-col gap-4">
                 <flux:input label="Judul" wire:model="title" placeholder="cth: Dirgahayu RI ke-81" required
                             description="Dipakai sebagai teks alternatif gambar." />
                 <flux:input type="file" label="Gambar Poster" wire:model="image" accept="image/png,image/jpeg,image/webp"
-                            description="PNG/JPG/WebP, maks. 4 MB. Disarankan format landscape/banner." />
+                            :description="$editingId ? 'Kosongkan bila tidak ingin mengganti gambar. PNG/JPG/WebP, maks. 4 MB.' : 'PNG/JPG/WebP, maks. 4 MB. Disarankan format landscape/banner.'" />
                 <flux:input label="Tautan (opsional)" wire:model="link_url" placeholder="https://..." />
                 <div class="grid grid-cols-2 gap-3">
                     <flux:input type="date" label="Mulai tayang" wire:model="starts_at" description="Kosongkan = langsung" />
                     <flux:input type="date" label="Berakhir" wire:model="ends_at" description="Kosongkan = tanpa batas" />
                 </div>
                 <div class="flex items-center gap-3">
-                    <flux:button type="submit" variant="primary">Simpan Poster</flux:button>
+                    <flux:button type="submit" variant="primary">{{ $editingId ? 'Simpan Perubahan' : 'Simpan Poster' }}</flux:button>
+                    @if ($editingId)
+                        <flux:button type="button" variant="ghost" wire:click="cancelEdit">Batal</flux:button>
+                    @endif
                     <span wire:loading wire:target="save,image" class="text-sm text-neutral-500">Memproses…</span>
                 </div>
             </form>
@@ -56,7 +59,8 @@
                                 @endif
                             </div>
                         </div>
-                        <div class="flex shrink-0 gap-2">
+                        <div class="flex shrink-0 flex-wrap gap-2">
+                            <flux:button size="sm" variant="primary" wire:click="edit({{ $poster->id }})">Ubah</flux:button>
                             <flux:button size="sm" wire:click="toggleActive({{ $poster->id }})">{{ $poster->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</flux:button>
                             <x-confirm-delete-button name="confirm-delete-poster-{{ $poster->id }}" wire-click="deletePoster({{ $poster->id }})" message="Hapus poster ini?" />
                         </div>

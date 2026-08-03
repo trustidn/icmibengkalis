@@ -27,34 +27,66 @@ class Index extends Component
 
     public string $ends_at = '';
 
+    /** Bila terisi, form dalam mode ubah (bukan tambah). */
+    public ?int $editingId = null;
+
     public function mount(): void
     {
         abort_unless(auth()->user()->can('pages.manage'), 403);
+    }
+
+    public function edit(int $posterId): void
+    {
+        abort_unless(auth()->user()->can('pages.manage'), 403);
+
+        $poster = Poster::findOrFail($posterId);
+
+        $this->editingId = $poster->id;
+        $this->title = $poster->title;
+        $this->link_url = (string) $poster->link_url;
+        $this->starts_at = $poster->starts_at?->format('Y-m-d') ?? '';
+        $this->ends_at = $poster->ends_at?->format('Y-m-d') ?? '';
+        $this->image = null;
+        $this->resetValidation();
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->reset(['editingId', 'title', 'image', 'link_url', 'starts_at', 'ends_at']);
+        $this->resetValidation();
     }
 
     public function save(PosterService $posters): void
     {
         abort_unless(auth()->user()->can('pages.manage'), 403);
 
+        // Saat mengubah, gambar boleh dikosongkan — gambar lama dipertahankan.
         $validated = $this->validate([
             'title' => ['required', 'string', 'max:255'],
-            'image' => ['required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
+            'image' => [$this->editingId ? 'nullable' : 'required', 'image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
             'link_url' => ['nullable', 'url', 'max:2048'],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
         ]);
 
-        $posters->create([
+        $data = [
             'title' => $validated['title'],
             'link_url' => $validated['link_url'] ?: null,
             'starts_at' => $validated['starts_at'] ?: null,
             'ends_at' => $validated['ends_at'] ?: null,
-            'is_active' => true,
-        ], $this->image);
+        ];
 
-        $this->reset(['title', 'image', 'link_url', 'starts_at', 'ends_at']);
+        if ($this->editingId) {
+            $posters->update(Poster::findOrFail($this->editingId), $data, $this->image);
+            $pesan = 'Perubahan poster tersimpan.';
+        } else {
+            $posters->create([...$data, 'is_active' => true], $this->image);
+            $pesan = 'Poster tersimpan.';
+        }
 
-        session()->flash('posters.saved', 'Poster tersimpan.');
+        $this->reset(['editingId', 'title', 'image', 'link_url', 'starts_at', 'ends_at']);
+
+        session()->flash('posters.saved', $pesan);
     }
 
     public function toggleActive(int $posterId, PosterService $posters): void
