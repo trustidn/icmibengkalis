@@ -230,4 +230,6 @@ prod-deploy: ensure-auth-json ## Build, up, migrate, cache config (rilis penuh)
 	$(PROD) up -d
 	$(PROD) exec app php artisan migrate --force
 	$(PROD) exec app sh -c "php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan event:cache"
+	# Sabuk pengaman: pastikan nginx menyambung ke container app yang baru di-recreate.
+	$(PROD) restart nginx
 	@echo "Deploy selesai."

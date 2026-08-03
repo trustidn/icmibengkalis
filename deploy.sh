@@ -32,4 +32,7 @@ $COMPOSE exec app php artisan migrate --force
 $COMPOSE exec app sh -c \
   "php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan event:cache"
 
+# Sabuk pengaman: pastikan nginx menyambung ke container app yang baru di-recreate.
+$COMPOSE restart nginx
+
 echo "Deploy selesai."
