@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Livewire\Admin\Publishing\Form as PublishingForm;
 use App\Models\Page;
+use App\Models\Post;
 use App\Models\SiteSetting;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -65,7 +66,7 @@ class EditorContentTest extends TestCase
             ->call('save')
             ->assertHasNoErrors();
 
-        $post = \App\Models\Post::where('title', 'Berita Bergambar')->first();
+        $post = Post::where('title', 'Berita Bergambar')->first();
 
         $this->assertNotNull($post);
         $this->assertNotNull($post->featuredImageUrl());
