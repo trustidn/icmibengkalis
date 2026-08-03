@@ -99,7 +99,19 @@ make prod-install
 
 `make prod-install` melakukan semuanya: isi `APP_KEY` otomatis bila masih kosong (via `make prod-key`, memakai container `php:8.3-cli` — tanpa perlu PHP di host), menolak jalan bila `DB_PASSWORD` masih nilai contoh, lalu build image → up → `migrate --force` → cache config/route/view/event → `db:seed --force` (data fondasi: RBAC, kecamatan, halaman statis, bidang keahlian, pengaturan situs — konten demo otomatis DILEWATI karena `APP_ENV=production`).
 
-Setelah selesai, buat akun Super Admin pertama (lihat [docs/10-panduan-teknis.md](10-panduan-teknis.md) untuk cara membuat user + assign role), aktifkan 2FA.
+Setelah selesai, buat akun Super Admin pertama:
+
+```bash
+make prod-admin        # interaktif: tanya email, nama, kata sandi (tersembunyi)
+```
+
+Perintah ini idempoten — bila email sudah terdaftar, akun tidak diduplikasi, hanya ditambahi perannya. Peran lain bisa dipilih dengan opsi `--role` (mis. `admin-web`), dan seluruh nilai bisa disebutkan langsung untuk pemakaian non-interaktif:
+
+```bash
+docker compose --env-file .env.production -f docker-compose.prod.yml exec app php artisan icmi:admin --name="Nama" --email=admin@domain --password='...' --role=admin-web
+```
+
+Masuk lewat `/login` dengan akun tersebut, lalu buka **Konfigurasi Web** untuk mengatur identitas situs (nama, logo, hero, favicon, kontak, media sosial). Untuk dev, perintah yang sama tersedia sebagai `make admin`.
 
 ### 11.3.2 Deploy / rilis
 

@@ -7,8 +7,8 @@ PROD := docker compose --env-file .env.production -f docker-compose.prod.yml
 
 .PHONY: help \
 	env up down restart build ps logs shell db-shell redis-cli \
-	install key fresh migrate seed test pint npm artisan composer \
-	guard-prod-env ensure-auth-json prod-env prod-key prod-install prod-seed-rbac prod-seed-demo \
+	install key fresh migrate seed test pint npm artisan composer admin \
+	guard-prod-env ensure-auth-json prod-env prod-key prod-install prod-seed-rbac prod-seed-demo prod-admin \
 	prod-build prod-up prod-down prod-restart prod-logs prod-ps prod-shell \
 	prod-migrate prod-artisan prod-cache prod-cache-clear \
 	prod-db-shell prod-db-backup prod-backup prod-restore prod-deploy prod-release-check
@@ -135,6 +135,12 @@ prod-install: guard-prod-env ensure-auth-json prod-key ## Instalasi awal produks
 
 prod-seed-rbac: ## Jalankan RolePermissionSeeder produksi (idempoten; ulangi setelah menambah permission)
 	$(PROD) exec app php artisan db:seed --class=RolePermissionSeeder --force
+
+prod-admin: ## Buat akun admin produksi (interaktif; tambah peran bila email sudah ada)
+	$(PROD) exec app php artisan icmi:admin
+
+admin: ## Buat akun admin dev (interaktif)
+	$(DEV) exec app php artisan icmi:admin
 
 prod-seed-demo: guard-prod-env ## Isi data demo di produksi (set DEMO_SEED=true, up ulang, seed penuh)
 	@grep -qE '^DEMO_SEED=true$$' .env.production || { \
