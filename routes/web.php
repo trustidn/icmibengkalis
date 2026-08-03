@@ -23,6 +23,20 @@ use Livewire\Volt\Volt;
 
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
 
+// Dinamis agar baris Sitemap: memakai URL absolut sesuai domain (spec robots).
+Route::get('/robots.txt', function () {
+    $lines = [
+        'User-agent: *',
+        'Disallow: /admin',
+        'Disallow: /settings',
+        'Disallow: /dashboard',
+        '',
+        'Sitemap: '.route('sitemap'),
+    ];
+
+    return response(implode("\n", $lines), 200)->header('Content-Type', 'text/plain');
+})->name('robots');
+
 Route::get('/arsip/{document}/unduh', [DocumentDownloadController::class, 'show'])->name('archive.download');
 Route::get('/arsip/{document}/versi/{version}/unduh', [DocumentDownloadController::class, 'show'])->name('archive.download.version');
 

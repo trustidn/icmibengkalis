@@ -19,8 +19,13 @@ class SitemapController extends Controller
         $xml = Cache::remember('public.sitemap.xml', now()->addHour(), function () {
             $urls = collect([
                 ['loc' => route('home'), 'lastmod' => now()],
+                ['loc' => route('posts.index'), 'lastmod' => now()],
+                ['loc' => route('agenda.index'), 'lastmod' => now()],
+                ['loc' => route('gallery.index'), 'lastmod' => now()],
+                ['loc' => route('announcements.index'), 'lastmod' => now()],
                 ['loc' => route('org-chart.show'), 'lastmod' => now()],
                 ['loc' => route('archive.index'), 'lastmod' => now()],
+                ['loc' => route('contact.show'), 'lastmod' => now()],
             ]);
 
             $urls = $urls->merge(
@@ -31,7 +36,10 @@ class SitemapController extends Controller
             );
 
             $urls = $urls->merge(
-                Post::where('status', PostStatus::Published)->get()->map(fn (Post $post) => [
+                // Artikel terjadwal (tanggal masa depan) masih 404 publik — jangan didaftarkan.
+                Post::where('status', PostStatus::Published)
+                    ->where('published_at', '<=', now())
+                    ->get()->map(fn (Post $post) => [
                     'loc' => route('posts.show', $post->slug),
                     'lastmod' => $post->updated_at,
                 ])
