@@ -319,16 +319,16 @@
                         @else
                             <span class="material-symbols-outlined text-white/20 text-[160px]">article</span>
                         @endif
-                        <div class="absolute inset-0 bg-gradient-to-t from-on-surface/90 via-on-surface/40 to-transparent"></div>
+                        <div class="absolute inset-0 bg-gradient-to-t from-on-surface/40 via-transparent to-transparent"></div>
                         <a href="{{ route('posts.show', $latestPosts[0]->slug) }}" wire:navigate class="absolute inset-0 z-10" aria-label="{{ $latestPosts[0]->title }}"></a>
-                        <div class="absolute bottom-0 left-0 p-8 md:p-10 space-y-5 w-full">
-                            <span class="bg-primary-container text-on-primary-container px-4 py-1.5 rounded text-label-lg font-bold shadow-lg">
+                        <div class="absolute bottom-0 left-0 w-full bg-on-surface/70 backdrop-blur-sm p-5 md:p-6 space-y-3">
+                            <span class="inline-block bg-primary-container text-on-primary-container px-3 py-1 rounded text-label-md font-bold shadow-lg">
                                 {{ $latestPosts[0]->category?->name ?? $latestPosts[0]->type->label() }}
                             </span>
-                            <h3 class="text-white font-headline-lg text-headline-lg leading-tight group-hover:text-primary-container transition-colors duration-300">
+                            <h3 class="text-white font-headline-md text-[20px] md:text-[24px] leading-snug line-clamp-3 group-hover:text-primary-container transition-colors duration-300">
                                 {{ $latestPosts[0]->title }}
                             </h3>
-                            <div class="flex flex-wrap items-center gap-x-8 gap-y-3 pt-4 border-t border-white/20">
+                            <div class="flex flex-wrap items-center gap-x-6 gap-y-2 pt-3 border-t border-white/20">
                                 <x-public.author-chip :user="$latestPosts[0]->author" dark class="relative z-20 hover:opacity-80 transition-opacity" />
                                 <span class="flex items-center gap-2 text-white/80 font-label-lg text-label-lg"><span class="material-symbols-outlined text-[18px]">calendar_today</span> {{ $latestPosts[0]->published_at?->translatedFormat('d F Y') }}</span>
                             </div>

@@ -24,6 +24,9 @@
             @endforeach
         </flux:select>
 
+        <flux:input type="date" label="Tanggal Artikel" wire:model="published_at"
+                    description="Menentukan urutan tampil artikel. Kosongkan agar terisi otomatis dengan tanggal terbit." />
+
         <flux:textarea label="Ringkasan" wire:model="excerpt" rows="3" />
 
         <x-rich-editor wire:model="body" label="Isi" />

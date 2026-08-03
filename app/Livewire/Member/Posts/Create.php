@@ -30,6 +30,8 @@ class Create extends Component
 
     public $featured_image = null;
 
+    public ?string $published_at = null;
+
     public bool $submitted = false;
 
     public function mount(?Post $post = null): void
@@ -43,6 +45,7 @@ class Create extends Component
             $this->title = $post->title;
             $this->excerpt = (string) $post->excerpt;
             $this->body = $post->body;
+            $this->published_at = $post->published_at?->format('Y-m-d');
         } else {
             $this->authorize('create', Post::class);
 
@@ -57,10 +60,17 @@ class Create extends Component
             'title' => ['required', 'string', 'max:255'],
             'excerpt' => ['nullable', 'string', 'max:500'],
             'body' => ['required', 'string'],
+            'published_at' => ['nullable', 'date'],
             'featured_image' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
         ]);
 
         unset($validated['featured_image']);
+
+        // MariaDB strict menolak '' untuk kolom tanggal; kosong berarti
+        // "jangan ubah" — tanggal terisi otomatis saat terbit jika belum ada.
+        if (blank($validated['published_at'] ?? null)) {
+            unset($validated['published_at']);
+        }
 
         if ($this->post) {
             if ($this->post->status === PostStatus::Rejected) {
@@ -91,7 +101,7 @@ class Create extends Component
             return;
         }
 
-        $this->reset(['title', 'excerpt', 'body', 'featured_image']);
+        $this->reset(['title', 'excerpt', 'body', 'featured_image', 'published_at']);
         $this->type = 'opini';
         $this->submitted = true;
     }

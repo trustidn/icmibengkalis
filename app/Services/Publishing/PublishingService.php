@@ -67,10 +67,13 @@ class PublishingService
         $this->submitForReview($post);
 
         $post->status = PostStatus::Published;
-        $post->published_at = now();
+        // Hormati tanggal artikel yang sudah ditentukan penulis; isi otomatis jika kosong.
+        $post->published_at = $post->published_at ?? now();
         $post->save();
 
-        PostPublished::dispatch($post);
+        if ($post->published_at->lessThanOrEqualTo(now())) {
+            PostPublished::dispatch($post);
+        }
 
         return $post;
     }
@@ -96,7 +99,7 @@ class PublishingService
         $post->status = PostStatus::Published;
         $post->reviewed_by = $reviewerId;
         $post->review_note = null;
-        $post->published_at = $publishAt ? Carbon::parse($publishAt) : now();
+        $post->published_at = $publishAt ? Carbon::parse($publishAt) : ($post->published_at ?? now());
         $post->save();
 
         if ($post->published_at->lessThanOrEqualTo(now())) {

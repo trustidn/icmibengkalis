@@ -33,6 +33,8 @@ class Form extends Component
 
     public ?int $org_unit_id = null;
 
+    public ?string $published_at = null;
+
     /** @var array<int> */
     public array $selectedTags = [];
 
@@ -47,6 +49,7 @@ class Form extends Component
             $this->body = $post->body;
             $this->post_category_id = $post->post_category_id;
             $this->org_unit_id = $post->org_unit_id;
+            $this->published_at = $post->published_at?->format('Y-m-d');
             $this->selectedTags = $post->tags()->pluck('tags.id')->all();
         } else {
             $this->authorize('create', Post::class);
@@ -62,10 +65,17 @@ class Form extends Component
             'body' => ['required', 'string'],
             'post_category_id' => ['nullable', 'exists:post_categories,id'],
             'org_unit_id' => ['nullable', 'exists:org_units,id'],
+            'published_at' => ['nullable', 'date'],
             'featured_image' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
         ]);
 
         unset($validated['featured_image']);
+
+        // MariaDB strict menolak '' untuk kolom tanggal; kosong berarti
+        // "jangan ubah" — tanggal terisi otomatis saat terbit jika belum ada.
+        if (blank($validated['published_at'] ?? null)) {
+            unset($validated['published_at']);
+        }
 
         if ($this->post) {
             $publishing->update($this->post, $validated, $this->selectedTags, auth()->id());
