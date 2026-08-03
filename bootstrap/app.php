@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\ForceHttpsScheme;
 use App\Http\Middleware\TrackPageView;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -27,6 +28,10 @@ return Application::configure(basePath: dirname(__DIR__))
         // Di produksi app berada di belakang proxy/CDN yang menangani TLS —
         // percayai header X-Forwarded-* agar Laravel tahu request aslinya HTTPS.
         $middleware->trustProxies(at: '*');
+
+        // Jaring pengaman bila proxy TIDAK mengirim X-Forwarded-Proto: tanpa ini
+        // URL bertanda tangan (unggahan Livewire) gagal validasi -> HTTP 401.
+        $middleware->prepend(ForceHttpsScheme::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
