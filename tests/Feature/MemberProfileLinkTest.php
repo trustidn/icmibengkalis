@@ -27,6 +27,35 @@ class MemberProfileLinkTest extends TestCase
             ->assertSee(route('profiles.show', $member->slug));
     }
 
+    public function test_chip_penulis_menampilkan_nama_dan_profesi_di_semua_tampilan(): void
+    {
+        $member = Member::factory()->create(['full_name' => 'Rina Marlina', 'profession' => 'Dosen Ekonomi', 'status' => MemberStatus::Aktif]);
+        $user = User::factory()->create(['name' => 'Rina Marlina']);
+        $member->update(['user_id' => $user->id]);
+
+        $post = Post::factory()->published()->create(['author_id' => $user->id]);
+
+        // Halaman artikel lengkap
+        $this->get(route('posts.show', $post->slug))
+            ->assertOk()
+            ->assertSee('Rina Marlina')
+            ->assertSee('Dosen Ekonomi')
+            ->assertSee(route('profiles.show', $member->slug));
+
+        // Daftar /berita
+        $this->get(route('posts.index'))
+            ->assertOk()
+            ->assertSee('Rina Marlina')
+            ->assertSee('Dosen Ekonomi')
+            ->assertSee(route('profiles.show', $member->slug));
+
+        // Beranda (kartu Warta)
+        $this->get('/')
+            ->assertOk()
+            ->assertSee('Rina Marlina')
+            ->assertSee('Dosen Ekonomi');
+    }
+
     public function test_byline_penulis_teks_biasa_jika_penulis_tanpa_akun_anggota(): void
     {
         $user = User::factory()->create(['name' => 'Penulis Tanpa Anggota']);

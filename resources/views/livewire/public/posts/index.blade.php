@@ -26,8 +26,11 @@
         @if ($posts->isNotEmpty())
             <div class="grid gap-gutter sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($posts as $post)
-                    <a wire:key="post-{{ $post->id }}" href="{{ route('posts.show', $post->slug) }}" wire:navigate
-                       class="group bg-white rounded-xl border border-outline-variant/30 card-shadow-hover transition-all duration-300 overflow-hidden flex flex-col">
+                    {{-- Kartu memakai overlay-link (bukan <a> pembungkus) agar chip penulis
+                         di dalamnya bisa jadi tautan tersendiri tanpa nested anchor. --}}
+                    <div wire:key="post-{{ $post->id }}"
+                         class="group relative bg-white rounded-xl border border-outline-variant/30 card-shadow-hover transition-all duration-300 overflow-hidden flex flex-col">
+                        <a href="{{ route('posts.show', $post->slug) }}" wire:navigate class="absolute inset-0 z-0" aria-label="{{ $post->title }}"></a>
                         @if ($post->featuredImageUrl())
                             <img src="{{ $post->featuredImageUrl() }}" alt="{{ $post->title }}" class="aspect-video w-full object-cover" />
                         @else
@@ -37,9 +40,12 @@
                             <span class="text-secondary font-bold text-[12px] uppercase tracking-widest mb-3">{{ $post->category?->name ?? $post->type->label() }}</span>
                             <h3 class="font-headline-md text-[20px] leading-tight text-on-surface group-hover:text-primary transition-colors mb-3">{{ $post->title }}</h3>
                             <p class="font-body-md text-on-surface-variant line-clamp-3 opacity-80 flex-1">{{ $post->excerpt }}</p>
-                            <p class="mt-4 pt-4 border-t border-outline-variant/20 text-label-lg font-label-lg text-on-surface-variant/70">{{ $post->published_at?->translatedFormat('d F Y') }}</p>
+                            <div class="mt-4 pt-4 border-t border-outline-variant/20 flex items-center justify-between gap-3">
+                                <x-public.author-chip :user="$post->author" class="relative z-10 hover:opacity-80 transition-opacity" />
+                                <span class="shrink-0 text-label-lg font-label-lg text-on-surface-variant/70">{{ $post->published_at?->translatedFormat('d M Y') }}</span>
+                            </div>
                         </div>
-                    </a>
+                    </div>
                 @endforeach
             </div>
         @else

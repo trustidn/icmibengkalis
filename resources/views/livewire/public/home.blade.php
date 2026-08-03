@@ -320,13 +320,9 @@
                             <h3 class="text-white font-headline-lg text-headline-lg leading-tight group-hover:text-primary-container transition-colors duration-300">
                                 {{ $latestPosts[0]->title }}
                             </h3>
-                            <div class="flex flex-wrap items-center gap-6 text-white/80 font-label-lg text-label-lg pt-4 border-t border-white/20">
-                                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">calendar_today</span> {{ $latestPosts[0]->published_at?->translatedFormat('d F Y') }}</span>
-                                @if ($latestPosts[0]->author)
-                                    <x-public.member-link :member="$latestPosts[0]->author->member" class="relative z-20 flex items-center gap-2 hover:text-primary-container transition-colors">
-                                        <span class="material-symbols-outlined text-[18px]">account_circle</span> {{ $latestPosts[0]->author->name }}
-                                    </x-public.member-link>
-                                @endif
+                            <div class="flex flex-wrap items-center gap-x-8 gap-y-3 pt-4 border-t border-white/20">
+                                <x-public.author-chip :user="$latestPosts[0]->author" dark class="relative z-20 hover:opacity-80 transition-opacity" />
+                                <span class="flex items-center gap-2 text-white/80 font-label-lg text-label-lg"><span class="material-symbols-outlined text-[18px]">calendar_today</span> {{ $latestPosts[0]->published_at?->translatedFormat('d F Y') }}</span>
                             </div>
                         </div>
                     </article>
@@ -343,6 +339,7 @@
                                 <span class="text-secondary font-bold text-[12px] uppercase tracking-widest mb-2">{{ $post->category?->name ?? $post->type->label() }}</span>
                                 <h4 class="font-headline-md text-[18px] group-hover:text-primary transition-colors leading-tight mb-2">{{ $post->title }}</h4>
                                 <p class="text-on-surface-variant font-body-md line-clamp-2 opacity-80 text-sm">{{ $post->excerpt }}</p>
+                                <x-public.author-chip :user="$post->author" class="relative z-10 mt-3 hover:opacity-80 transition-opacity" />
                             </div>
                         </article>
                     @endforeach

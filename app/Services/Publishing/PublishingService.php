@@ -141,7 +141,7 @@ class PublishingService
                 ->where('slug', $slug)
                 ->where('status', PostStatus::Published)
                 ->where('published_at', '<=', now())
-                ->with(['category', 'tags', 'author.member', 'media'])
+                ->with(['category', 'tags', 'author.member.media', 'media'])
                 ->first();
         });
     }
@@ -153,7 +153,7 @@ class PublishingService
             ->where('published_at', '<=', now())
             ->when($categorySlug, fn ($q) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $categorySlug)))
             ->when($tagSlug, fn ($q) => $q->whereHas('tags', fn ($q2) => $q2->where('slug', $tagSlug)))
-            ->with(['category', 'media', 'author.member']);
+            ->with(['category', 'media', 'author.member.media']);
 
         if ($search) {
             return Post::search($search)->query($constrain)->paginate($perPage);

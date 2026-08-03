@@ -4,13 +4,9 @@
         <div class="max-w-3xl mx-auto">
             <span class="text-secondary font-bold text-[12px] uppercase tracking-widest">{{ $post->category?->name ?? $post->type->label() }}</span>
             <h1 class="mt-3 font-headline-lg text-headline-lg md:font-display-lg md:text-display-lg text-on-surface leading-tight">{{ $post->title }}</h1>
-            <div class="mt-6 flex items-center gap-6 font-label-lg text-label-lg text-on-surface-variant">
-                @if ($post->author)
-                    <x-public.member-link :member="$post->author->member" class="flex items-center gap-2 hover:text-primary transition-colors">
-                        <span class="material-symbols-outlined text-[18px]">account_circle</span> {{ $post->author->name }}
-                    </x-public.member-link>
-                @endif
-                <span class="flex items-center gap-2"><span class="material-symbols-outlined text-[18px]">calendar_today</span> {{ $post->published_at?->translatedFormat('d F Y') }}</span>
+            <div class="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
+                <x-public.author-chip :user="$post->author" class="hover:opacity-80 transition-opacity" />
+                <span class="flex items-center gap-2 font-label-lg text-label-lg text-on-surface-variant"><span class="material-symbols-outlined text-[18px]">calendar_today</span> {{ $post->published_at?->translatedFormat('d F Y') }}</span>
             </div>
         </div>
     </div>
