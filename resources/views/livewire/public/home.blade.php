@@ -198,9 +198,17 @@
 
         <section class="relative overflow-hidden bg-on-surface border-b border-outline-variant/20 hidden lg:block">
             @if ($greetingPage->featuredImageUrl())
-                <img src="{{ $greetingPage->featuredImageUrl() }}" alt="{{ $greetingPage->title }}"
-                     class="absolute inset-0 w-full h-full object-cover object-right-top" />
-                <div class="absolute inset-0 bg-gradient-to-r from-on-surface/95 via-on-surface/70 to-on-surface/15"></div>
+                {{-- Foto dibatasi hanya di PARUH KANAN section (bukan full-bleed) dengan
+                     gradasi peleburan di tepi kirinya — teks selalu berada di atas panel
+                     gelap solid, sehingga komposisi foto APA PUN (subjek di tengah/kiri/
+                     kanan) tidak pernah tertindih teks. --}}
+                <div class="absolute inset-y-0 right-0 w-[55%]">
+                    <img src="{{ $greetingPage->featuredImageUrl() }}" alt="{{ $greetingPage->title }}"
+                         class="h-full w-full object-cover object-top" />
+                    {{-- Peleburan lebar: solid gelap di 12% pertama lalu memudar perlahan,
+                         supaya sambungan panel-teks ke foto tidak tampak sebagai garis. --}}
+                    <div class="absolute inset-0 bg-gradient-to-r from-on-surface from-12% via-on-surface/40 via-55% to-on-surface/10"></div>
+                </div>
             @else
                 <div class="absolute inset-0 bg-gradient-to-br from-on-surface via-on-surface to-primary/30"></div>
             @endif
