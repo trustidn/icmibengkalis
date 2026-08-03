@@ -10,7 +10,7 @@
                        class="group bg-white rounded-xl border border-outline-variant/30 card-shadow-hover transition-all duration-300 overflow-hidden flex flex-col">
                         <div class="relative aspect-[16/10] w-full overflow-hidden bg-surface-container-low">
                             @if ($thumb)
-                                <img src="{{ $thumb }}" alt="{{ $album->title }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                <img src="{{ $thumb }}" alt="{{ $album->title }}" loading="lazy" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                             @else
                                 <x-public.image-placeholder icon="photo_library" class="w-full h-full" />
                             @endif

@@ -400,7 +400,7 @@
                                 <flux:modal.trigger name="home-lightbox-{{ $item->id }}">
                                     <button type="button" class="{{ $tileClasses }}">
                                         @if ($thumb)
-                                            <img src="{{ $thumb }}" alt="{{ $item->caption ?: $item->album->title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                            <img src="{{ $thumb }}" alt="{{ $item->caption ?: $item->album->title }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                             <div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 to-transparent"></div>
                                         @else
                                             <span class="material-symbols-outlined text-white/70 text-[28px] absolute top-5 left-1/2 -translate-x-1/2">photo_library</span>
@@ -423,7 +423,7 @@
                             @else
                                 <a href="{{ route('gallery.show', $item->album->slug) }}" wire:navigate class="{{ $tileClasses }}">
                                     @if ($thumb)
-                                        <img src="{{ $thumb }}" alt="{{ $item->caption ?: $item->album->title }}" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                                        <img src="{{ $thumb }}" alt="{{ $item->caption ?: $item->album->title }}" loading="lazy" class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                                         <div class="absolute inset-0 bg-gradient-to-t from-on-surface/80 to-transparent"></div>
                                     @else
                                         <span class="material-symbols-outlined text-white/70 text-[28px] absolute top-5 left-1/2 -translate-x-1/2">photo_library</span>

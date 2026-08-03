@@ -214,4 +214,38 @@ class GalleryTest extends TestCase
         $this->assertSame('https://img.youtube.com/vi/YE7VzlLtp-4/hqdefault.jpg', $videoItem->thumbnailUrl());
         $this->assertSame('https://www.youtube-nocookie.com/embed/YE7VzlLtp-4', $videoItem->embedUrl());
     }
+
+    public function test_foto_galeri_menghasilkan_konversi_thumb_dan_large(): void
+    {
+        Storage::fake('public');
+
+        $album = Album::factory()->create(['type' => 'foto']);
+        $item = app(GalleryService::class)->addPhoto($album, UploadedFile::fake()->image('foto.jpg', 2000, 1500));
+
+        $media = $item->getFirstMedia('photo');
+        $this->assertTrue($media->hasGeneratedConversion('thumb'));
+        $this->assertTrue($media->hasGeneratedConversion('large'));
+
+        // Grid memakai 'thumb', lightbox memakai 'large' — bukan file asli.
+        $this->assertStringContainsString('thumb', $item->thumbnailUrl());
+        $this->assertStringContainsString('large', $item->largeUrl());
+        $this->assertStringEndsWith('.webp', $item->thumbnailUrl());
+    }
+
+    public function test_thumbnail_jatuh_ke_file_asli_bila_konversi_belum_ada(): void
+    {
+        Storage::fake('public');
+
+        $album = Album::factory()->create(['type' => 'foto']);
+        $item = app(GalleryService::class)->addPhoto($album, UploadedFile::fake()->image('foto.jpg'));
+
+        // Simulasikan media lama / konversi yang masih diproses queue.
+        $media = $item->getFirstMedia('photo');
+        $media->generated_conversions = [];
+        $media->save();
+
+        $url = $item->fresh()->thumbnailUrl();
+        $this->assertNotNull($url);
+        $this->assertStringNotContainsString('thumb', $url);
+    }
 }

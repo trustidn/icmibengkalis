@@ -10,7 +10,7 @@
                             <flux:modal.trigger name="lightbox-{{ $item->id }}">
                                 <button type="button" class="relative block w-full aspect-video group">
                                     @if ($item->thumbnailUrl())
-                                        <img src="{{ $item->thumbnailUrl() }}" class="h-full w-full object-cover" alt="{{ $item->caption ?: $album->title }}">
+                                        <img src="{{ $item->thumbnailUrl() }}" loading="lazy" class="h-full w-full object-cover" alt="{{ $item->caption ?: $album->title }}">
                                     @else
                                         <x-public.image-placeholder icon="videocam" class="aspect-video w-full" />
                                     @endif
@@ -35,11 +35,11 @@
                         @elseif ($item->thumbnailUrl())
                             <flux:modal.trigger name="lightbox-{{ $item->id }}">
                                 <button type="button" class="block w-full">
-                                    <img src="{{ $item->thumbnailUrl() }}" class="aspect-square w-full object-cover" alt="{{ $item->caption ?: $album->title }}">
+                                    <img src="{{ $item->thumbnailUrl() }}" loading="lazy" class="aspect-square w-full object-cover" alt="{{ $item->caption ?: $album->title }}">
                                 </button>
                             </flux:modal.trigger>
                             <flux:modal name="lightbox-{{ $item->id }}" class="max-w-3xl">
-                                <img src="{{ $item->thumbnailUrl() }}" class="w-full h-auto rounded-lg" alt="{{ $item->caption ?: $album->title }}">
+                                <img src="{{ $item->largeUrl() }}" loading="lazy" class="w-full h-auto rounded-lg" alt="{{ $item->caption ?: $album->title }}">
                                 @if ($item->caption)
                                     <p class="mt-3 font-body-md text-on-surface-variant text-sm">{{ $item->caption }}</p>
                                 @endif
