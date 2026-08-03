@@ -71,6 +71,31 @@ class MemberProfileTest extends TestCase
         $this->assertNull($member->getRawOriginal('bio'));
     }
 
+    public function test_anggota_bisa_menambah_dan_menghapus_riwayat_pendidikan_dari_profil(): void
+    {
+        $user = User::factory()->create();
+        $member = Member::factory()->create(['user_id' => $user->id]);
+
+        Livewire::actingAs($user)
+            ->test(ProfileEdit::class)
+            ->set('eduLevel', 'S2')
+            ->set('eduInstitution', 'Universitas Riau')
+            ->set('eduMajor', 'Ekonomi Syariah')
+            ->set('eduGraduatedYear', '2015')
+            ->call('addEducation')
+            ->assertHasNoErrors();
+
+        $education = $member->educations()->first();
+        $this->assertNotNull($education);
+        $this->assertSame('Universitas Riau', $education->institution);
+
+        Livewire::actingAs($user)
+            ->test(ProfileEdit::class)
+            ->call('deleteEducation', $education->id);
+
+        $this->assertSame(0, $member->educations()->count());
+    }
+
     public function test_anggota_bisa_mengunggah_foto_profil(): void
     {
         Storage::fake('public');

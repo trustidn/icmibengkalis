@@ -91,4 +91,31 @@
             @endif
         </div>
     </form>
+
+    <flux:card class="mt-8">
+        <flux:heading size="lg">Riwayat Pendidikan</flux:heading>
+
+        <form wire:submit="addEducation" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <flux:select label="Jenjang" wire:model="eduLevel">
+                @foreach ($educationLevels as $case)
+                    <option value="{{ $case->value }}">{{ $case->label() }}</option>
+                @endforeach
+            </flux:select>
+            <flux:input label="Institusi" wire:model="eduInstitution" />
+            <flux:input label="Jurusan" wire:model="eduMajor" />
+            <flux:input type="number" label="Tahun Lulus" wire:model="eduGraduatedYear" />
+            <div class="col-span-2 sm:col-span-4"><flux:button type="submit" size="sm">Tambah Pendidikan</flux:button></div>
+        </form>
+
+        <div class="mt-4 flex flex-col gap-2">
+            @forelse ($educations as $education)
+                <div wire:key="edu-{{ $education->id }}" class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                    <flux:text>{{ $education->level->label() }} — {{ $education->institution }} @if($education->major) ({{ $education->major }}) @endif @if($education->graduated_year) · {{ $education->graduated_year }} @endif</flux:text>
+                    <flux:button wire:click="deleteEducation({{ $education->id }})" size="sm" variant="danger">Hapus</flux:button>
+                </div>
+            @empty
+                <flux:text class="text-zinc-500">Belum ada riwayat pendidikan.</flux:text>
+            @endforelse
+        </div>
+    </flux:card>
 </div>

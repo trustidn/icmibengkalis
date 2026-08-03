@@ -10,11 +10,24 @@ use App\Models\MemberEducation;
 use App\Services\Membership\MemberService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.app')]
 class Form extends Component
 {
+    use WithFileUploads;
+
     public ?Member $member = null;
+
+    public $photo = null;
+
+    public string $bio = '';
+
+    public string $website = '';
+
+    public string $whatsapp = '';
+
+    public string $linkedin = '';
 
     public string $eduLevel = 'S1';
 
@@ -71,6 +84,10 @@ class Form extends Component
             $this->status = $member->status->value;
             $this->joined_at = $member->joined_at?->format('Y-m-d') ?? '';
             $this->show_contact_public = $member->show_contact_public;
+            $this->bio = (string) $member->bio;
+            $this->website = (string) ($member->social_links['website'] ?? '');
+            $this->whatsapp = (string) ($member->social_links['whatsapp'] ?? '');
+            $this->linkedin = (string) ($member->social_links['linkedin'] ?? '');
         } else {
             $this->authorize('create', Member::class);
             $this->joined_at = now()->format('Y-m-d');
@@ -94,21 +111,46 @@ class Form extends Component
             'status' => ['required', 'in:'.implode(',', array_map(fn ($case) => $case->value, MemberStatus::cases()))],
             'joined_at' => ['nullable', 'date'],
             'show_contact_public' => ['boolean'],
+            'bio' => ['nullable', 'string', 'max:2000'],
+            'website' => ['nullable', 'url', 'max:255'],
+            'whatsapp' => ['nullable', 'string', 'max:50'],
+            'linkedin' => ['nullable', 'url', 'max:255'],
+            'photo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
         ]);
 
         // Field opsional kosong WAJIB null, bukan string kosong — MariaDB strict mode
         // menolak '' untuk kolom DATE (birth_date/joined_at) -> error 500 saat simpan.
-        foreach (['title_prefix', 'title_suffix', 'gender', 'birth_place', 'birth_date', 'address', 'institution', 'profession', 'expertise', 'joined_at'] as $field) {
+        foreach (['title_prefix', 'title_suffix', 'gender', 'birth_place', 'birth_date', 'address', 'institution', 'profession', 'expertise', 'joined_at', 'bio'] as $field) {
             $validated[$field] = $validated[$field] ?: null;
         }
 
+        $data = collect($validated)->except(['website', 'whatsapp', 'linkedin', 'photo'])->all();
+        $data['social_links'] = array_filter([
+            'website' => $validated['website'] ?: null,
+            'whatsapp' => $validated['whatsapp'] ?: null,
+            'linkedin' => $validated['linkedin'] ?: null,
+        ]);
+
         if ($this->member) {
-            $members->update($this->member, $validated);
+            $members->update($this->member, $data);
         } else {
-            $this->member = $members->create($validated);
+            $this->member = $members->create($data);
+        }
+
+        if ($this->photo) {
+            $this->member->addMedia($this->photo->getRealPath())
+                ->usingFileName('photo.'.$this->photo->getClientOriginalExtension())
+                ->toMediaCollection('photo');
         }
 
         $this->redirectRoute('admin.members.index', navigate: true);
+    }
+
+    public function removePhoto(): void
+    {
+        $this->authorize('update', $this->member);
+
+        $this->member->clearMediaCollection('photo');
     }
 
     public function addEducation(): void

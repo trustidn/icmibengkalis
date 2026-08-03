@@ -5,6 +5,28 @@
     @endif
 
     <form wire:submit="save" class="mt-6 flex flex-col gap-4">
+        <div class="flex flex-col gap-2">
+            <flux:heading size="sm">Foto Profil</flux:heading>
+            <div class="flex items-center gap-4">
+                @if ($member?->photoUrl())
+                    <img src="{{ $member->photoUrl() }}" alt="{{ $member->full_name }}" class="h-16 w-16 rounded-full object-cover" />
+                @else
+                    <span class="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-100 dark:bg-zinc-800">
+                        <span class="material-symbols-outlined text-zinc-400">person</span>
+                    </span>
+                @endif
+                <div class="flex flex-1 flex-col gap-2">
+                    <flux:input type="file" wire:model="photo" accept="image/png,image/jpeg,image/webp"
+                                description="PNG/JPG/WebP, maks. 2 MB. Menggantikan foto lama saat disimpan." />
+                    @if ($member?->photoUrl())
+                        <x-confirm-delete-button name="confirm-remove-member-photo" wire-click="removePhoto" message="Hapus foto profil anggota ini?" label="Hapus Foto" />
+                    @endif
+                </div>
+            </div>
+        </div>
+
+        <flux:separator class="my-1" />
+
         <div class="grid grid-cols-3 gap-4">
             <flux:input label="Gelar Depan" wire:model="title_prefix" />
             <flux:input label="Nama Lengkap" wire:model="full_name" class="col-span-2" />
@@ -47,10 +69,19 @@
             <flux:input type="date" label="Tanggal Bergabung" wire:model="joined_at" />
         </div>
 
+        <flux:textarea label="Riwayat Singkat / Bio" wire:model="bio" rows="4" />
+
+        <div class="grid grid-cols-3 gap-4">
+            <flux:input label="Website" wire:model="website" placeholder="https://..." />
+            <flux:input label="WhatsApp" wire:model="whatsapp" placeholder="08..." />
+            <flux:input label="LinkedIn" wire:model="linkedin" placeholder="https://linkedin.com/in/..." />
+        </div>
+
         <flux:checkbox wire:model="show_contact_public" label="Tampilkan kontak di profil publik" />
 
-        <div>
+        <div class="flex items-center gap-3">
             <flux:button type="submit" variant="primary">Simpan</flux:button>
+            <span wire:loading wire:target="save,photo" class="text-sm text-zinc-500">Memproses…</span>
         </div>
     </form>
 

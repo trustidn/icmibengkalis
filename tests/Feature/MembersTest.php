@@ -3,12 +3,15 @@
 namespace Tests\Feature;
 
 use App\Enums\MemberStatus;
+use App\Livewire\Admin\Members\Form;
 use App\Livewire\Admin\Members\Index as MembersIndex;
 use App\Models\District;
 use App\Models\Member;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -21,6 +24,35 @@ class MembersTest extends TestCase
         parent::setUp();
 
         $this->seed(RolePermissionSeeder::class);
+    }
+
+    public function test_admin_bisa_mengganti_foto_dan_bio_anggota(): void
+    {
+        Storage::fake('public');
+
+        $admin = User::factory()->create();
+        $admin->givePermissionTo(['members.view', 'members.update']);
+        $member = Member::factory()->create();
+
+        Livewire::actingAs($admin)
+            ->test(Form::class, ['member' => $member])
+            ->set('photo', UploadedFile::fake()->image('foto.jpg'))
+            ->set('bio', 'Bio ditulis admin.')
+            ->set('whatsapp', '0812000111')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $member->refresh();
+        $this->assertNotNull($member->photoUrl());
+        $this->assertSame('Bio ditulis admin.', $member->bio);
+        $this->assertSame('0812000111', $member->social_links['whatsapp']);
+
+        // Admin juga bisa menghapus foto anggota
+        Livewire::actingAs($admin)
+            ->test(Form::class, ['member' => $member->fresh()])
+            ->call('removePhoto');
+
+        $this->assertNull($member->fresh()->photoUrl());
     }
 
     public function test_admin_dengan_permission_bisa_melihat_daftar_anggota(): void

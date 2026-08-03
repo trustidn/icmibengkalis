@@ -2,8 +2,10 @@
 
 namespace App\Livewire\Member\Profile;
 
+use App\Enums\EducationLevel;
 use App\Models\District;
 use App\Models\Member;
+use App\Models\MemberEducation;
 use App\Services\Membership\MemberService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -51,6 +53,15 @@ class Edit extends Component
     public $photo = null;
 
     public bool $saved = false;
+
+    // Riwayat pendidikan (paritas dengan form admin anggota)
+    public string $eduLevel = 'S1';
+
+    public string $eduInstitution = '';
+
+    public string $eduMajor = '';
+
+    public string $eduGraduatedYear = '';
 
     public function mount(): void
     {
@@ -136,11 +147,42 @@ class Edit extends Component
         $this->saved = true;
     }
 
+    public function addEducation(): void
+    {
+        $this->authorize('update', $this->member);
+
+        $validated = $this->validate([
+            'eduLevel' => ['required', 'in:'.implode(',', array_map(fn ($case) => $case->value, EducationLevel::cases()))],
+            'eduInstitution' => ['required', 'string', 'max:255'],
+            'eduMajor' => ['nullable', 'string', 'max:255'],
+            'eduGraduatedYear' => ['nullable', 'integer', 'min:1950', 'max:'.now()->year],
+        ]);
+
+        $this->member->educations()->create([
+            'level' => $validated['eduLevel'],
+            'institution' => $validated['eduInstitution'],
+            'major' => $validated['eduMajor'] ?: null,
+            'graduated_year' => $validated['eduGraduatedYear'] ?: null,
+        ]);
+
+        $this->reset(['eduLevel', 'eduInstitution', 'eduMajor', 'eduGraduatedYear']);
+        $this->eduLevel = 'S1';
+    }
+
+    public function deleteEducation(int $id): void
+    {
+        $this->authorize('update', $this->member);
+
+        MemberEducation::where('member_id', $this->member->id)->findOrFail($id)->delete();
+    }
+
     public function render(MemberService $members)
     {
         return view('livewire.member.profile.edit', [
             'districts' => District::orderBy('name')->get(),
             'completion' => $members->profileCompletionPercentage($this->member),
+            'educationLevels' => EducationLevel::cases(),
+            'educations' => $this->member->educations()->orderByDesc('graduated_year')->get(),
         ]);
     }
 }
