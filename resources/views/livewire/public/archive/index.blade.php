@@ -35,15 +35,63 @@
         @if ($documents->isNotEmpty())
             <div class="grid gap-gutter sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($documents as $document)
-                    <a wire:key="document-{{ $document->id }}" href="{{ route('archive.show', $document->slug) }}" wire:navigate
-                       class="group bg-white rounded-xl border border-outline-variant/30 card-shadow-hover transition-all duration-300 overflow-hidden flex flex-col">
-                        <x-public.image-placeholder icon="description" />
-                        <div class="p-6 flex flex-col flex-1">
-                            <span class="text-secondary font-bold text-[12px] uppercase tracking-widest mb-3">{{ $document->doc_type->label() }}</span>
-                            <h3 class="font-headline-md text-[20px] leading-tight text-on-surface group-hover:text-primary transition-colors mb-3">{{ $document->title }}</h3>
-                            <p class="font-body-md text-on-surface-variant line-clamp-2 opacity-80 flex-1">{{ $document->description }}</p>
+                    @php
+                        $bisaAkses = \Illuminate\Support\Facades\Gate::forUser(auth()->user())->allows('view', $document);
+                        $khususAnggota = $document->access_level !== \App\Enums\DocumentAccessLevel::Publik;
+                    @endphp
+
+                    @if ($bisaAkses)
+                        <a wire:key="document-{{ $document->id }}" href="{{ route('archive.show', $document->slug) }}" wire:navigate
+                           class="group bg-white rounded-xl border border-outline-variant/30 card-shadow-hover transition-all duration-300 overflow-hidden flex flex-col">
+                            <x-public.image-placeholder icon="description" />
+                            <div class="p-6 flex flex-col flex-1">
+                                <div class="flex items-center justify-between gap-2 mb-3">
+                                    <span class="text-secondary font-bold text-[12px] uppercase tracking-widest">{{ $document->doc_type->label() }}</span>
+                                    @if ($khususAnggota)
+                                        <span class="inline-flex items-center gap-1 bg-primary-container/15 text-primary px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide">
+                                            <span class="material-symbols-outlined text-[13px]">lock_open</span> {{ $document->access_level->label() }}
+                                        </span>
+                                    @else
+                                        <span class="inline-flex items-center bg-surface-container-low text-on-surface-variant px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide">Publik</span>
+                                    @endif
+                                </div>
+                                <h3 class="font-headline-md text-[20px] leading-tight text-on-surface group-hover:text-primary transition-colors mb-3">{{ $document->title }}</h3>
+                                <p class="font-body-md text-on-surface-variant line-clamp-2 opacity-80 flex-1">{{ $document->description }}</p>
+                            </div>
+                        </a>
+                    @else
+                        {{-- Dokumen khusus anggota untuk pengunjung tanpa hak akses: kartu terkunci --}}
+                        <div wire:key="document-{{ $document->id }}"
+                             class="bg-white rounded-xl border border-outline-variant/30 overflow-hidden flex flex-col opacity-95">
+                            <div class="relative">
+                                <x-public.image-placeholder icon="description" class="opacity-50" />
+                                <span class="absolute inset-0 flex items-center justify-center">
+                                    <span class="w-12 h-12 rounded-full bg-on-surface/70 flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-white text-[24px]">lock</span>
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="p-6 flex flex-col flex-1">
+                                <div class="flex items-center justify-between gap-2 mb-3">
+                                    <span class="text-secondary font-bold text-[12px] uppercase tracking-widest">{{ $document->doc_type->label() }}</span>
+                                    <span class="inline-flex items-center gap-1 bg-secondary-container/25 text-on-secondary-container px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wide">
+                                        <span class="material-symbols-outlined text-[13px]">lock</span> Khusus Anggota
+                                    </span>
+                                </div>
+                                <h3 class="font-headline-md text-[20px] leading-tight text-on-surface/70 mb-3">{{ $document->title }}</h3>
+                                <p class="font-body-md text-on-surface-variant line-clamp-2 opacity-60 flex-1">{{ $document->description }}</p>
+                                <div class="mt-4 pt-4 border-t border-outline-variant/20">
+                                    @guest
+                                        <a href="{{ route('login') }}" wire:navigate class="inline-flex items-center gap-2 text-primary font-bold text-sm hover:gap-3 transition-all">
+                                            <span class="material-symbols-outlined text-[18px]">login</span> Masuk untuk mengakses
+                                        </a>
+                                    @else
+                                        <span class="font-body-md text-sm text-on-surface-variant">Hanya untuk anggota ICMI Bengkalis.</span>
+                                    @endguest
+                                </div>
+                            </div>
                         </div>
-                    </a>
+                    @endif
                 @endforeach
             </div>
         @else

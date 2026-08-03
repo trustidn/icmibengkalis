@@ -26,31 +26,69 @@ class PublicArchiveTest extends TestCase
         return $document;
     }
 
-    public function test_guest_hanya_melihat_dokumen_publik_di_daftar(): void
+    public function test_guest_melihat_dokumen_anggota_sebagai_kartu_terkunci(): void
     {
         Storage::fake('local');
 
         $this->documentWithFile('publik', 'Dokumen Publik');
-        $this->documentWithFile('anggota', 'Dokumen Anggota Saja');
+        $anggotaDoc = $this->documentWithFile('anggota', 'Dokumen Anggota Saja');
 
         $this->get(route('archive.index'))
             ->assertOk()
             ->assertSee('Dokumen Publik')
-            ->assertDontSee('Dokumen Anggota Saja');
+            // Dokumen anggota TAMPIL di daftar tapi terkunci: ada judul + ajakan masuk,
+            // TANPA tautan ke halaman detailnya.
+            ->assertSee('Dokumen Anggota Saja')
+            ->assertSee('Khusus Anggota')
+            ->assertSee('Masuk untuk mengakses')
+            ->assertDontSee(route('archive.show', $anggotaDoc->slug));
     }
 
-    public function test_anggota_login_melihat_dokumen_anggota_juga(): void
+    public function test_dokumen_pengurus_tetap_tersembunyi_dari_daftar_publik(): void
     {
         Storage::fake('local');
 
-        $this->documentWithFile('anggota', 'Dokumen Anggota Saja');
+        $this->documentWithFile('pengurus', 'Notulen Rapat Pengurus');
+
+        $this->get(route('archive.index'))
+            ->assertOk()
+            ->assertDontSee('Notulen Rapat Pengurus');
+    }
+
+    public function test_anggota_login_melihat_dokumen_anggota_dengan_tautan_aktif(): void
+    {
+        Storage::fake('local');
+
+        $document = $this->documentWithFile('anggota', 'Dokumen Anggota Saja');
 
         $user = User::factory()->create();
         Member::factory()->create(['user_id' => $user->id]);
 
         $this->actingAs($user)
             ->get(route('archive.index'))
-            ->assertSee('Dokumen Anggota Saja');
+            ->assertSee('Dokumen Anggota Saja')
+            ->assertSee(route('archive.show', $document->slug))
+            ->assertDontSee('Masuk untuk mengakses');
+    }
+
+    public function test_user_login_tanpa_member_melihat_kartu_terkunci(): void
+    {
+        Storage::fake('local');
+
+        $this->documentWithFile('anggota', 'Dokumen Anggota Saja');
+
+        $this->actingAs(User::factory()->create())
+            ->get(route('archive.index'))
+            ->assertSee('Dokumen Anggota Saja')
+            ->assertSee('Hanya untuk anggota ICMI Bengkalis.');
+    }
+
+    public function test_detail_dokumen_anggota_ditolak_untuk_guest(): void
+    {
+        Storage::fake('local');
+        $document = $this->documentWithFile('anggota', 'Dokumen Anggota Detail');
+
+        $this->get(route('archive.show', $document->slug))->assertForbidden();
     }
 
     public function test_halaman_detail_dokumen_publik_bisa_diakses_guest(): void

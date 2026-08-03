@@ -25,15 +25,14 @@ class Index extends Component
 
     private function visibleLevels(): array
     {
-        $user = auth()->user();
-        $levels = [DocumentAccessLevel::Publik->value];
+        // Dua jenis arsip utama (publik & khusus anggota) SELALU tampil di daftar
+        // untuk semua pengunjung — dokumen anggota digambarkan terkunci bagi yang
+        // tidak berhak; AKSES sesungguhnya tetap dijaga DocumentPolicy di halaman
+        // detail dan unduhan. Level pengurus hanya terlihat oleh pengurus.
+        $levels = [DocumentAccessLevel::Publik->value, DocumentAccessLevel::Anggota->value];
 
-        if ($user?->member) {
-            $levels[] = DocumentAccessLevel::Anggota->value;
-
-            if ($user->member->isPengurus()) {
-                $levels[] = DocumentAccessLevel::Pengurus->value;
-            }
+        if (auth()->user()?->member?->isPengurus()) {
+            $levels[] = DocumentAccessLevel::Pengurus->value;
         }
 
         return $levels;
