@@ -34,7 +34,8 @@
                             description="PDF/dokumen/gambar, maks. 20 MB." />
 
                 <div class="flex items-center gap-3 pt-2">
-                    <flux:button type="submit" variant="primary">Unggah Dokumen</flux:button>
+                    <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="file">Unggah Dokumen</flux:button>
+                    <span wire:loading wire:target="file" class="text-sm font-medium text-amber-600 dark:text-amber-400">Mengunggah berkas… tunggu sampai selesai.</span>
                     <span wire:loading wire:target="save,file" class="text-sm text-on-surface-variant">Memproses…</span>
                 </div>
             </form>

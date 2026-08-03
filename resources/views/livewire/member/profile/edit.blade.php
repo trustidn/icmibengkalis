@@ -84,7 +84,8 @@
         </flux:card>
 
         <div class="flex items-center gap-3">
-            <flux:button type="submit" variant="primary">Simpan Profil</flux:button>
+            <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="photo">Simpan Profil</flux:button>
+                    <span wire:loading wire:target="photo" class="text-sm font-medium text-amber-600 dark:text-amber-400">Mengunggah berkas… tunggu sampai selesai.</span>
             <span wire:loading wire:target="save,photo" class="text-sm text-zinc-500">Memproses…</span>
             @if ($saved)
                 <span wire:loading.remove class="text-sm text-green-600 dark:text-green-400">Tersimpan.</span>

@@ -33,10 +33,20 @@
                     @endif
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <flux:button type="submit" variant="primary">Simpan</flux:button>
+                {{-- Tombol WAJIB nonaktif selama berkas masih diunggah: bila ditekan lebih
+                     dulu, properti gambar masih kosong sehingga halaman tersimpan TANPA
+                     gambar padahal pesan "Tersimpan." tetap muncul. --}}
+                <div class="flex flex-wrap items-center gap-3">
+                    <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="featured_image,save">Simpan</flux:button>
+                    <span wire:loading wire:target="featured_image" class="text-sm font-medium text-amber-600 dark:text-amber-400">
+                        Mengunggah gambar… tunggu sampai selesai sebelum menyimpan.
+                    </span>
+                    <span wire:loading wire:target="save" class="text-sm text-neutral-500">Menyimpan…</span>
+                    @error('featured_image')
+                        <span class="text-sm font-medium text-red-600 dark:text-red-400">{{ $message }}</span>
+                    @enderror
                     @if ($saved)
-                        <span class="text-sm text-green-600 dark:text-green-400">Tersimpan.</span>
+                        <span wire:loading.remove class="text-sm text-green-600 dark:text-green-400">Tersimpan.</span>
                     @endif
                 </div>
             </form>

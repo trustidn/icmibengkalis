@@ -32,7 +32,8 @@
                     description="PNG/JPG/WebP, maks. 4 MB." />
 
         <div class="flex gap-2">
-            <flux:button type="submit" variant="primary">{{ $post ? 'Simpan Perubahan' : 'Kirim' }}</flux:button>
+            <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="featured_image">{{ $post ? 'Simpan Perubahan' : 'Kirim' }}</flux:button>
+                    <span wire:loading wire:target="featured_image" class="text-sm font-medium text-amber-600 dark:text-amber-400">Mengunggah berkas… tunggu sampai selesai.</span>
             @if ($post)
                 <flux:button :href="route('member.posts.index')" variant="ghost" wire:navigate>Batal</flux:button>
             @endif

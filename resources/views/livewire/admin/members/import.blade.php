@@ -7,7 +7,8 @@
 
     <form wire:submit="import" class="mt-6 flex flex-col gap-4">
         <flux:input type="file" label="File Excel (.xlsx/.xls/.csv)" wire:model="file" />
-        <div><flux:button type="submit" variant="primary">Impor</flux:button></div>
+        <div><flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="file">Impor</flux:button>
+                    <span wire:loading wire:target="file" class="text-sm font-medium text-amber-600 dark:text-amber-400">Mengunggah berkas… tunggu sampai selesai.</span></div>
     </form>
 
     @if ($imported !== null)

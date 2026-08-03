@@ -19,7 +19,8 @@
                 <flux:input type="number" label="Urutan (opsional)" wire:model="sort_order" placeholder="0" min="0"
                             description="Angka kecil tampil lebih dulu." />
                 <div class="flex items-center gap-3">
-                    <flux:button type="submit" variant="primary">{{ $editingId ? 'Simpan Perubahan' : 'Simpan Partner' }}</flux:button>
+                    <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="logo">{{ $editingId ? 'Simpan Perubahan' : 'Simpan Partner' }}</flux:button>
+                    <span wire:loading wire:target="logo" class="text-sm font-medium text-amber-600 dark:text-amber-400">Mengunggah berkas… tunggu sampai selesai.</span>
                     @if ($editingId)
                         <flux:button type="button" variant="ghost" wire:click="cancelEdit">Batal</flux:button>
                     @endif

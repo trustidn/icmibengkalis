@@ -22,7 +22,8 @@
                     <flux:input type="date" label="Berakhir" wire:model="ends_at" description="Kosongkan = tanpa batas" />
                 </div>
                 <div class="flex items-center gap-3">
-                    <flux:button type="submit" variant="primary">{{ $editingId ? 'Simpan Perubahan' : 'Simpan Poster' }}</flux:button>
+                    <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="image">{{ $editingId ? 'Simpan Perubahan' : 'Simpan Poster' }}</flux:button>
+                    <span wire:loading wire:target="image" class="text-sm font-medium text-amber-600 dark:text-amber-400">Mengunggah berkas… tunggu sampai selesai.</span>
                     @if ($editingId)
                         <flux:button type="button" variant="ghost" wire:click="cancelEdit">Batal</flux:button>
                     @endif

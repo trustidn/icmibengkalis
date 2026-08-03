@@ -57,7 +57,8 @@
         @endif
 
         <div class="flex gap-3">
-            <flux:button type="submit" variant="primary">Simpan sebagai Draf</flux:button>
+            <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="featured_image">Simpan sebagai Draf</flux:button>
+                    <span wire:loading wire:target="featured_image" class="text-sm font-medium text-amber-600 dark:text-amber-400">Mengunggah berkas… tunggu sampai selesai.</span>
             @if (! $post || in_array($post->status->value, ['draft', 'rejected']))
                 <flux:button type="button" wire:click="submitForReview">Simpan & Ajukan Review</flux:button>
             @endif
