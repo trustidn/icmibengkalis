@@ -284,3 +284,32 @@ select:focus[data-flux-control] {
 /* \[:where(&)\]:size-4 {
     @apply size-4;
 } */
+
+/* Tabel di konten artikel & halaman statis (hasil paste dari Word/Excel).
+   display:block + overflow agar tabel lebar bisa digulir di layar ponsel. */
+.rich-content table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+    border-collapse: collapse;
+    margin: 1.5rem 0;
+    font-size: 0.95em;
+}
+
+.rich-content th,
+.rich-content td {
+    border: 1px solid var(--color-outline-variant);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    vertical-align: top;
+}
+
+.rich-content th {
+    background: var(--color-surface-container-low);
+    font-weight: 700;
+    color: var(--color-on-surface);
+}
+
+.rich-content tr:nth-child(even) td {
+    background: var(--color-surface-container-lowest);
+}

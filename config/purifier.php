@@ -26,11 +26,11 @@ return [
     'settings' => [
         'default' => [
             'HTML.Doctype' => 'HTML 4.01 Transitional',
-            'HTML.Allowed' => 'h2,h3,h4,div,b,strong,i,em,u,s,a[href|title|target|rel],ul,ol,li,p[style],br,blockquote,pre,code,span[style],img[width|height|alt|src|class],iframe[src|width|height|frameborder|allowfullscreen|class]',
+            'HTML.Allowed' => 'h2,h3,h4,div,b,strong,i,em,u,s,a[href|title|target|rel],ul,ol,li,p[style],br,blockquote,pre,code,span[style],img[width|height|alt|src|class],iframe[src|width|height|frameborder|allowfullscreen|class],table[style|width|border|cellspacing|cellpadding],thead,tbody,tfoot,tr[style],th[style|colspan|rowspan],td[style|colspan|rowspan],caption,colgroup,col[span|width|style]',
             'HTML.SafeIframe' => true,
             'URI.SafeIframeRegexp' => '%^(https?:)?//(www\.youtube(?:-nocookie)?\.com/embed/|player\.vimeo\.com/video/)%',
             'Attr.AllowedFrameTargets' => ['_blank'],
-            'CSS.AllowedProperties' => 'font,font-size,font-weight,font-style,font-family,text-decoration,padding-left,color,background-color,text-align',
+            'CSS.AllowedProperties' => 'font,font-size,font-weight,font-style,font-family,text-decoration,padding-left,color,background-color,text-align,width,height,border,border-collapse,border-spacing,border-width,border-style,border-color,vertical-align',
             'AutoFormat.AutoParagraph' => false,
             'AutoFormat.RemoveEmpty' => true,
         ],
