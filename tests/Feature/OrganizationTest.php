@@ -201,6 +201,65 @@ class OrganizationTest extends TestCase
         ]);
     }
 
+    public function test_admin_bisa_mengubah_pemegang_penugasan(): void
+    {
+        $admin = User::factory()->create();
+        $admin->givePermissionTo(['organization.view', 'organization.manage']);
+        $unit = OrgUnit::factory()->create(['org_period_id' => OrgPeriod::factory()->create()->id]);
+
+        // Koordinator awalnya tokoh eksternal A.
+        $assignment = $unit->assignments()->create([
+            'external_name' => 'JUNAIDI, M. Ag',
+            'position_title' => 'Koordinator',
+        ]);
+
+        // Diubah menjadi anggota terdaftar B.
+        $penggantiB = Member::factory()->create(['full_name' => 'Budi Setiawan']);
+
+        Livewire::actingAs($admin)
+            ->test(AssignmentForm::class, ['unit' => $unit])
+            ->call('editAssignment', $assignment->id)
+            ->assertSet('external_name', 'JUNAIDI, M. Ag')
+            ->assertSet('position_title', 'Koordinator')
+            ->set('member_id', $penggantiB->id)
+            ->call('addAssignment')
+            ->assertHasNoErrors()
+            ->assertSet('editingId', null);
+
+        $assignment->refresh();
+        $this->assertSame($penggantiB->id, $assignment->member_id);
+        $this->assertNull($assignment->external_name);
+        $this->assertSame('Koordinator', $assignment->position_title);
+        $this->assertSame(1, $unit->assignments()->count());
+    }
+
+    public function test_ubah_penugasan_bisa_ganti_nama_eksternal_dan_jabatan(): void
+    {
+        $admin = User::factory()->create();
+        $admin->givePermissionTo(['organization.view', 'organization.manage']);
+        $unit = OrgUnit::factory()->create(['org_period_id' => OrgPeriod::factory()->create()->id]);
+
+        $member = Member::factory()->create();
+        $assignment = $unit->assignments()->create([
+            'member_id' => $member->id,
+            'position_title' => 'Anggota',
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(AssignmentForm::class, ['unit' => $unit])
+            ->call('editAssignment', $assignment->id)
+            ->set('member_id', null)
+            ->set('external_name', 'Dr. H. Pengganti Baru')
+            ->set('position_title', 'Sekretaris Divisi')
+            ->call('addAssignment')
+            ->assertHasNoErrors();
+
+        $assignment->refresh();
+        $this->assertNull($assignment->member_id);
+        $this->assertSame('Dr. H. Pengganti Baru', $assignment->external_name);
+        $this->assertSame('Sekretaris Divisi', $assignment->position_title);
+    }
+
     public function test_penugasan_tanpa_member_dan_tanpa_nama_eksternal_ditolak(): void
     {
         $admin = User::factory()->create();

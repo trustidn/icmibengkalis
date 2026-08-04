@@ -13,6 +13,8 @@ class AssignmentForm extends Component
 {
     public OrgUnit $unit;
 
+    public ?int $editingId = null;
+
     public ?int $member_id = null;
 
     public string $external_name = '';
@@ -49,11 +51,38 @@ class AssignmentForm extends Component
 
         if ($validated['member_id']) {
             $validated['external_name'] = null;
+        } else {
+            $validated['member_id'] = null;
         }
 
-        $this->unit->assignments()->create($validated);
+        if ($this->editingId) {
+            OrgAssignment::where('org_unit_id', $this->unit->id)
+                ->findOrFail($this->editingId)
+                ->update($validated);
+        } else {
+            $this->unit->assignments()->create($validated);
+        }
 
-        $this->reset(['member_id', 'external_name', 'position_title', 'short_bio', 'show_contact']);
+        $this->cancelEdit();
+    }
+
+    public function editAssignment(int $assignmentId): void
+    {
+        $this->authorize('update', OrgUnit::class);
+
+        $assignment = OrgAssignment::where('org_unit_id', $this->unit->id)->findOrFail($assignmentId);
+
+        $this->editingId = $assignment->id;
+        $this->member_id = $assignment->member_id;
+        $this->external_name = (string) $assignment->external_name;
+        $this->position_title = $assignment->position_title;
+        $this->short_bio = (string) $assignment->short_bio;
+        $this->show_contact = (bool) $assignment->show_contact;
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->reset(['editingId', 'member_id', 'external_name', 'position_title', 'short_bio', 'show_contact']);
     }
 
     public function deleteAssignment(int $assignmentId): void

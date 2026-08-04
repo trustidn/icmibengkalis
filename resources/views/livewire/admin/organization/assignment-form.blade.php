@@ -2,6 +2,9 @@
     <flux:heading size="xl">Penugasan — {{ $unit->name }}</flux:heading>
 
     <flux:card class="mt-6">
+        @if ($editingId)
+            <flux:heading size="sm" class="mb-3">Ubah Penugasan</flux:heading>
+        @endif
         <form wire:submit="addAssignment" class="flex flex-col gap-3">
             <flux:select label="Anggota" wire:model="member_id">
                 <option value="">—</option>
@@ -14,7 +17,12 @@
             <flux:input label="Jabatan" wire:model="position_title" placeholder="cth: Ketua Bidang" />
             <flux:textarea label="Riwayat Singkat" wire:model="short_bio" rows="3" />
             <flux:checkbox wire:model="show_contact" label="Tampilkan kontak di profil publik" />
-            <div><flux:button type="submit" variant="primary">Tambah Penugasan</flux:button></div>
+            <div class="flex gap-2">
+                <flux:button type="submit" variant="primary">{{ $editingId ? 'Simpan Perubahan' : 'Tambah Penugasan' }}</flux:button>
+                @if ($editingId)
+                    <flux:button type="button" wire:click="cancelEdit">Batal</flux:button>
+                @endif
+            </div>
         </form>
     </flux:card>
 
@@ -27,7 +35,10 @@
                         <flux:badge size="sm" color="zinc" class="ml-1">Eksternal</flux:badge>
                     @endif
                 </flux:text>
-                <x-confirm-delete-button name="confirm-delete-assignment-{{ $assignment->id }}" wire-click="deleteAssignment({{ $assignment->id }})" message="Hapus penugasan ini?" />
+                <div class="flex shrink-0 gap-2">
+                    <flux:button wire:click="editAssignment({{ $assignment->id }})" size="sm">Ubah</flux:button>
+                    <x-confirm-delete-button name="confirm-delete-assignment-{{ $assignment->id }}" wire-click="deleteAssignment({{ $assignment->id }})" message="Hapus penugasan ini?" />
+                </div>
             </div>
         @endforeach
     </div>
