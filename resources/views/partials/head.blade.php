@@ -3,6 +3,18 @@
 <meta name="csrf-token" content="{{ csrf_token() }}" />
 <meta name="google-site-verification" content="_Zf-YQmcbwjFdLl_B4lkpdElzrVHwS6xnvJi_9NL0y4" />
 
+@production
+    {{-- Google tag (gtag.js) — hanya di production agar data dev tidak mengotori Analytics --}}
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-65TVJ73WSX"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-65TVJ73WSX');
+    </script>
+@endproduction
+
 @php
     $siteSetting = \App\Models\SiteSetting::current();
     $siteName = $siteSetting->site_name;
