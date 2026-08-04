@@ -5,13 +5,13 @@
 
 @production
     {{-- Google tag (gtag.js) — hanya di production agar data dev tidak mengotori Analytics --}}
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-65TVJ73WSX"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-Z7Q7ML5ESC"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
 
-        gtag('config', 'G-65TVJ73WSX');
+        gtag('config', 'G-Z7Q7ML5ESC');
     </script>
 @endproduction
 
