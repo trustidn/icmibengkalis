@@ -11,6 +11,9 @@
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
 
+        // Dua properti milik ICMI: G-65TVJ73WSX (terkait verifikasi Search Console)
+        // dan G-Z7Q7ML5ESC — keduanya menerima data dari satu tag.
+        gtag('config', 'G-65TVJ73WSX');
         gtag('config', 'G-Z7Q7ML5ESC');
     </script>
 @endproduction
