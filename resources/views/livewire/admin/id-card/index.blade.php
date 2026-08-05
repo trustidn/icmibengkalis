@@ -14,7 +14,7 @@
                 <flux:input label="Nama Kegiatan" wire:model="name" placeholder="cth: Pelantikan Pengurus 2026-2031" />
                 <flux:input type="date" label="Tanggal Kegiatan (opsional)" wire:model="event_date" />
                 <flux:input type="file" label="{{ $editingId ? 'Ganti Desain Latar (opsional)' : 'Desain Latar Kartu' }}" wire:model="background" accept="image/png,image/jpeg,image/webp"
-                            description="Potret rasio 54:85,6 (mis. 1080x1712 px), maks. 5 MB. Sisakan area tengah untuk foto/nama dan area bawah untuk QR." />
+                            description="Potret rasio 54:85,6 (mis. 1080x1712 px), maks. 5 MB. Sisakan zona overlay: 12-21mm nama kegiatan, 21-55mm foto, 55-67mm nama (teks putih), 67-83mm QR." />
                 @error('background') <flux:text class="text-red-600 dark:text-red-400 text-sm">{{ $message }}</flux:text> @enderror
 
                 <div class="flex items-center gap-3">

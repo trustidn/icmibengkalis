@@ -1,11 +1,16 @@
-{{-- Gaya kartu 54 x 85,6 mm (potret) — dipakai preview HTML dan PDF (dompdf). --}}
+{{-- Gaya kartu 54 x 85,6 mm (potret) — dipakai preview HTML dan PDF (dompdf).
+     Zona overlay (desain latar menyisakan area ini):
+     - 12–21 mm  : nama kegiatan & tanggal
+     - 21,5–54,5 : foto (kotak membulat 44 x 33 mm)
+     - 55–67 mm  : nama & jabatan (putih tebal)
+     - 67–83 mm  : QR transparan --}}
 <style>
     .kartu {
         position: relative;
         width: 54mm;
         height: 85.6mm;
         overflow: hidden;
-        background: #2E4200;
+        background: #EAF3DC;
         font-family: DejaVu Sans, Arial, sans-serif;
     }
 
@@ -17,90 +22,67 @@
         height: 85.6mm;
     }
 
+    .kartu .acara {
+        position: absolute;
+        top: 11.8mm;
+        left: 4mm;
+        width: 46mm;
+        text-align: center;
+        font-size: 6pt;
+        color: #444939;
+        line-height: 1.25;
+    }
+
     .kartu .foto {
         position: absolute;
-        top: 13mm;
-        left: 16mm;
-        width: 22mm;
-        height: 22mm;
-        border-radius: 11mm;
-        border: 1.2mm solid #ffffff;
-        background: #e1e3e4;
+        top: 22.5mm;
+        left: 5mm;
+        width: 44mm;
+        height: 32mm;
+        border-radius: 3.5mm;
+        background: #99C24D;
+        overflow: hidden;
     }
 
     .kartu .foto img {
-        width: 19.6mm;
-        height: 19.6mm;
-        border-radius: 9.8mm;
-    }
-
-    .kartu .panel {
-        position: absolute;
-        top: 36.5mm;
-        left: 3mm;
-        width: 46mm;
-        padding: 1.3mm 1mm;
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 2mm;
-        text-align: center;
+        width: 44mm;
+        height: 32mm;
+        border-radius: 3.5mm;
     }
 
     .kartu .nama {
-        font-size: 8pt;
+        position: absolute;
+        top: 55.5mm;
+        left: 3mm;
+        width: 48mm;
+        text-align: center;
+        font-size: 9.5pt;
         font-weight: bold;
-        color: #191C1D;
-        line-height: 1.2;
-    }
-
-    .kartu .nia {
-        font-size: 6pt;
-        color: #444939;
-        margin-top: 0.6mm;
+        color: #ffffff;
+        line-height: 1.15;
     }
 
     .kartu .profesi {
-        font-size: 6pt;
-        color: #486800;
+        position: absolute;
+        top: 65.3mm;
+        left: 4mm;
+        width: 46mm;
+        text-align: center;
+        font-size: 6.5pt;
         font-weight: bold;
-        margin-top: 0.3mm;
-    }
-
-    .kartu .acara {
-        font-size: 5.5pt;
-        font-weight: bold;
-        color: #364E00;
-        border-top: 0.3mm solid #C4C9B4;
-        margin-top: 0.9mm;
-        padding-top: 0.9mm;
-        line-height: 1.25;
+        color: #ffffff;
     }
 
     .kartu .qr-wrap {
         position: absolute;
-        top: 63.5mm;
-        left: 19mm;
-        width: 16mm;
-        height: 16mm;
-        padding: 0.8mm;
-        background: #ffffff;
-        border-radius: 1.5mm;
+        top: 69.5mm;
+        left: 20.25mm;
+        width: 13.5mm;
+        height: 13.5mm;
     }
 
     .kartu .qr-wrap img {
-        width: 14.4mm;
-        height: 14.4mm;
-    }
-
-    .kartu .ket {
-        position: absolute;
-        top: 80.8mm;
-        left: 3mm;
-        width: 46mm;
-        text-align: center;
-        font-size: 4.8pt;
-        color: #ffffff;
-        background: rgba(0, 0, 0, 0.35);
-        padding: 0.5mm 0;
-        border-radius: 1mm;
+        width: 13.5mm;
+        height: 13.5mm;
     }
 </style>
