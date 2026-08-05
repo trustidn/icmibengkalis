@@ -1,7 +1,11 @@
-{{-- Satu kartu. Variabel dari IdCardService::cardData(): nama, nia, profesi, foto, bg, qr, acara, tanggal. --}}
+{{-- Satu kartu. Variabel dari IdCardService::cardData(): nama, nia, foto, bg, qr, acara, tanggal. --}}
 <div class="kartu">
     @if ($bg)
         <img class="bg" src="{{ $bg }}" alt="" />
+    @endif
+
+    @if ($nia)
+        <div class="nia">{{ $nia }}</div>
     @endif
 
     <div class="acara">{{ $acara }}@if ($tanggal)<br>{{ $tanggal }}@endif</div>
@@ -13,9 +17,6 @@
     </div>
 
     <div class="nama">{{ $nama }}</div>
-    @if ($profesi)
-        <div class="profesi">{{ $profesi }}</div>
-    @endif
 
     <div class="qr-wrap">
         <img src="{{ $qr }}" alt="QR profil anggota" />

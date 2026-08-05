@@ -10,7 +10,7 @@ use BaconQrCode\Writer;
 class IdCardService
 {
     /** Rasio kotak foto pada kartu (lebar : tinggi) — selaras style kartu. */
-    private const FOTO_RATIO = 44 / 33;
+    private const FOTO_RATIO = 44 / 29.5;
 
     /**
      * QR berisi tautan ke profil publik anggota — bisa dipindai siapa pun
