@@ -8,7 +8,7 @@
         <div class="nia">{{ $nia }}</div>
     @endif
 
-    <div class="acara">{{ $acara }}@if ($tanggal)<br>{{ $tanggal }}@endif</div>
+    <div class="acara">{{ $acara }}@if ($tanggal)<br><span class="tanggal">{{ $tanggal }}</span>@endif</div>
 
     <div class="foto">
         @if ($foto)

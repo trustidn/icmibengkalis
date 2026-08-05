@@ -46,12 +46,16 @@
         line-height: 1.25;
     }
 
+    .kartu .acara .tanggal {
+        font-weight: normal;
+    }
+
     .kartu .foto {
         position: absolute;
-        top: 25mm;
+        top: 26.5mm;
         left: 5mm;
         width: 44mm;
-        height: 29.5mm;
+        height: 28mm;
         border-radius: 3.5mm;
         background: #99C24D;
         overflow: hidden;
@@ -59,7 +63,7 @@
 
     .kartu .foto img {
         width: 44mm;
-        height: 29.5mm;
+        height: 28mm;
         border-radius: 3.5mm;
     }
 
