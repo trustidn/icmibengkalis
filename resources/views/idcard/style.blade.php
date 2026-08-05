@@ -41,6 +41,7 @@
         width: 46mm;
         text-align: center;
         font-size: 6pt;
+        font-weight: bold;
         color: #444939;
         line-height: 1.25;
     }
