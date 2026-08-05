@@ -2,7 +2,7 @@
      Zona overlay (desain latar menyisakan area ini):
      - kanan atas   : NIA anggota (di bawah label "id anggota" milik template)
      - 14,5–23 mm   : nama kegiatan & tanggal
-     - 25–54,5 mm   : foto (kotak membulat 44 x 29,5 mm)
+     - 23,5–54,5 mm : foto potret (kotak membulat 25 x 31 mm, rasio ~4:5)
      - 56–65,5 mm   : nama (putih tebal)
      - 66–79,5 mm   : QR transparan --}}
 <style>
@@ -52,18 +52,18 @@
 
     .kartu .foto {
         position: absolute;
-        top: 26.5mm;
-        left: 5mm;
-        width: 44mm;
-        height: 28mm;
+        top: 24.5mm;
+        left: 14.5mm;
+        width: 25mm;
+        height: 30mm;
         border-radius: 3.5mm;
         background: #99C24D;
         overflow: hidden;
     }
 
     .kartu .foto img {
-        width: 44mm;
-        height: 28mm;
+        width: 25mm;
+        height: 30mm;
         border-radius: 3.5mm;
     }
 

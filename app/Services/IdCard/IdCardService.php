@@ -10,7 +10,7 @@ use BaconQrCode\Writer;
 class IdCardService
 {
     /** Rasio kotak foto pada kartu (lebar : tinggi) — selaras style kartu. */
-    private const FOTO_RATIO = 44 / 28;
+    private const FOTO_RATIO = 25 / 30;
 
     /**
      * QR berisi tautan ke profil publik anggota — bisa dipindai siapa pun
@@ -73,15 +73,18 @@ class IdCardService
         $h = imagesy($src);
 
         if ($w / $h > self::FOTO_RATIO) {
+            // Sumber melebar: crop horizontal, tetap di tengah.
             $cw = (int) round($h * self::FOTO_RATIO);
             $ch = $h;
             $x = (int) (($w - $cw) / 2);
             $y = 0;
         } else {
+            // Sumber potret: wajah umumnya di sepertiga atas foto — jangkar
+            // crop 15% dari atas, bukan tengah, agar wajah tidak terpotong.
             $cw = $w;
             $ch = (int) round($w / self::FOTO_RATIO);
             $x = 0;
-            $y = (int) (($h - $ch) / 2);
+            $y = (int) (($h - $ch) * 0.15);
         }
 
         $dst = imagecreatetruecolor($cw, $ch);
