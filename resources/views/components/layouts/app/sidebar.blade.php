@@ -41,6 +41,10 @@
                         <flux:navlist.item icon="calendar" :href="route('admin.agenda.index')" :current="request()->routeIs('admin.agenda.*')" wire:navigate>Agenda</flux:navlist.item>
                     @endcan
 
+                    @can('idcard.manage')
+                        <flux:navlist.item icon="identification" :href="route('admin.idcard.index')" :current="request()->routeIs('admin.idcard.*')" wire:navigate>ID Card Kegiatan</flux:navlist.item>
+                    @endcan
+
                     @can('gallery.manage')
                         <flux:navlist.item icon="photo" :href="route('admin.gallery.index')" :current="request()->routeIs('admin.gallery.*')" wire:navigate>Galeri</flux:navlist.item>
                     @endcan
@@ -55,6 +59,7 @@
                         <flux:navlist.item icon="user" :href="route('member.profile.edit')" :current="request()->routeIs('member.profile.edit')" wire:navigate>Profil Saya</flux:navlist.item>
                         <flux:navlist.item icon="pencil-square" :href="route('member.posts.create')" :current="request()->routeIs('member.posts.create')" wire:navigate>Tulis Berita/Artikel</flux:navlist.item>
                         <flux:navlist.item icon="document-duplicate" :href="route('member.posts.index')" :current="request()->routeIs(['member.posts.index', 'member.posts.edit'])" wire:navigate>Artikel Saya</flux:navlist.item>
+                        <flux:navlist.item icon="identification" :href="route('member.idcard.index')" :current="request()->routeIs('member.idcard.*')" wire:navigate>ID Card Kegiatan</flux:navlist.item>
                     </flux:navlist.group>
                 @endif
 

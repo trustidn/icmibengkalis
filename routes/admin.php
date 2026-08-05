@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DatabaseBackupController;
+use App\Http\Controllers\IdCardPdfController;
 use App\Livewire\Admin\Agenda\Form as AgendaForm;
 use App\Livewire\Admin\Agenda\Index as AgendaIndex;
 use App\Livewire\Admin\Announcements\Index as AnnouncementsIndex;
@@ -11,6 +12,7 @@ use App\Livewire\Admin\Contact\Index as ContactIndex;
 use App\Livewire\Admin\Expertise\Fields as ExpertiseFields;
 use App\Livewire\Admin\Gallery\Albums as GalleryAlbums;
 use App\Livewire\Admin\Gallery\Form as GalleryForm;
+use App\Livewire\Admin\IdCard\Index as IdCardIndex;
 use App\Livewire\Admin\Members\Form as MembersForm;
 use App\Livewire\Admin\Members\Import as MembersImport;
 use App\Livewire\Admin\Members\Index as MembersIndex;
@@ -49,6 +51,11 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->name('admin.')->group(
         Route::get('/', AgendaIndex::class)->name('index');
         Route::get('/baru', AgendaForm::class)->name('create');
         Route::get('/{event}/ubah', AgendaForm::class)->name('edit');
+    });
+
+    Route::middleware('can:idcard.manage')->prefix('id-card')->name('idcard.')->group(function () {
+        Route::get('/', IdCardIndex::class)->name('index');
+        Route::get('/{event}/cetak-semua', [IdCardPdfController::class, 'all'])->name('print-all');
     });
 
     Route::middleware('can:gallery.manage')->prefix('galeri')->name('gallery.')->group(function () {

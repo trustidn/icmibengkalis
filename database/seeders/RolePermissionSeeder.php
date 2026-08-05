@@ -22,6 +22,7 @@ class RolePermissionSeeder extends Seeder
         'publishing' => ['view', 'create', 'update', 'delete', 'review', 'publish'],
         'archive' => ['view', 'create', 'update', 'delete', 'manage-access'],
         'events' => ['view', 'create', 'update', 'delete', 'check-in', 'report', 'certificates'],
+        'idcard' => ['manage'],
         'gallery' => ['view', 'manage', 'manage-any'],
         'media-center' => ['view', 'manage'],
         'dashboard' => ['view', 'view-division'],
@@ -60,7 +61,7 @@ class RolePermissionSeeder extends Seeder
         Role::findOrCreate('sekretaris')->syncPermissions($find(
             'dashboard.*', 'members.*', 'expertise.*', 'organization.*', 'publishing.*',
             'archive.*', 'events.*', 'gallery.*', 'media-center.*', 'pages.manage',
-            'announcements.*', 'agenda.*', 'contact.*',
+            'announcements.*', 'agenda.*', 'contact.*', 'idcard.*',
         ));
 
         Role::findOrCreate('bendahara')->syncPermissions($find(
