@@ -56,30 +56,47 @@ class OrgChartTest extends TestCase
             ->assertDontSee('Unit A');
     }
 
-    public function test_daftar_anggota_tampil_setelah_struktur_terurut_jabatan_lalu_tanggal_gabung(): void
+    public function test_daftar_anggota_terurut_jabatan_lalu_tanggal_lahir_lalu_nama(): void
     {
         $period = OrgPeriod::factory()->create(['is_active' => true]);
         $unit = OrgUnit::factory()->create(['org_period_id' => $period->id, 'sort_order' => 1]);
 
-        $ketua = Member::factory()->create(['full_name' => 'Ketua Pengurus', 'joined_at' => now()->subYears(1), 'status' => MemberStatus::Aktif]);
+        $ketua = Member::factory()->create(['nia' => 'T-0001', 'full_name' => 'Zulkifli Ketua', 'birth_date' => '1995-01-01', 'status' => MemberStatus::Aktif]);
         $unit->assignments()->create(['member_id' => $ketua->id, 'position_title' => 'Ketua', 'sort_order' => 1]);
 
-        $anggotaLama = Member::factory()->create(['full_name' => 'Anggota Senior', 'joined_at' => now()->subYears(5), 'status' => MemberStatus::Aktif]);
-        $anggotaBaru = Member::factory()->create(['full_name' => 'Anggota Junior', 'joined_at' => now()->subMonths(1), 'status' => MemberStatus::Aktif]);
+        $tua = Member::factory()->create(['nia' => 'T-0002', 'full_name' => 'Candra Sepuh', 'birth_date' => '1960-05-01', 'status' => MemberStatus::Aktif]);
+        $muda = Member::factory()->create(['nia' => 'T-0003', 'full_name' => 'Ahmad Muda', 'birth_date' => '1990-05-01', 'status' => MemberStatus::Aktif]);
+        $tanpaTglB = Member::factory()->create(['nia' => 'T-0004', 'full_name' => 'Budi Tanpa Tanggal', 'birth_date' => null, 'status' => MemberStatus::Aktif]);
+        $tanpaTglA = Member::factory()->create(['nia' => 'T-0005', 'full_name' => 'Ani Tanpa Tanggal', 'birth_date' => null, 'status' => MemberStatus::Aktif]);
 
         $response = $this->get(route('org-chart.show'));
-
         $response->assertOk()->assertSee('Daftar Anggota');
 
         $content = $response->getContent();
-        $posKetua = strpos($content, 'Ketua Pengurus');
-        $posSenior = strpos($content, 'Anggota Senior');
-        $posJunior = strpos($content, 'Anggota Junior');
+        $pos = fn (string $nama) => strpos($content, $nama);
 
-        // Pengurus (Ketua Pengurus) tampil lebih dahulu meski bergabung paling akhir.
-        $this->assertLessThan($posSenior, $posKetua);
-        // Di antara non-pengurus, yang lebih dulu bergabung tampil lebih dahulu.
-        $this->assertLessThan($posJunior, $posSenior);
+        // Pengurus dahulu meski paling muda.
+        $this->assertLessThan($pos('Candra Sepuh'), $pos('Zulkifli Ketua'));
+        // Punya tanggal lahir dahulu, tertua lebih dulu.
+        $this->assertLessThan($pos('Ahmad Muda'), $pos('Candra Sepuh'));
+        // Tanpa tanggal lahir tampil setelahnya, terurut abjad nama.
+        $this->assertLessThan($pos('Ani Tanpa Tanggal'), $pos('Ahmad Muda'));
+        $this->assertLessThan($pos('Budi Tanpa Tanggal'), $pos('Ani Tanpa Tanggal'));
+    }
+
+    public function test_daftar_anggota_load_more_12_per_batch(): void
+    {
+        foreach (range(1, 15) as $i) {
+            Member::factory()->create(['nia' => sprintf('LM-%04d', $i), 'status' => MemberStatus::Aktif]);
+        }
+
+        Livewire::test(OrgChart::class)
+            ->assertViewHas('members', fn ($members) => $members->count() === 12)
+            ->assertViewHas('hasMore', true)
+            ->assertSee('Muat Lebih Banyak')
+            ->call('loadMore')
+            ->assertViewHas('members', fn ($members) => $members->count() === 15)
+            ->assertViewHas('hasMore', false);
     }
 
     public function test_nama_pengurus_di_daftar_anggota_bertaut_ke_profil_publik(): void

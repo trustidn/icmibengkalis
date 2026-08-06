@@ -9,7 +9,7 @@ use App\Models\OrgUnit;
 use App\Support\NiaGenerator;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
-use Illuminate\Pagination\LengthAwarePaginator as Paginator;
+use Illuminate\Support\Collection;
 
 class MemberService
 {
@@ -82,29 +82,24 @@ class MemberService
 
     /**
      * Daftar seluruh anggota untuk halaman Struktur Organisasi publik: pengurus
-     * periode aktif tampil dahulu sesuai urutan hierarki jabatan, sisanya
-     * (bukan pengurus) menyusul terurut tanggal bergabung.
+     * periode aktif tampil dahulu sesuai urutan hierarki jabatan, lalu tanggal
+     * lahir (yang punya tampil dahulu, tertua lebih dulu), lalu nama (abjad).
+     *
+     * @return Collection<int, Member>
      */
-    public function paginateOrderedByPositionThenJoined(int $page, int $perPage = 20): LengthAwarePaginator
+    public function orderedForOrgChart(): Collection
     {
         $rank = $this->positionRankByMemberId();
 
-        $members = Member::query()
+        return Member::query()
             ->with('district')
             ->get()
             ->sortBy(fn (Member $member) => [
                 $rank[$member->id] ?? PHP_INT_MAX,
-                $member->joined_at?->timestamp ?? PHP_INT_MAX,
+                $member->birth_date?->timestamp ?? PHP_INT_MAX,
+                mb_strtolower($member->full_name),
             ])
             ->values();
-
-        return new Paginator(
-            $members->forPage($page, $perPage),
-            $members->count(),
-            $perPage,
-            $page,
-            ['path' => Paginator::resolveCurrentPath()]
-        );
     }
 
     /** @return array<int, int> peta member_id => urutan hierarki jabatan pada periode aktif */

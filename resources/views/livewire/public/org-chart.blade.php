@@ -39,7 +39,7 @@
 
         <div class="mt-16">
             <h2 class="font-headline-lg text-headline-lg text-on-surface mb-2">Daftar Anggota</h2>
-            <p class="font-body-md text-on-surface-variant mb-8">Seluruh anggota ICMI Kabupaten Bengkalis, diurutkan berdasarkan jabatan lalu tanggal bergabung.</p>
+            <p class="font-body-md text-on-surface-variant mb-8">Seluruh anggota ICMI Kabupaten Bengkalis, diurutkan berdasarkan jabatan, tanggal lahir, lalu nama.</p>
 
             <div class="grid grid-cols-3 gap-4 md:gap-6 lg:grid-cols-5">
                 @forelse ($members as $member)
@@ -57,7 +57,17 @@
                 @endforelse
             </div>
 
-            <div class="mt-6">{{ $members->links() }}</div>
+            @if ($hasMore)
+                <div class="mt-8 flex justify-center">
+                    <button type="button" wire:click="loadMore" wire:loading.attr="disabled"
+                            class="flex items-center gap-2 rounded-full border border-primary-container/60 bg-white px-8 py-3 font-label-lg text-label-lg font-bold text-primary transition-all hover:bg-primary-container/10 disabled:opacity-60">
+                        <span wire:loading.remove wire:target="loadMore" class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[20px]">expand_more</span> Muat Lebih Banyak
+                        </span>
+                        <span wire:loading wire:target="loadMore">Memuat…</span>
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
 </div>
