@@ -33,6 +33,18 @@ class PublishingTest extends TestCase
             ->assertDontSee('Draf Tersembunyi');
     }
 
+    public function test_halaman_artikel_menampilkan_tombol_bagikan(): void
+    {
+        $post = Post::factory()->published()->create();
+
+        $this->get(route('posts.show', $post->slug))
+            ->assertOk()
+            ->assertSee('facebook.com/sharer', false)
+            ->assertSee('twitter.com/intent/tweet', false)
+            ->assertSee('wa.me', false)
+            ->assertSee('Salin Tautan');
+    }
+
     public function test_show_publik_404_untuk_post_belum_terbit(): void
     {
         $post = Post::factory()->create(['status' => PostStatus::Draft]);

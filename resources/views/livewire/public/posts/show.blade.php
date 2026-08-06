@@ -8,6 +8,10 @@
                 <x-public.author-chip :user="$post->author" class="hover:opacity-80 transition-opacity" />
                 <span class="flex items-center gap-2 font-label-lg text-label-lg text-on-surface-variant"><span class="material-symbols-outlined text-[18px]">calendar_today</span> {{ $post->published_at?->translatedFormat('d F Y') }}</span>
             </div>
+
+            <div class="mt-6">
+                <x-public.share-buttons :url="route('posts.show', $post->slug)" :title="$post->title" />
+            </div>
         </div>
     </div>
 
