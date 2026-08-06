@@ -156,31 +156,16 @@ class MemberService
         return ['rank' => $rank, 'level' => $level];
     }
 
-    /**
-     * Anggota Aktif berfoto untuk carousel beranda: pengurus level 1 dahulu,
-     * lalu level 2 (sesuai urutan hierarki), sisanya diacak.
-     */
+    /** Anggota Aktif dengan foto profil, diacak — dipakai carousel beranda. */
     public function randomFeatured(int $limit = 5): EloquentCollection
     {
-        $maps = $this->positionOrderingMaps();
-
-        $members = Member::query()
+        return Member::query()
             ->where('status', MemberStatus::Aktif)
             ->whereHas('media', fn ($q) => $q->where('collection_name', 'photo'))
             ->with('media')
+            ->inRandomOrder()
+            ->limit($limit)
             ->get();
-
-        [$pengurusInti, $lainnya] = $members->partition(
-            fn (Member $member) => ($maps['level'][$member->id] ?? PHP_INT_MAX) <= 2
-        );
-
-        $urut = $pengurusInti
-            ->sortBy(fn (Member $member) => $maps['rank'][$member->id])
-            ->concat($lainnya->shuffle())
-            ->take($limit)
-            ->values();
-
-        return new EloquentCollection($urut->all());
     }
 
     /** Resolusi identifier publik: slug (dari nama) atau ID numerik. Hanya anggota Aktif yang tampil. */
