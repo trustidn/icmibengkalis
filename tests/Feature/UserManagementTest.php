@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -182,5 +183,47 @@ class UserManagementTest extends TestCase
             ->call('toggleActive', $user->id);
 
         $this->assertTrue($user->fresh()->is_active);
+    }
+
+    public function test_admin_bisa_mereset_sandi_user(): void
+    {
+        $adminWeb = User::factory()->create();
+        $adminWeb->assignRole('admin-web');
+        $user = User::factory()->create(['password' => bcrypt('sandi-lama-123')]);
+        $user->assignRole('anggota');
+
+        Livewire::actingAs($adminWeb)
+            ->test(Index::class)
+            ->call('startResetPassword', $user->id)
+            ->set('newPassword', 'sandi-baru-aman')
+            ->call('saveNewPassword')
+            ->assertHasNoErrors();
+
+        $this->assertTrue(Hash::check('sandi-baru-aman', $user->fresh()->password));
+    }
+
+    public function test_sandi_baru_minimal_8_karakter(): void
+    {
+        $adminWeb = User::factory()->create();
+        $adminWeb->assignRole('admin-web');
+        $user = User::factory()->create();
+
+        Livewire::actingAs($adminWeb)
+            ->test(Index::class)
+            ->call('startResetPassword', $user->id)
+            ->set('newPassword', 'pendek')
+            ->call('saveNewPassword')
+            ->assertHasErrors(['newPassword']);
+    }
+
+    public function test_admin_web_tidak_bisa_mereset_sandi_super_admin(): void
+    {
+        $adminWeb = User::factory()->create();
+        $adminWeb->assignRole('admin-web');
+
+        Livewire::actingAs($adminWeb)
+            ->test(Index::class)
+            ->call('startResetPassword', $this->superAdmin->id)
+            ->assertStatus(403);
     }
 }

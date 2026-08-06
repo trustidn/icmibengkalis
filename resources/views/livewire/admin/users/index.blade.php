@@ -83,12 +83,22 @@
                             </td>
                             <td class="py-3">
                                 @unless ($protected)
-                                    <div class="flex flex-wrap gap-2">
-                                        <flux:button size="sm" wire:click="startEditRole({{ $user->id }})">Ubah Peran</flux:button>
-                                        <flux:button size="sm" wire:click="toggleActive({{ $user->id }})">{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</flux:button>
-                                        <x-confirm-delete-button name="confirm-delete-user-{{ $user->id }}" wire-click="deleteUser({{ $user->id }})"
-                                            message="Hapus user {{ $user->name }}? Data anggota terkait tidak ikut terhapus, hanya tautan akunnya." />
-                                    </div>
+                                    @if ($resetPasswordId === $user->id)
+                                        <form wire:submit="saveNewPassword" class="flex flex-wrap items-center gap-2">
+                                            <flux:input type="text" wire:model="newPassword" size="sm" placeholder="Sandi baru (min. 8)" class="max-w-44" />
+                                            <flux:button type="submit" variant="primary" size="sm">Simpan Sandi</flux:button>
+                                            <flux:button type="button" size="sm" wire:click="cancelResetPassword">Batal</flux:button>
+                                        </form>
+                                        @error('newPassword') <flux:text size="sm" class="mt-1 block text-red-600 dark:text-red-400">{{ $message }}</flux:text> @enderror
+                                    @else
+                                        <div class="flex flex-wrap gap-2">
+                                            <flux:button size="sm" wire:click="startEditRole({{ $user->id }})">Ubah Peran</flux:button>
+                                            <flux:button size="sm" wire:click="startResetPassword({{ $user->id }})">Reset Sandi</flux:button>
+                                            <flux:button size="sm" wire:click="toggleActive({{ $user->id }})">{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</flux:button>
+                                            <x-confirm-delete-button name="confirm-delete-user-{{ $user->id }}" wire-click="deleteUser({{ $user->id }})"
+                                                message="Hapus user {{ $user->name }}? Data anggota terkait tidak ikut terhapus, hanya tautan akunnya." />
+                                        </div>
+                                    @endif
                                 @endunless
                             </td>
                         </tr>
@@ -130,12 +140,22 @@
                             @endif
                         </div>
                         @unless ($protected)
-                            <div class="mt-3 flex flex-wrap gap-2">
-                                <flux:button size="sm" wire:click="startEditRole({{ $user->id }})">Ubah Peran</flux:button>
-                                <flux:button size="sm" wire:click="toggleActive({{ $user->id }})">{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</flux:button>
-                                <x-confirm-delete-button name="confirm-delete-user-mobile-{{ $user->id }}" wire-click="deleteUser({{ $user->id }})"
-                                    message="Hapus user {{ $user->name }}? Data anggota terkait tidak ikut terhapus, hanya tautan akunnya." />
-                            </div>
+                            @if ($resetPasswordId === $user->id)
+                                <form wire:submit="saveNewPassword" class="mt-3 flex flex-wrap items-center gap-2">
+                                    <flux:input type="text" wire:model="newPassword" size="sm" placeholder="Sandi baru (min. 8)" />
+                                    <flux:button type="submit" variant="primary" size="sm">Simpan Sandi</flux:button>
+                                    <flux:button type="button" size="sm" wire:click="cancelResetPassword">Batal</flux:button>
+                                </form>
+                                @error('newPassword') <flux:text size="sm" class="mt-1 block text-red-600 dark:text-red-400">{{ $message }}</flux:text> @enderror
+                            @else
+                                <div class="mt-3 flex flex-wrap gap-2">
+                                    <flux:button size="sm" wire:click="startEditRole({{ $user->id }})">Ubah Peran</flux:button>
+                                    <flux:button size="sm" wire:click="startResetPassword({{ $user->id }})">Reset Sandi</flux:button>
+                                    <flux:button size="sm" wire:click="toggleActive({{ $user->id }})">{{ $user->is_active ? 'Nonaktifkan' : 'Aktifkan' }}</flux:button>
+                                    <x-confirm-delete-button name="confirm-delete-user-mobile-{{ $user->id }}" wire-click="deleteUser({{ $user->id }})"
+                                        message="Hapus user {{ $user->name }}? Data anggota terkait tidak ikut terhapus, hanya tautan akunnya." />
+                                </div>
+                            @endif
                         @endunless
                     </div>
                 @endforeach

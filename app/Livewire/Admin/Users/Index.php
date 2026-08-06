@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Users;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -40,6 +41,11 @@ class Index extends Component
     public ?int $editingRoleId = null;
 
     public string $editingRole = '';
+
+    // Reset sandi inline
+    public ?int $resetPasswordId = null;
+
+    public string $newPassword = '';
 
     public function mount(): void
     {
@@ -119,6 +125,40 @@ class Index extends Component
     public function cancelEditRole(): void
     {
         $this->reset(['editingRoleId', 'editingRole']);
+    }
+
+    public function startResetPassword(int $userId): void
+    {
+        $user = User::findOrFail($userId);
+        $this->guardTarget($user);
+
+        $this->resetPasswordId = $user->id;
+        $this->newPassword = '';
+    }
+
+    public function saveNewPassword(): void
+    {
+        $user = User::findOrFail($this->resetPasswordId);
+        $this->guardTarget($user);
+
+        $validated = $this->validate([
+            'newPassword' => ['required', 'string', 'min:8'],
+        ], [], ['newPassword' => 'sandi baru']);
+
+        $user->forceFill([
+            'password' => Hash::make($validated['newPassword']),
+            // Putus juga cookie "ingat saya" perangkat lama.
+            'remember_token' => Str::random(60),
+        ])->save();
+
+        $this->reset(['resetPasswordId', 'newPassword']);
+
+        session()->flash('users.saved', "Sandi {$user->name} berhasil direset.");
+    }
+
+    public function cancelResetPassword(): void
+    {
+        $this->reset(['resetPasswordId', 'newPassword']);
     }
 
     public function toggleActive(int $userId): void
