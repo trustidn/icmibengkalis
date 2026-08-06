@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\PostStatus;
 use App\Livewire\Admin\Publishing\Index as PublishingIndex;
+use App\Livewire\Public\Posts\Index;
 use App\Models\Post;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -31,6 +32,19 @@ class PublishingTest extends TestCase
             ->assertOk()
             ->assertSee('Berita Terbit')
             ->assertDontSee('Draf Tersembunyi');
+    }
+
+    public function test_filter_jenis_menyaring_daftar_berita(): void
+    {
+        Post::factory()->published()->create(['title' => 'Berita Harian Kita', 'type' => 'berita']);
+        Post::factory()->published()->create(['title' => 'Opini Cendekia Kita', 'type' => 'opini']);
+
+        Livewire::test(Index::class)
+            ->assertSee('Berita Harian Kita')
+            ->assertSee('Opini Cendekia Kita')
+            ->set('type', 'opini')
+            ->assertSee('Opini Cendekia Kita')
+            ->assertDontSee('Berita Harian Kita');
     }
 
     public function test_halaman_artikel_menampilkan_tombol_bagikan(): void

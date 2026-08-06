@@ -6,11 +6,11 @@
             <input type="text" wire:model.live.debounce.400ms="search" placeholder="Cari judul..."
                    class="flex-1 min-w-[200px] max-w-xs bg-white border border-outline-variant/40 rounded-lg px-4 py-2.5 font-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary" />
 
-            <select wire:model.live="category"
+            <select wire:model.live="type"
                     class="bg-white border border-outline-variant/40 rounded-lg px-4 py-2.5 font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary">
-                <option value="">Semua Kategori</option>
-                @foreach ($categories as $cat)
-                    <option value="{{ $cat->slug }}">{{ $cat->name }}</option>
+                <option value="">Semua Jenis</option>
+                @foreach ($types as $jenis)
+                    <option value="{{ $jenis->value }}">{{ $jenis->label() }}</option>
                 @endforeach
             </select>
 
@@ -43,9 +43,7 @@
                             <div class="mt-4 pt-4 border-t border-outline-variant/20 flex items-center justify-between gap-3">
                                 <x-public.author-chip :user="$post->author" class="relative z-10 hover:opacity-80 transition-opacity" />
                                 <span class="shrink-0 flex items-center gap-3 text-label-lg font-label-lg text-on-surface-variant/70">
-                                    @if ($post->likes_count > 0)
-                                        <span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[15px] [font-variation-settings:'FILL'_1]">favorite</span>{{ $post->likes_count }}</span>
-                                    @endif
+                                    <span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[15px] [font-variation-settings:'FILL'_1]">thumb_up</span>{{ $post->likes_count }}</span>
                                     {{ $post->published_at?->translatedFormat('d M Y') }}
                                 </span>
                             </div>

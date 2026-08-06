@@ -152,11 +152,12 @@ class PublishingService
         });
     }
 
-    public function paginatePublished(?string $categorySlug = null, ?string $tagSlug = null, ?string $search = null, int $perPage = 9): LengthAwarePaginator
+    public function paginatePublished(?string $categorySlug = null, ?string $tagSlug = null, ?string $search = null, int $perPage = 9, ?string $type = null): LengthAwarePaginator
     {
         $constrain = fn ($query) => $query
             ->where('status', PostStatus::Published)
             ->where('published_at', '<=', now())
+            ->when($type, fn ($q) => $q->where('type', $type))
             ->when($categorySlug, fn ($q) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $categorySlug)))
             ->when($tagSlug, fn ($q) => $q->whereHas('tags', fn ($q2) => $q2->where('slug', $tagSlug)))
             ->with(['category', 'media', 'author.member.media']);

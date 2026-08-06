@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Public\Posts;
 
-use App\Models\PostCategory;
+use App\Enums\PostType;
 use App\Models\Tag;
 use App\Services\Publishing\PublishingService;
 use Livewire\Attributes\Url;
@@ -14,7 +14,7 @@ class Index extends Component
     use WithPagination;
 
     #[Url]
-    public string $category = '';
+    public string $type = '';
 
     #[Url]
     public string $tag = '';
@@ -22,15 +22,30 @@ class Index extends Component
     #[Url]
     public string $search = '';
 
+    public function updatingType(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingTag(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
     public function render(PublishingService $publishing)
     {
         return view('livewire.public.posts.index', [
             'posts' => $publishing->paginatePublished(
-                categorySlug: $this->category ?: null,
                 tagSlug: $this->tag ?: null,
                 search: $this->search ?: null,
+                type: $this->type ?: null,
             ),
-            'categories' => PostCategory::orderBy('name')->get(),
+            'types' => PostType::cases(),
             'tags' => Tag::orderBy('name')->get(),
         ])->layout('components.layouts.public', [
             'metaTitle' => 'Berita & Artikel — '.config('app.name'),

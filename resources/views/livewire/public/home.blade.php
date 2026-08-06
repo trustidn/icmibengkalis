@@ -330,9 +330,7 @@
                             <div class="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 border-t border-outline-variant/40">
                                 <x-public.author-chip :user="$latestPosts[0]->author" class="relative z-20 hover:opacity-80 transition-opacity" />
                                 <span class="flex items-center gap-2 text-on-surface-variant font-label-lg text-label-lg"><span class="material-symbols-outlined text-[18px]">calendar_today</span> {{ $latestPosts[0]->published_at?->translatedFormat('d F Y') }}</span>
-                                @if ($latestPosts[0]->likes_count > 0)
-                                    <span class="flex items-center gap-1.5 text-primary font-label-lg text-label-lg"><span class="material-symbols-outlined text-[17px] [font-variation-settings:'FILL'_1]">favorite</span> {{ $latestPosts[0]->likes_count }}</span>
-                                @endif
+                                <span class="flex items-center gap-1.5 text-primary font-label-lg text-label-lg"><span class="material-symbols-outlined text-[17px] [font-variation-settings:'FILL'_1]">thumb_up</span> {{ $latestPosts[0]->likes_count }}</span>
                             </div>
                         </div>
                     </article>
@@ -349,7 +347,10 @@
                                 <span class="text-secondary font-bold text-[12px] uppercase tracking-widest mb-2">{{ $post->category?->name ?? $post->type->label() }}</span>
                                 <h4 class="capitalize font-headline-md text-[18px] group-hover:text-primary transition-colors leading-tight mb-2">{{ $post->title }}</h4>
                                 <p class="text-on-surface-variant font-body-md line-clamp-2 opacity-80 text-sm">{{ $post->excerpt }}</p>
-                                <x-public.author-chip :user="$post->author" class="relative z-10 mt-3 hover:opacity-80 transition-opacity" />
+                                <div class="relative z-10 mt-3 flex items-center justify-between gap-3">
+                                    <x-public.author-chip :user="$post->author" class="hover:opacity-80 transition-opacity" />
+                                    <span class="flex items-center gap-1 shrink-0 text-primary font-label-lg text-label-lg"><span class="material-symbols-outlined text-[15px] [font-variation-settings:'FILL'_1]">thumb_up</span>{{ $post->likes_count }}</span>
+                                </div>
                             </div>
                         </article>
                     @endforeach

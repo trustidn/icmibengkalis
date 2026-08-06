@@ -76,14 +76,13 @@ class PostLikeTest extends TestCase
             ->assertSee('Apresiasi');
     }
 
-    public function test_jumlah_apresiasi_tampil_di_kartu_daftar_berita(): void
+    public function test_jumlah_apresiasi_selalu_tampil_di_kartu_daftar_berita(): void
     {
-        $post = Post::factory()->published()->create();
-        $post->likes()->create(['liker_key' => 'guest:contoh-token-panjang-sekali-123']);
-        $post->forceFill(['likes_count' => 1])->save();
+        Post::factory()->published()->create();
 
+        // Ikon jempol tampil meski jumlah apresiasi masih 0.
         $this->get(route('posts.index'))
             ->assertOk()
-            ->assertSee('favorite');
+            ->assertSee('thumb_up');
     }
 }

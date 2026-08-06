@@ -4,6 +4,6 @@
                {{ $liked
                     ? 'border-primary bg-primary-container/25 text-primary'
                     : 'border-outline-variant/40 bg-white text-on-surface-variant hover:border-primary hover:text-primary' }}">
-    <span class="material-symbols-outlined text-[18px] {{ $liked ? '[font-variation-settings:\'FILL\'_1]' : '' }}">favorite</span>
+    <span class="material-symbols-outlined text-[18px] {{ $liked ? '[font-variation-settings:\'FILL\'_1]' : '' }}">thumb_up</span>
     <span>{{ $count > 0 ? $count : 'Apresiasi' }}</span>
 </button>
