@@ -7,7 +7,10 @@ use App\Livewire\Admin\Members\Form;
 use App\Livewire\Admin\Members\Index as MembersIndex;
 use App\Models\District;
 use App\Models\Member;
+use App\Models\OrgPeriod;
+use App\Models\OrgUnit;
 use App\Models\User;
+use App\Services\Membership\MemberService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -102,5 +105,39 @@ class MembersTest extends TestCase
         $this->actingAs($user)
             ->get(route('admin.members.index'))
             ->assertForbidden();
+    }
+
+    public function test_carousel_beranda_urut_level_1_lalu_level_2_lalu_sisanya(): void
+    {
+        Storage::fake('public');
+
+        $period = OrgPeriod::factory()->create(['is_active' => true]);
+        $root = OrgUnit::factory()->create(['org_period_id' => $period->id, 'sort_order' => 1]);
+        $anak = OrgUnit::factory()->create(['org_period_id' => $period->id, 'parent_id' => $root->id]);
+        $cucu = OrgUnit::factory()->create(['org_period_id' => $period->id, 'parent_id' => $anak->id]);
+
+        $buatBerfoto = function (string $nia, string $nama) {
+            $member = Member::factory()->create(['nia' => $nia, 'full_name' => $nama, 'status' => MemberStatus::Aktif]);
+            $foto = UploadedFile::fake()->image($nia.'.jpg');
+            $member->addMedia($foto->getRealPath())->usingFileName('foto.jpg')->toMediaCollection('photo');
+
+            return $member;
+        };
+
+        $l1 = $buatBerfoto('CR-0001', 'Pengurus Puncak');
+        $l2 = $buatBerfoto('CR-0002', 'Pengurus Menengah');
+        $l3 = $buatBerfoto('CR-0003', 'Pengurus Sub');
+        $biasa = $buatBerfoto('CR-0004', 'Anggota Biasa');
+
+        $root->assignments()->create(['member_id' => $l1->id, 'position_title' => 'Ketua']);
+        $anak->assignments()->create(['member_id' => $l2->id, 'position_title' => 'Ketua Bidang']);
+        $cucu->assignments()->create(['member_id' => $l3->id, 'position_title' => 'Ketua Sub']);
+
+        $hasil = app(MemberService::class)->randomFeatured(10);
+
+        // Level 1 lalu level 2 selalu di depan sesuai hierarki...
+        $this->assertSame([$l1->id, $l2->id], $hasil->take(2)->pluck('id')->all());
+        // ...sisanya (level 3+ dan non-pengurus) menyusul dalam urutan acak.
+        $this->assertEqualsCanonicalizing([$l3->id, $biasa->id], $hasil->slice(2)->pluck('id')->all());
     }
 }

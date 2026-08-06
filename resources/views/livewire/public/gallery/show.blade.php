@@ -19,8 +19,9 @@
                                     </div>
                                 </button>
                             </flux:modal.trigger>
-                            <flux:modal name="lightbox-{{ $item->id }}" class="max-w-3xl">
-                                <div class="aspect-video bg-black rounded-lg overflow-hidden">
+                            <flux:modal name="lightbox-{{ $item->id }}" class="max-w-none md:max-w-3xl">
+                                {{-- Lebar eksplisit: penuh selebar layar di ponsel, ~46rem di desktop --}}
+                                <div class="aspect-video w-[calc(100vw-3.5rem)] md:w-[42rem] max-w-full bg-black rounded-lg overflow-hidden">
                                     @if ($item->embedUrl())
                                         <iframe class="h-full w-full" src="{{ $item->embedUrl() }}"
                                                 title="{{ $item->caption ?: $album->title }}"

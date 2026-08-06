@@ -105,50 +105,82 @@ class MemberService
     /** @return array<int, int> peta member_id => urutan hierarki jabatan pada periode aktif */
     private function positionRankByMemberId(): array
     {
+        return $this->positionOrderingMaps()['rank'];
+    }
+
+    /**
+     * Peta urutan & level hierarki jabatan pada periode aktif, ditelusuri
+     * PER LEVEL (breadth-first): SEMUA pengurus level 1 dahulu, lalu seluruh
+     * level 2, dan seterusnya — bukan menyelam per cabang unit.
+     *
+     * @return array{rank: array<int, int>, level: array<int, int>}
+     */
+    private function positionOrderingMaps(): array
+    {
         $activePeriod = OrgPeriod::where('is_active', true)->first();
 
         if (! $activePeriod) {
-            return [];
+            return ['rank' => [], 'level' => []];
         }
 
-        $rootUnits = OrgUnit::where('org_period_id', $activePeriod->id)
-            ->whereNull('parent_id')
-            ->with('children.children.children.assignments', 'assignments')
+        $unitsByParent = OrgUnit::where('org_period_id', $activePeriod->id)
+            ->with('assignments')
             ->orderBy('sort_order')
-            ->get();
+            ->get()
+            ->groupBy(fn (OrgUnit $unit) => $unit->parent_id ?? 0);
 
         $rank = [];
-        $this->walkUnitsForRanking($rootUnits, $rank);
+        $level = [];
+        $queue = $unitsByParent->get(0, collect());
+        $depth = 1;
 
-        return $rank;
-    }
+        while ($queue->isNotEmpty()) {
+            $next = collect();
 
-    /** @param  EloquentCollection<int, OrgUnit>  $units
-     * @param  array<int, int>  $rank */
-    private function walkUnitsForRanking(EloquentCollection $units, array &$rank): void
-    {
-        foreach ($units as $unit) {
-            foreach ($unit->assignments as $assignment) {
-                // Penugasan eksternal (tanpa member) tidak ikut peringkat daftar anggota.
-                if ($assignment->member_id !== null) {
-                    $rank[$assignment->member_id] ??= count($rank);
+            foreach ($queue as $unit) {
+                foreach ($unit->assignments as $assignment) {
+                    // Penugasan eksternal (tanpa member) tidak ikut peringkat daftar anggota.
+                    if ($assignment->member_id !== null && ! isset($rank[$assignment->member_id])) {
+                        $rank[$assignment->member_id] = count($rank);
+                        $level[$assignment->member_id] = $depth;
+                    }
                 }
+
+                $next = $next->merge($unitsByParent->get($unit->id, collect()));
             }
 
-            $this->walkUnitsForRanking($unit->children, $rank);
+            $queue = $next;
+            $depth++;
         }
+
+        return ['rank' => $rank, 'level' => $level];
     }
 
-    /** Anggota Aktif dengan foto profil, diacak — dipakai carousel beranda. */
+    /**
+     * Anggota Aktif berfoto untuk carousel beranda: pengurus level 1 dahulu,
+     * lalu level 2 (sesuai urutan hierarki), sisanya diacak.
+     */
     public function randomFeatured(int $limit = 5): EloquentCollection
     {
-        return Member::query()
+        $maps = $this->positionOrderingMaps();
+
+        $members = Member::query()
             ->where('status', MemberStatus::Aktif)
             ->whereHas('media', fn ($q) => $q->where('collection_name', 'photo'))
             ->with('media')
-            ->inRandomOrder()
-            ->limit($limit)
             ->get();
+
+        [$pengurusInti, $lainnya] = $members->partition(
+            fn (Member $member) => ($maps['level'][$member->id] ?? PHP_INT_MAX) <= 2
+        );
+
+        $urut = $pengurusInti
+            ->sortBy(fn (Member $member) => $maps['rank'][$member->id])
+            ->concat($lainnya->shuffle())
+            ->take($limit)
+            ->values();
+
+        return new EloquentCollection($urut->all());
     }
 
     /** Resolusi identifier publik: slug (dari nama) atau ID numerik. Hanya anggota Aktif yang tampil. */

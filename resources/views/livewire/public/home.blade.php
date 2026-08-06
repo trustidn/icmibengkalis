@@ -354,6 +354,48 @@
             @else
                 <p class="font-body-md text-on-surface-variant">Belum ada berita.</p>
             @endif
+
+            {{-- Top kontributor bulan berjalan --}}
+            @if ($topContributors->isNotEmpty())
+                <div class="mt-16">
+                    <div class="flex flex-wrap items-end justify-between gap-3 mb-8">
+                        <div>
+                            <span class="text-primary font-bold tracking-[0.2em] text-label-lg uppercase mb-2 block">Apresiasi</span>
+                            <h3 class="font-headline-md text-headline-md text-on-surface">Top Kontributor Bulan Ini</h3>
+                        </div>
+                        <span class="font-label-lg text-label-lg text-on-surface-variant">{{ now()->translatedFormat('F Y') }}</span>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                        @foreach ($topContributors as $i => $kontributor)
+                            <a wire:key="kontributor-{{ $kontributor['member']->id }}"
+                               href="{{ route('profiles.show', $kontributor['member']->slug) }}" wire:navigate
+                               class="group relative bg-white rounded-xl border border-outline-variant/30 p-5 text-center card-shadow-hover transition-all duration-300">
+                                <span class="absolute top-3 left-3 flex h-7 w-7 items-center justify-center rounded-full {{ $i === 0 ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container text-on-surface-variant' }} font-bold text-[13px]">{{ $i + 1 }}</span>
+                                @if ($kontributor['member']->photoUrl())
+                                    <img src="{{ $kontributor['member']->photoUrl() }}" alt="{{ $kontributor['member']->full_name }}" loading="lazy"
+                                         class="mx-auto h-16 w-16 rounded-full object-cover" />
+                                @else
+                                    <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary-container/30 font-headline-md text-[22px] text-primary">
+                                        {{ mb_substr($kontributor['member']->full_name, 0, 1) }}
+                                    </div>
+                                @endif
+                                <p class="mt-3 font-headline-md text-[15px] leading-tight text-on-surface group-hover:text-primary transition-colors line-clamp-2">{{ $kontributor['member']->full_name }}</p>
+                                @if ($kontributor['member']->profession)
+                                    <p class="mt-1 text-sm text-on-surface-variant truncate">{{ $kontributor['member']->profession }}</p>
+                                @endif
+                                @if ($kontributor['jabatan'])
+                                    <p class="mt-0.5 text-[12px] font-bold text-secondary truncate">{{ $kontributor['jabatan'] }}</p>
+                                @endif
+                                <div class="mt-3 flex items-center justify-center gap-2 border-t border-outline-variant/20 pt-3">
+                                    <span class="rounded-full bg-primary-container/25 px-2.5 py-0.5 text-[12px] font-bold text-primary">{{ $kontributor['bulanIni'] }} bulan ini</span>
+                                    <span class="rounded-full bg-surface-container px-2.5 py-0.5 text-[12px] font-bold text-on-surface-variant">{{ $kontributor['total'] }} total</span>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
         </div>
     </section>
 

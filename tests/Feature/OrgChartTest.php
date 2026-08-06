@@ -84,6 +84,33 @@ class OrgChartTest extends TestCase
         $this->assertLessThan($pos('Budi Tanpa Tanggal'), $pos('Ani Tanpa Tanggal'));
     }
 
+    public function test_urutan_jabatan_per_level_hirarki_bukan_per_cabang(): void
+    {
+        $period = OrgPeriod::factory()->create(['is_active' => true]);
+        $rootA = OrgUnit::factory()->create(['org_period_id' => $period->id, 'sort_order' => 1]);
+        $rootB = OrgUnit::factory()->create(['org_period_id' => $period->id, 'sort_order' => 2]);
+        $anakA = OrgUnit::factory()->create(['org_period_id' => $period->id, 'parent_id' => $rootA->id, 'sort_order' => 1]);
+
+        $l1a = Member::factory()->create(['nia' => 'LV-0001', 'full_name' => 'Pengurus Level Satu A', 'status' => MemberStatus::Aktif]);
+        $l1b = Member::factory()->create(['nia' => 'LV-0002', 'full_name' => 'Pengurus Level Satu B', 'status' => MemberStatus::Aktif]);
+        $l2 = Member::factory()->create(['nia' => 'LV-0003', 'full_name' => 'Pengurus Level Dua', 'status' => MemberStatus::Aktif]);
+
+        $rootA->assignments()->create(['member_id' => $l1a->id, 'position_title' => 'Ketua']);
+        $anakA->assignments()->create(['member_id' => $l2->id, 'position_title' => 'Ketua Sub']);
+        $rootB->assignments()->create(['member_id' => $l1b->id, 'position_title' => 'Ketua B']);
+
+        $content = $this->get(route('org-chart.show'))->getContent();
+        // Batasi ke section Daftar Anggota — bagan struktur di atasnya memang
+        // merender nama per cabang (depth-first).
+        $daftar = substr($content, strpos($content, 'Daftar Anggota'));
+        $pos = fn (string $nama) => strpos($daftar, $nama);
+
+        // SEMUA level 1 (root A lalu root B) harus mendahului level 2,
+        // meski sub-unit A berada "di dalam" cabang root A.
+        $this->assertLessThan($pos('Pengurus Level Satu B'), $pos('Pengurus Level Satu A'));
+        $this->assertLessThan($pos('Pengurus Level Dua'), $pos('Pengurus Level Satu B'));
+    }
+
     public function test_daftar_anggota_load_more_12_per_batch(): void
     {
         foreach (range(1, 15) as $i) {

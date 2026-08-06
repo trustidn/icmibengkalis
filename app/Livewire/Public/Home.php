@@ -34,6 +34,7 @@ class Home extends Component
             'greetingExcerpt' => $greetingPage ? Html::excerpt($greetingPage->body, 35) : null,
             'chairman' => $orgChart->chairman(),
             'latestPosts' => collect($publishing->paginatePublished(perPage: 4)->items()),
+            'topContributors' => $publishing->topContributors(5),
             'pinnedAnnouncements' => $announcements->active()->where('is_pinned', true)->take(3),
             'posters' => $posters->active(),
             'partners' => $partners->active(),

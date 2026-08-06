@@ -4,10 +4,13 @@ namespace App\Services\Publishing;
 
 use App\Enums\PostStatus;
 use App\Events\PostPublished;
+use App\Models\Member;
 use App\Models\Post;
 use App\Models\PostRevision;
+use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
@@ -168,5 +171,50 @@ class PublishingService
     public function incrementViewCount(Post $post): void
     {
         DB::table('posts')->where('id', $post->id)->increment('view_count');
+    }
+
+    /**
+     * Top kontributor bulan berjalan untuk beranda: penulis ber-anggota
+     * (super-admin dikecualikan) diurutkan jumlah tulisan terbit bulan ini,
+     * lalu total keseluruhan. Hanya yang menulis bulan ini yang tampil.
+     *
+     * @return Collection<int, array{member: Member, jabatan: ?string, bulanIni: int, total: int}>
+     */
+    public function topContributors(int $limit = 5): Collection
+    {
+        return Cache::remember('public.top_contributors.'.now()->format('Y-m'), now()->addMinutes(10), function () use ($limit) {
+            $terbit = Post::query()
+                ->where('status', PostStatus::Published)
+                ->where('published_at', '<=', now())
+                ->whereNotNull('author_id')
+                ->get(['author_id', 'published_at']);
+
+            $awalBulan = now()->startOfMonth();
+
+            $statistik = $terbit
+                ->groupBy('author_id')
+                ->map(fn ($posts) => [
+                    'total' => $posts->count(),
+                    'bulanIni' => $posts->filter(fn (Post $post) => $post->published_at?->gte($awalBulan))->count(),
+                ])
+                ->filter(fn (array $stat) => $stat['bulanIni'] > 0);
+
+            return User::query()
+                ->with(['member.media', 'roles'])
+                ->findMany($statistik->keys())
+                ->reject(fn ($user) => $user->member === null || $user->hasRole('super-admin'))
+                ->map(fn ($user) => [
+                    'member' => $user->member,
+                    'jabatan' => $user->member->orgAssignments()
+                        ->whereHas('unit.period', fn ($q) => $q->where('is_active', true))
+                        ->orderBy('id')
+                        ->value('position_title'),
+                    'bulanIni' => $statistik[$user->id]['bulanIni'],
+                    'total' => $statistik[$user->id]['total'],
+                ])
+                ->sortByDesc(fn (array $c) => [$c['bulanIni'], $c['total']])
+                ->take($limit)
+                ->values();
+        });
     }
 }
