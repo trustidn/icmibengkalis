@@ -330,6 +330,9 @@
                             <div class="flex flex-wrap items-center gap-x-6 gap-y-2 pt-2 border-t border-outline-variant/40">
                                 <x-public.author-chip :user="$latestPosts[0]->author" class="relative z-20 hover:opacity-80 transition-opacity" />
                                 <span class="flex items-center gap-2 text-on-surface-variant font-label-lg text-label-lg"><span class="material-symbols-outlined text-[18px]">calendar_today</span> {{ $latestPosts[0]->published_at?->translatedFormat('d F Y') }}</span>
+                                @if ($latestPosts[0]->likes_count > 0)
+                                    <span class="flex items-center gap-1.5 text-primary font-label-lg text-label-lg"><span class="material-symbols-outlined text-[17px] [font-variation-settings:'FILL'_1]">favorite</span> {{ $latestPosts[0]->likes_count }}</span>
+                                @endif
                             </div>
                         </div>
                     </article>

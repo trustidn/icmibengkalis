@@ -95,6 +95,11 @@ class Post extends Model implements HasMedia
         return $this->status === PostStatus::Published && $this->published_at?->lessThanOrEqualTo(now());
     }
 
+    public function likes(): HasMany
+    {
+        return $this->hasMany(PostLike::class);
+    }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('featured')->singleFile();

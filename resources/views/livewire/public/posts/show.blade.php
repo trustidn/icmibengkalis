@@ -9,7 +9,8 @@
                 <span class="flex items-center gap-2 font-label-lg text-label-lg text-on-surface-variant"><span class="material-symbols-outlined text-[18px]">calendar_today</span> {{ $post->published_at?->translatedFormat('d F Y') }}</span>
             </div>
 
-            <div class="mt-6">
+            <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
+                <livewire:public.posts.like-button :post="$post" />
                 <x-public.share-buttons :url="route('posts.show', $post->slug)" :title="$post->title" />
             </div>
         </div>

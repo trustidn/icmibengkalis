@@ -42,7 +42,12 @@
                             <p class="font-body-md text-on-surface-variant line-clamp-3 opacity-80 flex-1">{{ $post->excerpt }}</p>
                             <div class="mt-4 pt-4 border-t border-outline-variant/20 flex items-center justify-between gap-3">
                                 <x-public.author-chip :user="$post->author" class="relative z-10 hover:opacity-80 transition-opacity" />
-                                <span class="shrink-0 text-label-lg font-label-lg text-on-surface-variant/70">{{ $post->published_at?->translatedFormat('d M Y') }}</span>
+                                <span class="shrink-0 flex items-center gap-3 text-label-lg font-label-lg text-on-surface-variant/70">
+                                    @if ($post->likes_count > 0)
+                                        <span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[15px] [font-variation-settings:'FILL'_1]">favorite</span>{{ $post->likes_count }}</span>
+                                    @endif
+                                    {{ $post->published_at?->translatedFormat('d M Y') }}
+                                </span>
                             </div>
                         </div>
                     </div>
