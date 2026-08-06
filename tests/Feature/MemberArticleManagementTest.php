@@ -89,7 +89,7 @@ class MemberArticleManagementTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_anggota_tidak_bisa_ubah_artikel_miliknya_yang_sudah_terbit(): void
+    public function test_halaman_edit_terbuka_untuk_artikel_sendiri_yang_sudah_terbit(): void
     {
         $user = User::factory()->create();
         Member::factory()->create(['user_id' => $user->id]);
@@ -97,20 +97,55 @@ class MemberArticleManagementTest extends TestCase
 
         $this->actingAs($user)
             ->get(route('member.posts.edit', $post))
-            ->assertForbidden();
+            ->assertOk();
     }
 
-    public function test_tombol_ubah_hanya_tampil_untuk_artikel_yang_boleh_diubah(): void
+    public function test_tombol_ubah_tampil_untuk_artikel_terbit_maupun_ditolak(): void
     {
         $user = User::factory()->create();
         Member::factory()->create(['user_id' => $user->id]);
 
-        $editable = Post::factory()->create(['author_id' => $user->id, 'status' => PostStatus::Rejected, 'title' => 'Bisa Diubah']);
-        $locked = Post::factory()->published()->create(['author_id' => $user->id, 'title' => 'Sudah Terbit Terkunci']);
+        $rejected = Post::factory()->create(['author_id' => $user->id, 'status' => PostStatus::Rejected, 'title' => 'Bisa Diubah']);
+        $published = Post::factory()->published()->create(['author_id' => $user->id, 'title' => 'Terbit Juga Bisa Diubah']);
 
         $this->actingAs($user)
             ->get(route('member.posts.index'))
-            ->assertSee(route('member.posts.edit', $editable))
-            ->assertDontSee(route('member.posts.edit', $locked));
+            ->assertSee(route('member.posts.edit', $rejected))
+            ->assertSee(route('member.posts.edit', $published));
+    }
+
+    public function test_anggota_bisa_mengedit_artikelnya_yang_sudah_tayang(): void
+    {
+        $user = User::factory()->create();
+        Member::factory()->create(['user_id' => $user->id]);
+        $post = Post::factory()->published()->create([
+            'author_id' => $user->id,
+            'type' => 'opini',
+            'title' => 'Opini Sudah Tayang',
+        ]);
+
+        $this->assertTrue($user->can('update', $post));
+
+        Livewire::actingAs($user)
+            ->test(MemberPostsCreate::class, ['post' => $post])
+            ->assertSet('title', 'Opini Sudah Tayang')
+            ->set('title', 'Opini Tayang Yang Disunting')
+            ->set('body', 'Isi baru yang cukup panjang untuk validasi.')
+            ->call('submit')
+            ->assertHasNoErrors();
+
+        $post->refresh();
+        $this->assertSame('Opini Tayang Yang Disunting', $post->title);
+        $this->assertSame(PostStatus::Published, $post->status);
+    }
+
+    public function test_anggota_tetap_tidak_bisa_mengedit_artikel_tayang_orang_lain(): void
+    {
+        $user = User::factory()->create();
+        Member::factory()->create(['user_id' => $user->id]);
+        $lain = User::factory()->create();
+        $post = Post::factory()->published()->create(['author_id' => $lain->id]);
+
+        $this->assertFalse($user->can('update', $post));
     }
 }

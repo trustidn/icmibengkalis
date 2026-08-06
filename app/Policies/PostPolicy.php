@@ -29,8 +29,10 @@ class PostPolicy
             return true;
         }
 
+        // Penulis boleh menyunting tulisannya sendiri — termasuk yang sudah
+        // tayang (kebijakan "langsung terbit"). Hanya arsip yang dikunci.
         return $user->id === $post->author_id
-            && in_array($post->status, [PostStatus::Draft, PostStatus::Rejected], true);
+            && in_array($post->status, [PostStatus::Draft, PostStatus::Rejected, PostStatus::InReview, PostStatus::Published], true);
     }
 
     public function delete(User $user, Post $post): bool
