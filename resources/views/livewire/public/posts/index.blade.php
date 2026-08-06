@@ -32,7 +32,7 @@
                          class="group relative bg-white rounded-xl border border-outline-variant/30 card-shadow-hover transition-all duration-300 overflow-hidden flex flex-col">
                         <a href="{{ route('posts.show', $post->slug) }}" wire:navigate class="absolute inset-0 z-0" aria-label="{{ $post->title }}"></a>
                         @if ($post->featuredThumbUrl())
-                            <img src="{{ $post->featuredThumbUrl() }}" alt="{{ $post->title }}" class="aspect-video w-full object-cover" />
+                            <img src="{{ $post->featuredThumbUrl() }}" alt="{{ $post->title }}" class="aspect-video w-full object-cover object-top" />
                         @else
                             <x-public.image-placeholder icon="article" />
                         @endif
