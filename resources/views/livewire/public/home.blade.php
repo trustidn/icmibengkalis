@@ -275,7 +275,7 @@
                             class="snap-start shrink-0 w-[38%] sm:w-[calc((100%-2rem)/3)] md:w-[calc((100%-3rem)/4)] lg:w-[calc((100%-4rem)/5)] block bg-white rounded-xl border border-outline-variant/30 overflow-hidden card-shadow-hover transition-all duration-300">
                             <x-public.member-photo :member="$member" class="aspect-[3/4] w-full" />
                             <div class="p-3 text-center">
-                                <p class="font-headline-md text-[13px] text-on-surface leading-tight line-clamp-2">{{ $member->full_name }}</p>
+                                <p class="font-headline-md text-[13px] text-on-surface leading-tight line-clamp-2">{{ $member->fullNameWithTitles() }}</p>
                                 @if ($member->profession)
                                     <p class="font-body-md text-on-surface-variant text-xs mt-1 truncate">{{ $member->profession }}</p>
                                 @endif
@@ -384,7 +384,7 @@
                                         {{ mb_substr($kontributor['member']->full_name, 0, 1) }}
                                     </div>
                                 @endif
-                                <p class="mt-3 font-headline-md text-[15px] leading-tight text-on-surface group-hover:text-primary transition-colors line-clamp-2">{{ $kontributor['member']->full_name }}</p>
+                                <p class="mt-3 font-headline-md text-[15px] leading-tight text-on-surface group-hover:text-primary transition-colors line-clamp-2">{{ $kontributor['member']->fullNameWithTitles() }}</p>
                                 @if ($kontributor['member']->profession)
                                     <p class="mt-1 text-sm text-on-surface-variant truncate">{{ $kontributor['member']->profession }}</p>
                                 @endif

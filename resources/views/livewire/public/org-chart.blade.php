@@ -46,7 +46,7 @@
                     <x-public.member-link :member="$member" class="block bg-white rounded-xl border border-outline-variant/30 overflow-hidden card-shadow-hover transition-all duration-300">
                         <x-public.member-photo :member="$member" class="aspect-[3/4] w-full" />
                         <div class="p-3 text-center">
-                            <p class="font-headline-md text-[15px] text-on-surface leading-tight line-clamp-2">{{ $member->full_name }}</p>
+                            <p class="font-headline-md text-[15px] text-on-surface leading-tight line-clamp-2">{{ $member->fullNameWithTitles() }}</p>
                             @if ($member->profession)
                                 <p class="font-body-md text-on-surface-variant text-sm mt-1 truncate">{{ $member->profession }}</p>
                             @endif

@@ -29,7 +29,7 @@ class OrgAssignment extends Model
 
     public function displayName(): string
     {
-        return $this->member?->full_name ?? (string) $this->external_name;
+        return $this->member?->fullNameWithTitles() ?? (string) $this->external_name;
     }
 
     public function unit(): BelongsTo

@@ -45,8 +45,7 @@ class IdCardService
     public function cardData(IdCardEvent $event, Member $member): array
     {
         return [
-            'nama' => trim(collect([$member->title_prefix, $member->full_name])->filter()->implode(' ')
-                .($member->title_suffix ? ', '.$member->title_suffix : '')),
+            'nama' => $member->fullNameWithTitles(),
             'nia' => $member->nia,
             'profesi' => $member->profession,
             'foto' => $this->croppedPhotoDataUri($member->getFirstMedia('photo')?->getPath()),

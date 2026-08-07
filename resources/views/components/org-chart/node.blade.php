@@ -60,7 +60,7 @@
                         @endif
                         @if ($assignment->member)
                             <x-public.member-link :member="$assignment->member" class="hover:text-primary transition-colors w-fit">
-                                <flux:heading size="lg">{{ $assignment->member->full_name }}</flux:heading>
+                                <flux:heading size="lg">{{ $assignment->member->fullNameWithTitles() }}</flux:heading>
                             </x-public.member-link>
                         @else
                             <flux:heading size="lg">{{ $assignment->displayName() }}</flux:heading>

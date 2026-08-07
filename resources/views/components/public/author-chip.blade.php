@@ -19,7 +19,7 @@
             </span>
         @endif
         <span class="min-w-0 text-left">
-            <span class="block font-bold text-sm leading-tight truncate {{ $dark ? 'text-white' : 'text-on-surface' }}">{{ $member?->full_name ?? $user->name }}</span>
+            <span class="block font-bold text-sm leading-tight truncate {{ $dark ? 'text-white' : 'text-on-surface' }}">{{ $member?->fullNameWithTitles() ?? $user->name }}</span>
             @if ($member?->profession)
                 <span class="block text-xs leading-tight truncate {{ $dark ? 'text-white/60' : 'text-on-surface-variant' }}">{{ $member->profession }}</span>
             @endif

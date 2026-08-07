@@ -126,6 +126,24 @@ class OrgChartTest extends TestCase
             ->assertViewHas('hasMore', false);
     }
 
+    public function test_nama_tampil_lengkap_dengan_gelar_di_struktur_dan_daftar_anggota(): void
+    {
+        $period = OrgPeriod::factory()->create(['is_active' => true]);
+        $unit = OrgUnit::factory()->create(['org_period_id' => $period->id]);
+        $member = Member::factory()->create([
+            'full_name' => 'Ahmad Zulkarnain',
+            'title_prefix' => 'Dr. H.',
+            'title_suffix' => 'M.Pd.',
+            'status' => MemberStatus::Aktif,
+        ]);
+        $unit->assignments()->create(['member_id' => $member->id, 'position_title' => 'Ketua']);
+
+        // Bagan struktur (displayName) dan grid daftar anggota memakai gelar lengkap.
+        $this->get(route('org-chart.show'))
+            ->assertOk()
+            ->assertSee('Dr. H. Ahmad Zulkarnain, M.Pd.');
+    }
+
     public function test_nama_pengurus_di_daftar_anggota_bertaut_ke_profil_publik(): void
     {
         $period = OrgPeriod::factory()->create(['is_active' => true]);

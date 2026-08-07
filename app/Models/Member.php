@@ -96,6 +96,16 @@ class Member extends Model implements HasMedia
         return $this->hasMany(MemberExpertise::class);
     }
 
+    /** Nama lengkap beserta gelar depan & belakang, mis. "Dr. H. Fulan, M.Pd." */
+    public function fullNameWithTitles(): string
+    {
+        $nama = trim(collect([$this->title_prefix, $this->full_name])->filter()->implode(' '));
+
+        return filled($this->title_suffix)
+            ? $nama.', '.ltrim(trim($this->title_suffix), ', ')
+            : $nama;
+    }
+
     public function orgAssignments(): HasMany
     {
         return $this->hasMany(OrgAssignment::class);
