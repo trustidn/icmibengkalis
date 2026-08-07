@@ -38,7 +38,7 @@
 <meta property="og:description" content="{{ $metaDescription }}" />
 <meta property="og:url" content="{{ $canonicalUrl }}" />
 <meta property="og:site_name" content="{{ $siteName }}" />
-<meta name="twitter:card" content="summary" />
+<meta name="twitter:card" content="{{ $twitterCard ?? 'summary' }}" />
 
 @stack('meta')
 

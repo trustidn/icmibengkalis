@@ -24,11 +24,14 @@ class Create extends Component
 
     public string $title = '';
 
-    public string $excerpt = '';
-
     public string $body = '';
 
+    /** Kata kunci dipisah koma — jadi tag artikel & hashtag saat share. */
+    public string $tags = '';
+
     public $featured_image = null;
+
+    public string $featured_caption = '';
 
     public ?string $published_at = null;
 
@@ -43,9 +46,10 @@ class Create extends Component
             $this->post = $post;
             $this->type = $post->type->value;
             $this->title = $post->title;
-            $this->excerpt = (string) $post->excerpt;
             $this->body = $post->body;
+            $this->featured_caption = (string) $post->featured_caption;
             $this->published_at = $post->published_at?->format('Y-m-d');
+            $this->tags = $post->tags()->pluck('name')->implode(', ');
         } else {
             $this->authorize('create', Post::class);
 
@@ -58,13 +62,15 @@ class Create extends Component
         $validated = $this->validate([
             'type' => ['required', 'in:'.implode(',', array_map(fn ($case) => $case->value, self::ALLOWED_TYPES))],
             'title' => ['required', 'string', 'max:255'],
-            'excerpt' => ['nullable', 'string', 'max:500'],
             'body' => ['required', 'string'],
+            'tags' => ['nullable', 'string', 'max:500'],
+            'featured_caption' => ['nullable', 'string', 'max:255'],
             'published_at' => ['nullable', 'date'],
             'featured_image' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:4096'],
         ]);
 
-        unset($validated['featured_image']);
+        unset($validated['featured_image'], $validated['tags']);
+        $validated['featured_caption'] = $validated['featured_caption'] ?: null;
 
         // MariaDB strict menolak '' untuk kolom tanggal; kosong berarti
         // "jangan ubah" — tanggal terisi otomatis saat terbit jika belum ada.
@@ -72,14 +78,16 @@ class Create extends Component
             unset($validated['published_at']);
         }
 
+        $tagIds = $publishing->tagIdsFromKeywords($this->tags);
+
         if ($this->post) {
             if ($this->post->status === PostStatus::Rejected) {
                 $publishing->revise($this->post);
             }
 
-            $post = $publishing->update($this->post, $validated, [], auth()->id());
+            $post = $publishing->update($this->post, $validated, $tagIds, auth()->id());
         } else {
-            $post = $publishing->create($validated, auth()->id());
+            $post = $publishing->create($validated, auth()->id(), $tagIds);
         }
 
         if ($this->featured_image) {
@@ -101,7 +109,7 @@ class Create extends Component
             return;
         }
 
-        $this->reset(['title', 'excerpt', 'body', 'featured_image', 'published_at']);
+        $this->reset(['title', 'body', 'tags', 'featured_image', 'featured_caption', 'published_at']);
         $this->type = 'opini';
         $this->submitted = true;
     }

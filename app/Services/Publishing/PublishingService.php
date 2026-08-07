@@ -7,6 +7,7 @@ use App\Events\PostPublished;
 use App\Models\Member;
 use App\Models\Post;
 use App\Models\PostRevision;
+use App\Models\Tag;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
@@ -16,8 +17,45 @@ use Illuminate\Support\Facades\DB;
 
 class PublishingService
 {
+    /**
+     * Ringkasan otomatis: beberapa kalimat pertama dari paragraf pertama body.
+     * Form tidak lagi punya field ringkasan — kolom excerpt selalu diturunkan
+     * dari body (dipakai kartu artikel, og:description, dan caption share).
+     */
+    public function makeExcerpt(string $body, int $maxSentences = 2, int $maxChars = 220): string
+    {
+        // Ambil paragraf pertama (blok <p> pertama, atau baris pertama untuk teks polos).
+        if (preg_match('/<p[^>]*>(.*?)<\/p>/is', $body, $m)) {
+            $paragraf = $m[1];
+        } else {
+            $paragraf = preg_split('/\n{2,}/', $body)[0] ?? $body;
+        }
+
+        $teks = trim(html_entity_decode(strip_tags($paragraf), ENT_QUOTES | ENT_HTML5));
+        $teks = (string) preg_replace('/\s+/', ' ', $teks);
+
+        $kalimat = preg_split('/(?<=[.!?])\s+/u', $teks) ?: [$teks];
+        $ringkas = trim(implode(' ', array_slice($kalimat, 0, $maxSentences)));
+
+        return str($ringkas)->limit($maxChars, '…')->toString();
+    }
+
+    /** "ekonomi syariah, umkm , Pendidikan" -> id tag (dibuat bila belum ada). */
+    public function tagIdsFromKeywords(string $keywords): array
+    {
+        return collect(explode(',', $keywords))
+            ->map(fn (string $kata) => trim($kata))
+            ->filter()
+            ->unique(fn (string $kata) => mb_strtolower($kata))
+            ->map(fn (string $kata) => Tag::firstOrCreate(['name' => $kata])->id)
+            ->values()
+            ->all();
+    }
+
     public function create(array $data, int $authorId, array $tagIds = []): Post
     {
+        $data['excerpt'] = $this->makeExcerpt((string) ($data['body'] ?? ''));
+
         $post = new Post($data);
         $post->author_id = $authorId;
         $post->status = PostStatus::Draft;
@@ -37,6 +75,10 @@ class PublishingService
             'edited_by' => $editedBy ?? $post->author_id,
             'snapshot' => $post->only(['type', 'title', 'excerpt', 'body', 'post_category_id']),
         ]);
+
+        if (isset($data['body'])) {
+            $data['excerpt'] = $this->makeExcerpt((string) $data['body']);
+        }
 
         $post->fill($data);
         $post->save();

@@ -29,6 +29,7 @@ class Show extends Component
         return view('livewire.public.posts.show', ['post' => $post])
             ->layout('components.layouts.public', [
                 'metaTitle' => $post->title.' — '.config('app.name'),
+                'twitterCard' => 'summary_large_image',
                 'metaDescription' => $post->seo_meta['description'] ?? Str::limit(strip_tags($post->excerpt ?: $post->body), 160),
             ]);
     }

@@ -10,27 +10,15 @@
 
         <flux:input label="Judul" wire:model="title" />
 
-        <flux:select label="Kategori" wire:model="post_category_id">
-            <option value="">— Tanpa kategori —</option>
-            @foreach ($categories as $category)
-                <option value="{{ $category->id }}">{{ $category->name }}</option>
-            @endforeach
-        </flux:select>
-
-        <flux:select label="Unit Organisasi (opsional)" wire:model="org_unit_id">
-            <option value="">—</option>
-            @foreach ($orgUnits as $unit)
-                <option value="{{ $unit->id }}">{{ $unit->name }}</option>
-            @endforeach
-        </flux:select>
-
         <flux:input type="date" label="Tanggal Artikel" wire:model="published_at"
                     description="Menentukan urutan tampil artikel. Kosongkan agar terisi otomatis dengan tanggal terbit." />
 
-        <flux:textarea label="Ringkasan" wire:model="excerpt" rows="3" />
-
         <x-rich-editor wire:model="body" label="Isi" />
         @error('body') <flux:text class="text-red-600 dark:text-red-400 text-sm">{{ $message }}</flux:text> @enderror
+        <flux:text class="text-sm text-zinc-500">Ringkasan artikel dibuat otomatis dari kalimat-kalimat awal paragraf pertama.</flux:text>
+
+        <flux:input label="Tag / Kata Kunci" wire:model="tags" placeholder="cth: ekonomi syariah, umkm, pendidikan"
+                    description="Pisahkan dengan koma. Tampil di halaman artikel dan menjadi hashtag saat dibagikan." />
 
         <div class="flex flex-col gap-2">
             <flux:input type="file" label="Gambar Utama" wire:model="featured_image" accept="image/png,image/jpeg,image/webp"
@@ -41,15 +29,9 @@
                     <x-confirm-delete-button name="confirm-remove-post-featured-{{ $post->id }}" wire-click="removeFeaturedImage" message="Hapus gambar utama?" label="Hapus Gambar Utama" />
                 </div>
             @endif
-        </div>
-
-        <div>
-            <flux:label>Tag</flux:label>
-            <div class="mt-2 flex flex-wrap gap-3">
-                @foreach ($tags as $tag)
-                    <flux:checkbox wire:model="selectedTags" value="{{ $tag->id }}" label="{{ $tag->name }}" />
-                @endforeach
-            </div>
+            <flux:input label="Caption Gambar Utama (opsional)" wire:model="featured_caption"
+                        placeholder="cth: Suasana rapat perdana pengurus di Aula BAPPEDA"
+                        description="Tampil di bawah gambar utama pada halaman artikel." />
         </div>
 
         @if ($post && $post->status->value === 'rejected' && $post->review_note)

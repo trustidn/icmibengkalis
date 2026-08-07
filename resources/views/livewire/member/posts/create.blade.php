@@ -27,13 +27,19 @@
         <flux:input type="date" label="Tanggal Artikel" wire:model="published_at"
                     description="Menentukan urutan tampil artikel. Kosongkan agar terisi otomatis dengan tanggal terbit." />
 
-        <flux:textarea label="Ringkasan" wire:model="excerpt" rows="3" />
-
         <x-rich-editor wire:model="body" label="Isi" />
         @error('body') <flux:text class="text-red-600 dark:text-red-400 text-sm">{{ $message }}</flux:text> @enderror
+        <flux:text class="text-sm text-zinc-500">Ringkasan tulisan dibuat otomatis dari kalimat-kalimat awal paragraf pertama.</flux:text>
+
+        <flux:input label="Tag / Kata Kunci" wire:model="tags" placeholder="cth: ekonomi syariah, umkm, pendidikan"
+                    description="Pisahkan dengan koma. Tampil di halaman artikel dan menjadi hashtag saat dibagikan." />
 
         <flux:input type="file" label="Gambar Utama (opsional)" wire:model="featured_image" accept="image/png,image/jpeg,image/webp"
                     description="PNG/JPG/WebP, maks. 4 MB." />
+
+        <flux:input label="Caption Gambar Utama (opsional)" wire:model="featured_caption"
+                    placeholder="cth: Suasana kegiatan di Aula BAPPEDA"
+                    description="Tampil di bawah gambar utama pada halaman artikel." />
 
         <div class="flex gap-2">
             <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="featured_image">{{ $post ? 'Simpan Perubahan' : 'Kirim' }}</flux:button>

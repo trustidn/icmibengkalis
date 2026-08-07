@@ -1,4 +1,12 @@
 <div>
+    @if ($post->featuredImageUrl())
+        @push('meta')
+            {{-- Gambar utama otomatis jadi preview saat dibagikan ke media sosial. --}}
+            <meta property="og:image" content="{{ $post->featuredImageUrl() }}" />
+            <meta name="twitter:image" content="{{ $post->featuredImageUrl() }}" />
+        @endpush
+    @endif
+
     <div class="relative bg-gradient-to-b from-white to-surface-container-low border-b border-outline-variant/20 px-margin-mobile md:px-margin-desktop pt-16 pb-12 md:pt-24 md:pb-16 overflow-hidden">
         <div class="absolute inset-0 hero-pattern -z-10"></div>
         <div class="max-w-3xl mx-auto">
@@ -11,7 +19,10 @@
 
             <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <livewire:public.posts.like-button :post="$post" />
-                <x-public.share-buttons :url="route('posts.show', $post->slug)" :title="$post->title" />
+                <x-public.share-buttons :url="route('posts.show', $post->slug)" :title="$post->title"
+                                        :description="(string) $post->excerpt"
+                                        :hashtags="$post->tags->pluck('name')->all()"
+                                        :image="$post->featuredImageUrl()" />
                 @auth
                     @can('update', $post)
                         <a href="{{ auth()->user()->can('publishing.update') ? route('admin.publishing.edit', $post) : route('member.posts.edit', $post) }}" wire:navigate
@@ -26,7 +37,12 @@
 
     <div class="max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-16">
         @if ($post->featuredImageUrl())
-            <img src="{{ $post->featuredImageUrl() }}" alt="{{ $post->title }}" class="max-w-full h-auto mx-auto rounded-xl mb-10" />
+            <figure class="mb-10">
+                <img src="{{ $post->featuredImageUrl() }}" alt="{{ $post->featured_caption ?: $post->title }}" class="max-w-full h-auto mx-auto rounded-xl" />
+                @if ($post->featured_caption)
+                    <figcaption class="mt-3 text-center text-sm italic text-on-surface-variant">{{ $post->featured_caption }}</figcaption>
+                @endif
+            </figure>
         @else
             <x-public.image-placeholder icon="article" class="aspect-[21/9] w-full mb-10" />
         @endif
@@ -38,7 +54,7 @@
         @if ($post->tags->isNotEmpty())
             <div class="mt-10 pt-8 border-t border-outline-variant/20 flex flex-wrap gap-2">
                 @foreach ($post->tags as $tag)
-                    <span class="bg-surface-container text-on-surface-variant px-4 py-1.5 rounded-full text-label-lg font-label-lg">{{ $tag->name }}</span>
+                    <span class="bg-surface-container text-primary px-4 py-1.5 rounded-full text-label-lg font-label-lg font-bold">#{{ str($tag->name)->studly() }}</span>
                 @endforeach
             </div>
         @endif
