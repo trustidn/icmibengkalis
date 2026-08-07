@@ -2,6 +2,15 @@
     <x-public.page-header :title="$page->title" />
 
     <div class="max-w-3xl mx-auto px-margin-mobile md:px-margin-desktop py-12 md:py-16">
+        @if (auth()->user()?->can('pages.manage'))
+            <div class="mb-8 flex justify-end">
+                <a href="{{ route('admin.pages.index') }}?halaman={{ $page->slug }}" wire:navigate
+                   class="flex h-9 items-center gap-1.5 rounded-full border border-secondary/40 bg-white px-3.5 font-label-lg text-label-lg text-secondary transition-colors hover:border-secondary hover:bg-secondary-container/20">
+                    <span class="material-symbols-outlined text-[17px]">edit</span> Edit Halaman
+                </a>
+            </div>
+        @endif
+
         @if ($page->featuredImageUrl())
             <img src="{{ $page->featuredImageUrl() }}" alt="{{ $page->title }}" class="max-w-full h-auto mx-auto rounded-xl mb-10" />
         @endif

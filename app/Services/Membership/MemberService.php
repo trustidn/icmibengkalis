@@ -42,7 +42,7 @@ class MemberService
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
     {
         return Member::query()
-            ->with(['district'])
+            ->with(['district', 'user.roles'])
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where(fn ($q) => $q->where('full_name', 'like', "%{$search}%")->orWhere('nia', 'like', "%{$search}%"));
             })
@@ -52,7 +52,7 @@ class MemberService
             ->when($filters['education_level'] ?? null, function ($query, $value) {
                 $query->whereHas('educations', fn ($q) => $q->where('level', $value));
             })
-            ->orderBy('full_name')
+            ->latest('created_at')
             ->paginate($perPage)
             ->withQueryString();
     }

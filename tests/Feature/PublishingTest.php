@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\PostStatus;
 use App\Livewire\Admin\Publishing\Index as PublishingIndex;
 use App\Livewire\Public\Posts\Index;
+use App\Models\Member;
 use App\Models\Post;
 use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
@@ -86,5 +87,36 @@ class PublishingTest extends TestCase
         $this->actingAs($user)
             ->get(route('admin.publishing.index'))
             ->assertForbidden();
+    }
+
+    public function test_tombol_edit_artikel_tampil_sesuai_hak_akses(): void
+    {
+        $author = User::factory()->create();
+        Member::factory()->create(['user_id' => $author->id]);
+        $post = Post::factory()->published()->create(['author_id' => $author->id]);
+
+        // Tamu: tidak ada tombol edit.
+        $this->get(route('posts.show', $post->slug))->assertDontSee('Edit Artikel');
+
+        // Penulis: tombol edit ke halaman edit anggota.
+        $this->actingAs($author)
+            ->get(route('posts.show', $post->slug))
+            ->assertSee('Edit Artikel')
+            ->assertSee(route('member.posts.edit', $post), false);
+
+        // Admin publishing: tombol edit ke halaman edit admin.
+        $editor = User::factory()->create();
+        $editor->givePermissionTo('publishing.update');
+        $this->actingAs($editor)
+            ->get(route('posts.show', $post->slug))
+            ->assertSee('Edit Artikel')
+            ->assertSee(route('admin.publishing.edit', $post), false);
+
+        // User biasa bukan penulis: tidak ada tombol.
+        $lain = User::factory()->create();
+        Member::factory()->create(['user_id' => $lain->id]);
+        $this->actingAs($lain)
+            ->get(route('posts.show', $post->slug))
+            ->assertDontSee('Edit Artikel');
     }
 }

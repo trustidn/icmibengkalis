@@ -11,6 +11,7 @@ use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -100,5 +101,71 @@ class MembersTest extends TestCase
         $this->actingAs($user)
             ->get(route('admin.members.index'))
             ->assertForbidden();
+    }
+
+    public function test_admin_bisa_kelola_akun_dari_halaman_anggota(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin-web');
+
+        $user = User::factory()->create(['is_active' => true, 'password' => bcrypt('sandi-lama-123')]);
+        $user->assignRole('anggota');
+        $member = Member::factory()->create(['user_id' => $user->id]);
+
+        $komponen = Livewire::actingAs($admin)->test(MembersIndex::class);
+
+        // Ubah peran
+        $komponen->call('startEditRole', $member->id)
+            ->assertSet('editingRole', 'anggota')
+            ->set('editingRole', 'sekretaris')
+            ->call('saveRole')
+            ->assertHasNoErrors();
+        $this->assertTrue($user->fresh()->hasRole('sekretaris'));
+
+        // Reset sandi
+        $komponen->call('startResetPassword', $member->id)
+            ->set('newPassword', 'sandi-baru-aman')
+            ->call('saveNewPassword')
+            ->assertHasNoErrors();
+        $this->assertTrue(Hash::check('sandi-baru-aman', $user->fresh()->password));
+
+        // Nonaktifkan
+        $komponen->call('toggleUserActive', $member->id);
+        $this->assertFalse($user->fresh()->is_active);
+
+        // Hapus akun — data anggota tetap ada
+        $komponen->call('deleteUserAccount', $member->id)->assertHasNoErrors();
+        $this->assertNull(User::find($user->id));
+        $this->assertNotNull(Member::find($member->id));
+        $this->assertNull($member->fresh()->user_id);
+    }
+
+    public function test_akun_super_admin_terlindungi_di_halaman_anggota(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin-web');
+
+        $super = User::factory()->create();
+        $super->assignRole('super-admin');
+        $member = Member::factory()->create(['user_id' => $super->id]);
+
+        Livewire::actingAs($admin)
+            ->test(MembersIndex::class)
+            ->call('startResetPassword', $member->id)
+            ->assertStatus(403);
+    }
+
+    public function test_daftar_anggota_terurut_terbaru_dahulu(): void
+    {
+        $admin = User::factory()->create();
+        $admin->assignRole('admin-web');
+
+        $lama = Member::factory()->create(['nia' => 'URUT-0001', 'full_name' => 'Anggota Lama', 'created_at' => now()->subDays(5)]);
+        $baru = Member::factory()->create(['nia' => 'URUT-0002', 'full_name' => 'Anggota Baru', 'created_at' => now()]);
+
+        $response = $this->actingAs($admin)->get(route('admin.members.index'));
+        $isi = $response->getContent();
+
+        $this->assertLessThan(strpos($isi, 'Anggota Lama'), strpos($isi, 'Anggota Baru'));
     }
 }

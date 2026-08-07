@@ -17,6 +17,15 @@ class Index extends Component
         $this->authorize('viewAny', Post::class);
     }
 
+    /** Hapus hanya untuk pemegang hak (policy delete) — tombol pun tampil sesuai hak. */
+    public function delete(int $postId): void
+    {
+        $post = Post::where('author_id', auth()->id())->findOrFail($postId);
+        $this->authorize('delete', $post);
+
+        $post->delete();
+    }
+
     public function render()
     {
         $posts = Post::query()

@@ -12,6 +12,14 @@
             <div class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3">
                 <livewire:public.posts.like-button :post="$post" />
                 <x-public.share-buttons :url="route('posts.show', $post->slug)" :title="$post->title" />
+                @auth
+                    @can('update', $post)
+                        <a href="{{ auth()->user()->can('publishing.update') ? route('admin.publishing.edit', $post) : route('member.posts.edit', $post) }}" wire:navigate
+                           class="flex h-9 items-center gap-1.5 rounded-full border border-secondary/40 bg-white px-3.5 font-label-lg text-label-lg text-secondary transition-colors hover:border-secondary hover:bg-secondary-container/20">
+                            <span class="material-symbols-outlined text-[17px]">edit</span> Edit Artikel
+                        </a>
+                    @endcan
+                @endauth
             </div>
         </div>
     </div>

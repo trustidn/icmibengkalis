@@ -26,6 +26,12 @@ class Editor extends Component
     public function mount(): void
     {
         $this->authorize('viewAny', Page::class);
+
+        // Pra-pilih halaman dari tombol "Edit Halaman" di halaman publik (?halaman=<slug>).
+        $slug = (string) request()->query('halaman');
+        if ($slug !== '' && ($page = Page::where('slug', $slug)->first())) {
+            $this->select($page->id);
+        }
     }
 
     public function select(int $pageId): void
