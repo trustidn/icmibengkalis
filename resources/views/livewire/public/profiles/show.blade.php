@@ -63,27 +63,7 @@
                     </p>
                 @endif
 
-                @if ($member->show_contact_public)
-                    @php $links = $member->social_links ?? []; @endphp
-                    @if (! empty($links['whatsapp']))
-                        <p class="flex items-center gap-3 text-on-surface-variant text-sm">
-                            <span class="material-symbols-outlined text-primary text-[18px]">call</span>
-                            {{ $links['whatsapp'] }}
-                        </p>
-                    @endif
-                    @if (! empty($links['website']))
-                        <p class="flex items-center gap-3 text-on-surface-variant text-sm">
-                            <span class="material-symbols-outlined text-primary text-[18px]">language</span>
-                            <a href="{{ $links['website'] }}" target="_blank" rel="noopener" class="hover:text-primary underline">{{ $links['website'] }}</a>
-                        </p>
-                    @endif
-                    @if (! empty($links['linkedin']))
-                        <p class="flex items-center gap-3 text-on-surface-variant text-sm">
-                            <span class="material-symbols-outlined text-primary text-[18px]">work</span>
-                            <a href="{{ $links['linkedin'] }}" target="_blank" rel="noopener" class="hover:text-primary underline">LinkedIn</a>
-                        </p>
-                    @endif
-                @endif
+                <x-public.member-links :member="$member" />
             </div>
         </aside>
 

@@ -85,10 +85,10 @@ class PublicProfileTest extends TestCase
         $member = Member::factory()->create([
             'status' => MemberStatus::Aktif,
             'show_contact_public' => false,
-            'social_links' => ['whatsapp' => '081234567890'],
         ]);
+        $member->links()->create(['type' => 'whatsapp', 'value' => '081234567890']);
 
-        $this->get("/profil/{$member->slug}")->assertDontSee('081234567890');
+        $this->get("/profil/{$member->slug}")->assertDontSee('wa.me', false);
     }
 
     public function test_kontak_tampil_jika_show_contact_public_true(): void
@@ -96,10 +96,10 @@ class PublicProfileTest extends TestCase
         $member = Member::factory()->create([
             'status' => MemberStatus::Aktif,
             'show_contact_public' => true,
-            'social_links' => ['whatsapp' => '081234567890'],
         ]);
+        $member->links()->create(['type' => 'whatsapp', 'value' => '081234567890']);
 
-        $this->get("/profil/{$member->slug}")->assertSee('081234567890');
+        $this->get("/profil/{$member->slug}")->assertSee('wa.me/6281234567890', false);
     }
 
     public function test_profil_menampilkan_tombol_bagikan_dan_url_lengkap(): void

@@ -173,7 +173,7 @@ class MemberService
     {
         return Member::query()
             ->where('status', MemberStatus::Aktif)
-            ->with(['district', 'educations', 'orgAssignments.unit', 'media'])
+            ->with(['district', 'educations', 'orgAssignments.unit', 'media', 'links'])
             ->when(
                 ctype_digit($identifier),
                 fn ($query) => $query->where('id', $identifier),

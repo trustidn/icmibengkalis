@@ -7,6 +7,7 @@ use App\Enums\MemberStatus;
 use App\Models\District;
 use App\Models\Member;
 use App\Models\MemberEducation;
+use App\Models\MemberLink;
 use App\Services\Membership\MemberService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -23,11 +24,11 @@ class Form extends Component
 
     public string $bio = '';
 
-    public string $website = '';
+    public string $linkType = 'website';
 
-    public string $whatsapp = '';
+    public string $linkLabel = '';
 
-    public string $linkedin = '';
+    public string $linkValue = '';
 
     public string $eduLevel = 'S1';
 
@@ -85,9 +86,6 @@ class Form extends Component
             $this->joined_at = $member->joined_at?->format('Y-m-d') ?? '';
             $this->show_contact_public = $member->show_contact_public;
             $this->bio = (string) $member->bio;
-            $this->website = (string) ($member->social_links['website'] ?? '');
-            $this->whatsapp = (string) ($member->social_links['whatsapp'] ?? '');
-            $this->linkedin = (string) ($member->social_links['linkedin'] ?? '');
         } else {
             $this->authorize('create', Member::class);
             $this->joined_at = now()->format('Y-m-d');
@@ -112,9 +110,6 @@ class Form extends Component
             'joined_at' => ['nullable', 'date'],
             'show_contact_public' => ['boolean'],
             'bio' => ['nullable', 'string', 'max:2000'],
-            'website' => ['nullable', 'url', 'max:255'],
-            'whatsapp' => ['nullable', 'string', 'max:50'],
-            'linkedin' => ['nullable', 'url', 'max:255'],
             'photo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
         ]);
 
@@ -124,12 +119,7 @@ class Form extends Component
             $validated[$field] = $validated[$field] ?: null;
         }
 
-        $data = collect($validated)->except(['website', 'whatsapp', 'linkedin', 'photo'])->all();
-        $data['social_links'] = array_filter([
-            'website' => $validated['website'] ?: null,
-            'whatsapp' => $validated['whatsapp'] ?: null,
-            'linkedin' => $validated['linkedin'] ?: null,
-        ]);
+        $data = collect($validated)->except(['photo'])->all();
 
         if ($this->member) {
             $members->update($this->member, $data);
@@ -151,6 +141,33 @@ class Form extends Component
         $this->authorize('update', $this->member);
 
         $this->member->clearMediaCollection('photo');
+    }
+
+    public function addLink(): void
+    {
+        abort_unless($this->member !== null, 404);
+
+        $validated = $this->validate([
+            'linkType' => ['required', 'in:'.implode(',', array_keys(MemberLink::TYPES))],
+            'linkLabel' => ['nullable', 'string', 'max:50'],
+            'linkValue' => ['required', 'string', 'max:255'],
+        ], [], ['linkValue' => 'alamat/nomor', 'linkLabel' => 'label']);
+
+        $this->member->links()->create([
+            'type' => $validated['linkType'],
+            'label' => $validated['linkLabel'] ?: null,
+            'value' => trim($validated['linkValue']),
+            'sort_order' => ((int) $this->member->links()->max('sort_order')) + 1,
+        ]);
+
+        $this->reset(['linkLabel', 'linkValue']);
+    }
+
+    public function deleteLink(int $linkId): void
+    {
+        abort_unless($this->member !== null, 404);
+
+        $this->member->links()->whereKey($linkId)->delete();
     }
 
     public function addEducation(): void
@@ -189,6 +206,8 @@ class Form extends Component
             'statuses' => MemberStatus::cases(),
             'educationLevels' => EducationLevel::cases(),
             'educations' => $this->member?->educations()->get() ?? collect(),
+            'linkTypes' => MemberLink::TYPES,
+            'memberLinks' => $this->member?->links()->get() ?? collect(),
         ]);
     }
 }

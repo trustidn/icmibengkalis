@@ -39,7 +39,6 @@ class MemberProfileTest extends TestCase
             ->set('profession', 'Dosen')
             ->set('expertise', 'Ekonomi Syariah')
             ->set('bio', 'Ringkasan singkat tentang saya.')
-            ->set('whatsapp', '08123456789')
             ->call('save')
             ->assertHasNoErrors();
 

@@ -72,14 +72,10 @@
         </flux:card>
 
         <flux:card>
-            <flux:heading size="lg">Kontak &amp; Media Sosial</flux:heading>
-            <div class="mt-4 flex flex-col gap-4">
-                <div class="grid grid-cols-2 gap-4">
-                    <flux:input label="Website" wire:model="website" placeholder="https://..." />
-                    <flux:input label="WhatsApp" wire:model="whatsapp" />
-                </div>
-                <flux:input label="LinkedIn" wire:model="linkedin" placeholder="https://linkedin.com/in/..." />
-                <flux:checkbox wire:model="show_contact_public" label="Tampilkan kontak (WhatsApp/Website/LinkedIn) di profil publik" />
+            <flux:heading size="lg">Privasi Kontak</flux:heading>
+            <div class="mt-4">
+                <flux:checkbox wire:model="show_contact_public" label="Tampilkan nomor WhatsApp di profil publik"
+                               description="Tautan lain (website & media sosial) selalu tampil di profil publik." />
             </div>
         </flux:card>
 
@@ -92,6 +88,42 @@
             @endif
         </div>
     </form>
+
+    <flux:card class="mt-8">
+        <flux:heading size="lg">Tautan &amp; Media Sosial</flux:heading>
+        <flux:text class="mt-1 text-sm text-zinc-500">
+            Bisa lebih dari satu — mis. beberapa website atau nomor WhatsApp dengan label berbeda. Tautan tampil di profil publik Anda.
+        </flux:text>
+
+        <form wire:submit="addLink" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <flux:select label="Jenis" wire:model="linkType">
+                @foreach ($linkTypes as $nilai => $labelJenis)
+                    <option value="{{ $nilai }}">{{ $labelJenis }}</option>
+                @endforeach
+            </flux:select>
+            <flux:input label="Label (opsional)" wire:model="linkLabel" placeholder="cth: Toko Online Saya" />
+            <flux:input label="Alamat / Nomor" wire:model="linkValue" placeholder="https://... atau 08..." class="col-span-2 sm:col-span-1" />
+            <div class="col-span-2 sm:col-span-1 flex items-end"><flux:button type="submit" size="sm">Tambah Tautan</flux:button></div>
+        </form>
+        @error('linkValue') <flux:text class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</flux:text> @enderror
+
+        <div class="mt-4 flex flex-col gap-2">
+            @forelse ($memberLinks as $link)
+                <div wire:key="link-{{ $link->id }}" class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                    <flux:text class="min-w-0 truncate">
+                        <span class="font-bold">{{ $link->displayLabel() }}</span>
+                        <span class="text-zinc-400 mx-1">·</span>{{ $link->value }}
+                        @if ($link->isPrivateContact() && ! $show_contact_public)
+                            <flux:badge size="sm" color="zinc" class="ml-1">tersembunyi</flux:badge>
+                        @endif
+                    </flux:text>
+                    <flux:button wire:click="deleteLink({{ $link->id }})" size="sm" variant="danger">Hapus</flux:button>
+                </div>
+            @empty
+                <flux:text class="text-zinc-500">Belum ada tautan.</flux:text>
+            @endforelse
+        </div>
+    </flux:card>
 
     <flux:card class="mt-8">
         <flux:heading size="lg">Riwayat Pendidikan</flux:heading>

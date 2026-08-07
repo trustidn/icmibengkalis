@@ -106,6 +106,11 @@ class Member extends Model implements HasMedia
             : $nama;
     }
 
+    public function links(): HasMany
+    {
+        return $this->hasMany(MemberLink::class)->orderBy('sort_order')->orderBy('id');
+    }
+
     public function orgAssignments(): HasMany
     {
         return $this->hasMany(OrgAssignment::class);

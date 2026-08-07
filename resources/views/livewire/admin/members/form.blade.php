@@ -71,13 +71,8 @@
 
         <flux:textarea label="Riwayat Singkat / Bio" wire:model="bio" rows="4" />
 
-        <div class="grid grid-cols-3 gap-4">
-            <flux:input label="Website" wire:model="website" placeholder="https://..." />
-            <flux:input label="WhatsApp" wire:model="whatsapp" placeholder="08..." />
-            <flux:input label="LinkedIn" wire:model="linkedin" placeholder="https://linkedin.com/in/..." />
-        </div>
-
-        <flux:checkbox wire:model="show_contact_public" label="Tampilkan kontak di profil publik" />
+        <flux:checkbox wire:model="show_contact_public" label="Tampilkan nomor WhatsApp di profil publik"
+                       description="Tautan lain (website & media sosial) selalu tampil. Kelola tautan di kartu bawah setelah anggota tersimpan." />
 
         <div class="flex items-center gap-3">
             <flux:button type="submit" variant="primary" wire:loading.attr="disabled" wire:target="photo">Simpan</flux:button>
@@ -85,6 +80,35 @@
             <span wire:loading wire:target="save,photo" class="text-sm text-zinc-500">Memproses…</span>
         </div>
     </form>
+
+    @if ($member)
+        <flux:card class="mt-8">
+            <flux:heading size="lg">Tautan &amp; Media Sosial</flux:heading>
+
+            <form wire:submit="addLink" class="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <flux:select label="Jenis" wire:model="linkType">
+                    @foreach ($linkTypes as $nilai => $labelJenis)
+                        <option value="{{ $nilai }}">{{ $labelJenis }}</option>
+                    @endforeach
+                </flux:select>
+                <flux:input label="Label (opsional)" wire:model="linkLabel" placeholder="cth: Toko Online" />
+                <flux:input label="Alamat / Nomor" wire:model="linkValue" placeholder="https://... atau 08..." />
+                <div class="flex items-end"><flux:button type="submit" size="sm">Tambah</flux:button></div>
+            </form>
+            @error('linkValue') <flux:text class="mt-2 text-sm text-red-600 dark:text-red-400">{{ $message }}</flux:text> @enderror
+
+            <div class="mt-4 flex flex-col gap-2">
+                @forelse ($memberLinks as $link)
+                    <div wire:key="link-{{ $link->id }}" class="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 p-3 dark:border-zinc-700">
+                        <flux:text class="min-w-0 truncate"><span class="font-bold">{{ $link->displayLabel() }}</span><span class="mx-1 text-zinc-400">&middot;</span>{{ $link->value }}</flux:text>
+                        <flux:button wire:click="deleteLink({{ $link->id }})" size="sm" variant="danger">Hapus</flux:button>
+                    </div>
+                @empty
+                    <flux:text class="text-zinc-500">Belum ada tautan.</flux:text>
+                @endforelse
+            </div>
+        </flux:card>
+    @endif
 
     @if ($member)
         <flux:card class="mt-8">

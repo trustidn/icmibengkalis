@@ -38,14 +38,12 @@ class MembersTest extends TestCase
             ->test(Form::class, ['member' => $member])
             ->set('photo', UploadedFile::fake()->image('foto.jpg'))
             ->set('bio', 'Bio ditulis admin.')
-            ->set('whatsapp', '0812000111')
             ->call('save')
             ->assertHasNoErrors();
 
         $member->refresh();
         $this->assertNotNull($member->photoUrl());
         $this->assertSame('Bio ditulis admin.', $member->bio);
-        $this->assertSame('0812000111', $member->social_links['whatsapp']);
 
         // Admin juga bisa menghapus foto anggota
         Livewire::actingAs($admin)

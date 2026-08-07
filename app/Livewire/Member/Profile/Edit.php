@@ -6,6 +6,7 @@ use App\Enums\EducationLevel;
 use App\Models\District;
 use App\Models\Member;
 use App\Models\MemberEducation;
+use App\Models\MemberLink;
 use App\Services\Membership\MemberService;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -42,13 +43,14 @@ class Edit extends Component
 
     public string $bio = '';
 
-    public string $website = '';
-
-    public string $whatsapp = '';
-
-    public string $linkedin = '';
-
     public bool $show_contact_public = false;
+
+    // Tautan & media sosial (bisa lebih dari satu per jenis)
+    public string $linkType = 'website';
+
+    public string $linkLabel = '';
+
+    public string $linkValue = '';
 
     public $photo = null;
 
@@ -84,9 +86,6 @@ class Edit extends Component
         $this->profession = (string) $member->profession;
         $this->expertise = (string) $member->expertise;
         $this->bio = (string) $member->bio;
-        $this->website = (string) ($member->social_links['website'] ?? '');
-        $this->whatsapp = (string) ($member->social_links['whatsapp'] ?? '');
-        $this->linkedin = (string) ($member->social_links['linkedin'] ?? '');
         $this->show_contact_public = $member->show_contact_public;
     }
 
@@ -107,9 +106,6 @@ class Edit extends Component
             'profession' => ['nullable', 'string', 'max:255'],
             'expertise' => ['nullable', 'string', 'max:1000'],
             'bio' => ['nullable', 'string', 'max:2000'],
-            'website' => ['nullable', 'url', 'max:255'],
-            'whatsapp' => ['nullable', 'string', 'max:50'],
-            'linkedin' => ['nullable', 'url', 'max:255'],
             'show_contact_public' => ['boolean'],
             'photo' => ['nullable', 'image', 'mimes:png,jpg,jpeg,webp', 'max:2048'],
         ]);
@@ -129,11 +125,6 @@ class Edit extends Component
             'profession' => $validated['profession'] ?: null,
             'expertise' => $validated['expertise'] ?: null,
             'bio' => $validated['bio'] ?: null,
-            'social_links' => array_filter([
-                'website' => $validated['website'] ?: null,
-                'whatsapp' => $validated['whatsapp'] ?: null,
-                'linkedin' => $validated['linkedin'] ?: null,
-            ]),
             'show_contact_public' => $validated['show_contact_public'],
         ]);
 
@@ -176,6 +167,33 @@ class Edit extends Component
         MemberEducation::where('member_id', $this->member->id)->findOrFail($id)->delete();
     }
 
+    public function addLink(): void
+    {
+        $this->authorize('update', $this->member);
+
+        $validated = $this->validate([
+            'linkType' => ['required', 'in:'.implode(',', array_keys(MemberLink::TYPES))],
+            'linkLabel' => ['nullable', 'string', 'max:50'],
+            'linkValue' => ['required', 'string', 'max:255'],
+        ], [], ['linkValue' => 'alamat/nomor', 'linkLabel' => 'label']);
+
+        $this->member->links()->create([
+            'type' => $validated['linkType'],
+            'label' => $validated['linkLabel'] ?: null,
+            'value' => trim($validated['linkValue']),
+            'sort_order' => ((int) $this->member->links()->max('sort_order')) + 1,
+        ]);
+
+        $this->reset(['linkLabel', 'linkValue']);
+    }
+
+    public function deleteLink(int $linkId): void
+    {
+        $this->authorize('update', $this->member);
+
+        $this->member->links()->whereKey($linkId)->delete();
+    }
+
     public function render(MemberService $members)
     {
         return view('livewire.member.profile.edit', [
@@ -183,6 +201,8 @@ class Edit extends Component
             'completion' => $members->profileCompletionPercentage($this->member),
             'educationLevels' => EducationLevel::cases(),
             'educations' => $this->member->educations()->orderByDesc('graduated_year')->get(),
+            'linkTypes' => MemberLink::TYPES,
+            'memberLinks' => $this->member->links()->get(),
         ]);
     }
 }
